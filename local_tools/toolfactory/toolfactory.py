@@ -737,6 +737,10 @@ class Tool_Factory:
         xreal = "%s.xml" % self.tool_name
         xout = os.path.join(self.tooloutdir, xreal)
         shutil.copyfile(xreal, xout)
+        xout = os.path.join(self.local_tools, self.tool_name)
+        os.makedirs(xout, exist_ok=True)
+        xfout = os.path.join(xout, xreal)
+        shutil.copyfile(xreal, xfout)
         xrename = "%s_toolxml.xml" % self.tool_name
         xout = os.path.join(self.repdir, xrename)
         shutil.copyfile(xreal, xout)
@@ -948,14 +952,14 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.writeShedyml()
     tf.makeTool()
     tf.update_toolconf()
-    time.sleep(5)  # do we need to wait for tool to become installed
+    time.sleep(2)  # wait for tool to become installed
     tf.install_deps()
     # tf.fast_local_test()
-    good_test = tf.planemo_test_update()
-    if not good_test:
-        print('Planemo returned error code', good_test, " so your script did not run correctly with the given inputs.")
+    testret = tf.planemo_test_update()
+    if testret:
+        print('Planemo returned error code', test_ret, " so your script did not run correctly with the given inputs.")
         print("Make sure you didn't get those wrong compared with your command line testing")
-    tf.makeToolTar(good_test)
+    tf.makeToolTar(testret)
 
 
 if __name__ == "__main__":
