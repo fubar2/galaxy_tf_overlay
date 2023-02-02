@@ -773,9 +773,9 @@ class Tool_Factory:
             src = os.path.join(self.tooltestd, "%s_sample" % oname)
             dest = os.path.join(self.repdir, "%s_sample_%s.%s" % (oname, p["format"], p["format"]))
             shutil.copyfile(src, dest)
+            print('## Copied %s to %s' % (src, dest))
         td = os.listdir(self.tooltestd )
         for src in td:
-            #if os.path.isfile(src):
             dest = os.path.join(self.repdir, src)
             shutil.copyfile(os.path.join(self.tooltestd ,src), dest)
             tout.write('copied %s %s\n' %  (src, dest))
