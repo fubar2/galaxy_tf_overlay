@@ -33,7 +33,7 @@ import lxml.etree as ET
 
 import yaml
 
-
+GALAXY_ADMIN_KEY="2087660362026715392"
 myversion = "V3.0 January 2023"
 verbose = True
 debug = True
@@ -141,6 +141,8 @@ class Tool_Factory:
             self.args.tool_desc,
             FAKEEXE,
         )
+        self.toold =   os.path.join(self.local_tools, self.tool_name)
+        self.tooltestd =  os.path.join(self.toold, 'test-data')
         self.tooloutdir = "tfout"
         self.repdir = "toolgen"
         self.newtarpath = args.tested_tool_out
@@ -711,7 +713,7 @@ class Tool_Factory:
     def writeShedyml(self):
         """for planemo"""
         yuser = self.args.user_email.split("@")[0]
-        yfname = os.path.join(self.tooloutdir, ".shed.yml")
+        yfname = os.path.join(self.toold, ".shed.yml")
         yamlf = open(yfname, "w")
         odict = {
             "name": self.tool_name,
@@ -719,39 +721,39 @@ class Tool_Factory:
             "type": "unrestricted",
             "description": self.args.tool_desc,
             "synopsis": self.args.tool_desc,
-            "category": "TF Generated Tools",
+            "category": "ToolFactory generated Tools",
         }
         yaml.dump(odict, yamlf, allow_unicode=True)
         yamlf.close()
 
     def makeTool(self):
         """write xmls and input samples into place"""
+        os.makedirs(self.tooltestd, exist_ok=True)
         if self.args.parampass == 0:
             self.doNoXMLparam()
         else:
             self.makeXML()
         if self.args.script_path:
-            stname = os.path.join(self.tooloutdir, self.sfile)
+            stname = os.path.join(self.toold, self.sfile)
             if not os.path.exists(stname):
                 shutil.copyfile(self.sfile, stname)
         xreal = "%s.xml" % self.tool_name
-        xout = os.path.join(self.tooloutdir, xreal)
+        xout = os.path.join(self.toold, xreal)
         shutil.copyfile(xreal, xout)
-        xout = os.path.join(self.local_tools, self.tool_name)
-        os.makedirs(xout, exist_ok=True)
-        xfout = os.path.join(xout, xreal)
+        print('## Copied %s to %s' % (xreal, xout))
+        xfout = os.path.join(self.toold, xreal)
         shutil.copyfile(xreal, xfout)
+        print('Copied %s to %s' % (xreal, xfout))
         xrename = "%s_toolxml.xml" % self.tool_name
         xout = os.path.join(self.repdir, xrename)
         shutil.copyfile(xreal, xout)
+        print('## Copied %s to %s' % (xreal, xout))
         for p in self.infiles:
             pth = p["name"]
-            dest = os.path.join(self.testdir, "%s_sample" % p["infilename"])
+            dest = os.path.join(self.tooltestd, "%s_sample" % p["infilename"])
             shutil.copyfile(pth, dest)
             dest = os.path.join(self.repdir, "%s_sample.%s" % (p["infilename"], p["format"]))
             shutil.copyfile(pth, dest)
-        dest = os.path.join(self.local_tools, self.tool_name)
-        shutil.copytree(self.tooloutdir, dest, dirs_exist_ok=True)
 
     def makeToolTar(self, good_test=False):
         """move outputs into test-data and prepare the tarball"""
@@ -768,25 +770,25 @@ class Tool_Factory:
         tout.write('### makeToolTar starting with good_test=%s\n' % good_test)
         for p in self.outfiles:
             oname = p["name"]
-            src = os.path.join(self.testdir, "%s_sample" % oname)
+            src = os.path.join(self.tooltestd, "%s_sample" % oname)
             dest = os.path.join(self.repdir, "%s_sample_%s.%s" % (oname, p["format"], p["format"]))
             shutil.copyfile(src, dest)
-        td = os.listdir(self.testdir)
+        td = os.listdir(self.tooltestd )
         for src in td:
             #if os.path.isfile(src):
             dest = os.path.join(self.repdir, src)
-            shutil.copyfile(os.path.join(self.testdir,src), dest)
+            shutil.copyfile(os.path.join(self.tooltestd ,src), dest)
             tout.write('copied %s %s\n' %  (src, dest))
-
         tf = tarfile.open(self.newtarpath, "w:gz")
         tf.add(
-            name=self.tooloutdir,
+            name=self.toold,
             arcname=self.tool_name,
             filter=exclude_function,
         )
         shutil.copy(self.newtarpath, os.path.join(self.tooloutdir, f"{self.tool_name}_toolshed.gz"))
         tf.close()
         tout.close()
+
 
     def planemo_test_update(self):
         """planemo is a requirement so is available for testing"""
@@ -816,6 +818,50 @@ class Tool_Factory:
         )
         tout.close()
         return p.returncode
+
+    def planemo_engine_update(self):
+        """planemo is a requirement so is available for testing
+        planemo test --engine external_galaxy --galaxy_url http://localhost:8080 --galaxy_admin_key 587376144307511552 --update_test_data /evol/galaxytf/local_tools/tacrev/tacrev.xml
+        """
+        xreal = "%s.xml" % self.tool_name
+        tool_test_path = os.path.join(self.tooltestd, f"{self.tool_name}_planemo_test_report.html")
+        if os.path.exists(self.tlog):
+            tout = open(self.tlog, "a")
+        else:
+            tout = open(self.tlog, "w")
+        cll = [
+            "planemo",
+            "test",
+            "--galaxy_url",
+            "http://localhost:8080",
+            "--galaxy_admin_key",
+            GALAXY_ADMIN_KEY,
+            "--engine",
+           "external_galaxy",
+            "--update_test_data",
+           # "--biocontainers",
+            "--test_data",
+            self.tooltestd ,
+            "--test_output",
+            tool_test_path ,
+            "--test_output_json",
+            "/tmp/tool_test_out.json",
+            "--job_output_files",
+            self.tooltestd ,
+            os.path.abspath(xreal),
+        ]
+        tout.write("planemo engine running: %s\n" % ' '.join(cll))
+        p = subprocess.run(
+            cll,
+            shell=False,
+            cwd=self.toold,
+            stderr=tout,
+            stdout=tout,
+        )
+        tout.close()
+        return p.returncode
+
+
 
     def fast_local_test(self):
         """
@@ -893,8 +939,9 @@ class Tool_Factory:
         subp = subprocess.run(
             cll,
             shell=False,
-            stderr=tout,
-            stdout=tout,
+            capture_output=True,
+#            stderr=tout,
+ #           stdout=tout,
         )
         tout.write("installed %s - got retcode %d\n" % (self.tool_name, subp.returncode))
         tout.close()
@@ -949,13 +996,13 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
         )
     assert args.tool_name, "## This ToolFactory cannot build a tool without a tool name. Please supply one."
     tf = Tool_Factory(args)
-    tf.writeShedyml()
     tf.makeTool()
     tf.update_toolconf()
+    tf.writeShedyml()
     time.sleep(2)  # wait for tool to become installed
     tf.install_deps()
     # tf.fast_local_test()
-    testret = tf.planemo_test_update()
+    testret = tf.planemo_engine_update()
     if testret:
         print('Planemo returned error code', testret, " so your script did not run correctly with the given inputs.")
         print("Make sure you didn't get those wrong compared with your command line testing")

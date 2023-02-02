@@ -8,5 +8,5 @@ cp -ruv local_tools/toolfactory $DEST/local_tools/
 cp -vu scripts/clonelocaltf.sh $DEST/scripts
 cp -vu scripts/create_galaxy_user.py $DEST/scripts/
 cp -vu scripts/toolfactory_fast_test.sh $DEST/scripts/
-cp -vu tfupdatebits.sh $DEST/scripts
+cp -vu scripts/tfupdatebits.sh $DEST/scripts
 

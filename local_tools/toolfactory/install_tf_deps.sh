@@ -1,5 +1,5 @@
 LOCALTOOLDIR="/home/ross/rossgit/galaxytf/local_tools"
-APIK="2079559982616550400"
+APIK="2087660362026715392"
 GAL="http://localhost:8080"
 # all unless a single id is passed in as $1
 if [ -z "$1" ]; then

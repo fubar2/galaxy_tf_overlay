@@ -93,13 +93,15 @@ def run_sed(options):
     line_start = 'APIK='
     """
     fixme = []
+    fixfile = "%s/local_tools/toolfactory/toolfactory.py" % options.galaxy_root
+    fixme.append(('GALAXY_ADMIN_KEY=', 'GALAXY_ADMIN_KEY="%s"' % options.botkey, fixfile ))
     fixfile = "%s/local_tools/toolfactory/install_tf_deps.sh" % options.galaxy_root
-    fixme.append(('APIK=', 'APIK="%s"' % options.key, fixfile ))
+    fixme.append(('APIK=', 'APIK="%s"' % options.botkey, fixfile ))
     fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(options.galaxy_root, "local_tools"),  fixfile))
     fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
     fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % os.path.join(options.galaxy_root, 'venv'), fixfile))
-    fixme.append(('API_KEY=', 'API_KEY=%s' % options.key, fixfile))
+    fixme.append(('API_KEY=', 'API_KEY=%s' % options.botkey, fixfile))
     for line_start, line_replacement, file_to_edit in fixme:
         cmd = ["sed", "-i", "s#.*%s.*#%s#g" % (line_start, line_replacement), file_to_edit]
         print("executing", ' '.join(cmd))
@@ -109,18 +111,21 @@ def run_sed(options):
 if __name__ == "__main__":
     ALREADY = False
     apikey = "%s" % hash(random.random())
+    apikey2 = "%s" % hash(random.random())
     parser = argparse.ArgumentParser(description="Create Galaxy Admin User.")
     parser.add_argument("--galaxy_url", help="Galaxy server URL", default="http://localhost:8080")
     parser.add_argument("--galaxy_root", required=True, help="Galaxy root directory path", default="./")
     parser.add_argument("--user", help="Username - an email address.", default="toolfactory@galaxy.org")
     parser.add_argument("--password", help="Password", default="ChangeMe!")
+    parser.add_argument("--password2", help="Password", default=apikey2)
     parser.add_argument("--key", help="API-Key.", default=apikey)
+    parser.add_argument("--botkey", help="bot API-Key.", default=apikey2)
     parser.add_argument("--username", default="tfadmin")
     parser.add_argument("--force", default=None, action="store_true")
     parser.add_argument("args", nargs=argparse.REMAINDER)
 
     options = parser.parse_args()
-
+    options.galaxy_root = os.path.abspath(options.galaxy_root)
     sys.path.insert(1, options.galaxy_root)
     sys.path.insert(1, os.path.join(options.galaxy_root, "lib"))
     ALREADY = run_wait_gal(url=options.galaxy_url, galdir=options.galaxy_root)
@@ -141,6 +146,10 @@ if __name__ == "__main__":
             print("Bailing out. Add '--force' when you run this script again if you want it to proceed")
             sys.exit(0)
     print("added user", options.user, "apikey", options.key)
+
+    usr, uexists = add_user(
+        sa_session, security_agent, 'admin@example.org',   options.password2, key=options.botkey, username='bot'
+    )
     run_sed(options)
     WF_FILE = os.path.join(options.galaxy_root, "local", "Galaxy-Workflow-TF_sample_workflow.ga")
     HIST_FILE = os.path.join(options.galaxy_root, "local", "Galaxy-History-TF-samples-data.tar.gz")
@@ -164,6 +173,6 @@ if __name__ == "__main__":
     subprocess.run(cmd)
     if not ALREADY:
         stop_gal(url=options.galaxy_url, galdir=options.galaxy_root)
-    cmd = ["planemo", "test", "--galaxy_root", options.galaxy_root, "--biocontainers", os.path.join(options.galaxy_root,"local_tools","tacrev","tacrev.xml")]
-    print("executing", ' '.join(cmd))
-    subprocess.run(cmd)
+    # cmd = ["planemo", "test", "--galaxy_root", options.galaxy_root, "--biocontainers", os.path.join(options.galaxy_root,"local_tools","tacrev","tacrev.xml")]
+    # print("executing", ' '.join(cmd))
+    # subprocess.run(cmd)
