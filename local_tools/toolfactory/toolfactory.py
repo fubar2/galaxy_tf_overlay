@@ -957,7 +957,7 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     # tf.fast_local_test()
     testret = tf.planemo_test_update()
     if testret:
-        print('Planemo returned error code', test_ret, " so your script did not run correctly with the given inputs.")
+        print('Planemo returned error code', testret, " so your script did not run correctly with the given inputs.")
         print("Make sure you didn't get those wrong compared with your command line testing")
     tf.makeToolTar(testret)
 
