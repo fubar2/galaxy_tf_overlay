@@ -94,14 +94,14 @@ def run_sed(options):
     """
     fixme = []
     fixfile = "%s/local_tools/toolfactory/toolfactory.py" % options.galaxy_root
-    fixme.append(('GALAXY_ADMIN_KEY=', 'GALAXY_ADMIN_KEY="%s"' % options.botkey, fixfile ))
+    fixme.append(('GALAXY_ADMIN_KEY=', 'GALAXY_ADMIN_KEY="%s"' % options.key, fixfile ))
     fixfile = "%s/local_tools/toolfactory/install_tf_deps.sh" % options.galaxy_root
-    fixme.append(('APIK=', 'APIK="%s"' % options.botkey, fixfile ))
+    fixme.append(('APIK=', 'APIK="%s"' % options.key, fixfile ))
     fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(options.galaxy_root, "local_tools"),  fixfile))
     fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
     fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % os.path.join(options.galaxy_root, 'venv'), fixfile))
-    fixme.append(('API_KEY=', 'API_KEY=%s' % options.botkey, fixfile))
+    fixme.append(('API_KEY=', 'API_KEY=%s' % options.key, fixfile))
     for line_start, line_replacement, file_to_edit in fixme:
         cmd = ["sed", "-i", "s#.*%s.*#%s#g" % (line_start, line_replacement), file_to_edit]
         print("executing", ' '.join(cmd))
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     print("added user", options.user, "apikey", options.key)
 
     usr, uexists = add_user(
-        sa_session, security_agent, 'admin@example.org',   options.password2, key=options.botkey, username='bot'
+        sa_session, security_agent, 'test@bx.psu.edu',   options.password2, key=options.botkey, username='bot'
     )
     run_sed(options)
     WF_FILE = os.path.join(options.galaxy_root, "local", "Galaxy-Workflow-TF_sample_workflow.ga")

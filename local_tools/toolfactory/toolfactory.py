@@ -752,8 +752,10 @@ class Tool_Factory:
             pth = p["name"]
             dest = os.path.join(self.tooltestd, "%s_sample" % p["infilename"])
             shutil.copyfile(pth, dest)
+            print('## Copied %s to %s' % (pth, dest))
             dest = os.path.join(self.repdir, "%s_sample.%s" % (p["infilename"], p["format"]))
             shutil.copyfile(pth, dest)
+            print('## Copied %s to %s' % (pth, dest))
 
     def makeToolTar(self, good_test=False):
         """move outputs into test-data and prepare the tarball"""
@@ -803,11 +805,14 @@ class Tool_Factory:
             "test",
             "--biocontainers",
             "--test_data",
-            os.path.abspath(self.testdir),
+            os.path.abspath(self.tooltestd),
             "--test_output",
             os.path.abspath(tool_test_path),
             "--update_test_data",
-            os.path.abspath(xreal),
+            "--job_output_files",
+            self.tooltestd ,
+
+            os.path.join(self.toold, xreal),
         ]
         p = subprocess.run(
             cll,
@@ -839,16 +844,14 @@ class Tool_Factory:
             "--engine",
            "external_galaxy",
             "--update_test_data",
-           # "--biocontainers",
+           "--biocontainers",
             "--test_data",
             self.tooltestd ,
             "--test_output",
             tool_test_path ,
-            "--test_output_json",
-            "/tmp/tool_test_out.json",
             "--job_output_files",
             self.tooltestd ,
-            os.path.abspath(xreal),
+           os.path.join(self.toold, xreal),
         ]
         tout.write("planemo engine running: %s\n" % ' '.join(cll))
         p = subprocess.run(
@@ -868,10 +871,9 @@ class Tool_Factory:
         galaxy-tool-test -u http://localhost:8080 -a 1613612977827175424 -t tacrev -o local --publish-history
         does not work from a tool run - fine on the command line. Back to Planemo...
         """
-        self.test_outs = os.path.join(self.args.galaxy_root, "local_tools", self.tool_name, "test-data")
+        self.test_outs = self.tooltestd
         scrpt = os.path.join(self.args.tool_dir, "toolfactory_fast_test.sh")
-        extrapaths = self.test_outs.replace(self.args.galaxy_root, "")[1:]  # drop leading /
-        # cl = ['/usr/bin/bash', scrpt, self.tool_name, self.test_outs, extrapaths]
+        extrapaths = self.tooltestd.replace(self.args.galaxy_root, "")[1:]  # drop leading /
         cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
         if os.path.exists(self.tlog):
             tout = open(self.tlog, "a")
@@ -881,7 +883,7 @@ class Tool_Factory:
         p = subprocess.run(
             " ".join(cl),
             shell=True,
-            # cwd=self.test_outs,
+            cwd=self.toold,
             stderr=tout,
             stdout=tout,
         )
@@ -940,8 +942,6 @@ class Tool_Factory:
             cll,
             shell=False,
             capture_output=True,
-#            stderr=tout,
- #           stdout=tout,
         )
         tout.write("installed %s - got retcode %d\n" % (self.tool_name, subp.returncode))
         tout.close()
@@ -1001,7 +1001,7 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.writeShedyml()
     time.sleep(2)  # wait for tool to become installed
     tf.install_deps()
-    # tf.fast_local_test()
+    #testret = tf.fast_local_test()
     testret = tf.planemo_engine_update()
     if testret:
         print('Planemo returned error code', testret, " so your script did not run correctly with the given inputs.")
