@@ -1,7 +1,7 @@
 GALAXY_URL=http://localhost:8080
 GALAXY_VENV=/home/ross/rossgit/galaxytf/venv
-APIK="1566388550637562880"
-UAPIK="43435a292a45bb903ab78ca005a74cd2"
+APIK="replaced by sed during installation"
+UAPIK="replaced by sed during installation"
 # for test@bx.psu.edu user
 # for sed to edit at installation
 # must pass toolname outdir as cl params in that order...

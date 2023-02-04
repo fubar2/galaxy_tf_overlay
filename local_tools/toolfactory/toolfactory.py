@@ -33,7 +33,7 @@ import lxml.etree as ET
 
 import yaml
 
-GALAXY_ADMIN_KEY="2087660362026715392"
+GALAXY_ADMIN_KEY="replaced by sed during installation"
 myversion = "V3.0 January 2023"
 verbose = True
 debug = True
@@ -791,11 +791,93 @@ class Tool_Factory:
         tf.close()
         tout.close()
 
+    def fast_local_test(self):
+        """
+        galaxy-tool-test -u http://localhost:8080 -a 1613612977827175424 -t tacrev -o local --publish-history
+        Seems to have a race condition when multiple jobs running. Works well - 15 secs or so if only onejob at a time! so job_conf fixed.
+        Failure will eventually get stuck. Might need a timeout in the script
+        """
+        self.test_outs = self.tooltestd
+        scrpt = os.path.join(self.args.tool_dir, "toolfactory_fast_test.sh")
+        extrapaths = self.tooltestd.replace(self.args.galaxy_root, "")[1:]  # drop leading /
+        cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
+        if os.path.exists(self.tlog):
+            tout = open(self.tlog, "a")
+        else:
+            tout = open(self.tlog, "w")
+        tout.write("fast_local_test executing %s with path=%s\n" % (" ".join(cl), os.environ.get("PATH", None)))
+        p = subprocess.run(
+            cl,
+            shell=False,
+            cwd=self.toold,
+            stderr=tout,
+            stdout=tout,
+        )
+        tout.close()
+        dest = self.repdir
+        src = self.test_outs
+        shutil.copytree(src, dest, dirs_exist_ok=True)
+        return p.returncode
 
+    def update_toolconf(self):
+        """tempting to recreate it from the local_tools directory each time
+        currently adds new tools if not there.
+        """
+
+        def sortchildrenby(parent, attr):
+            parent[:] = sorted(parent, key=lambda child: child.get(attr))
+
+        tcpath = self.local_tool_conf
+        xmlfile = os.path.join(self.tool_name, "%s.xml" % self.tool_name)
+        try:
+            parser = ET.XMLParser(remove_blank_text=True)
+            tree = ET.parse(tcpath, parser)
+        except ET.XMLSyntaxError:
+            print(
+                "Toolfactory - tool configuration update access error - %s cannot be parsed as xml by element tree"
+                % tcpath
+            )
+            return
+        root = tree.getroot()
+        hasTF = False
+        e = root.findall("section")
+        if len(e) > 0:
+            hasTF = True
+            TFsection = e[0]
+        if not hasTF:
+            TFsection = ET.Element("section", {"id": "localtools", "name": "Local Tools"})
+            root.insert(0, TFsection)  # at the top!
+        our_tools = TFsection.findall("tool")
+        conf_tools = [x.attrib["file"] for x in our_tools]
+        if xmlfile not in conf_tools:  # new
+            ET.SubElement(TFsection, "tool", {"file": xmlfile})
+        sortchildrenby(TFsection, "file")
+        tree.write(tcpath, pretty_print=True)
+
+    def install_deps(self):
+        """
+        use script to install new tool dependencies
+        """
+        if os.path.exists(self.tlog):
+            tout = open(self.tlog, "a")
+        else:
+            tout = open(self.tlog, "w")
+        cll = ["/usr/bin/bash", "%s/install_tf_deps.sh" % self.args.tool_dir, self.tool_name]
+        tout.write("running\n%s\n" % " ".join(cll))
+        subp = subprocess.run(
+            cll,
+            shell=False,
+            capture_output=True,
+        )
+        tout.write("installed %s - got retcode %d\n" % (self.tool_name, subp.returncode))
+        tout.close()
+        return subp.returncode
+
+########## reduntant now
     def planemo_test_update(self):
         """planemo is a requirement so is available for testing"""
         xreal = "%s.xml" % self.tool_name
-        tool_test_path = os.path.join(self.repdir, f"{self.tool_name}_planemo_test_report.html")
+        tool_test_path = os.path.join(self.tooltestd, f"{self.tool_name}_planemo_test_report.html")
         if os.path.exists(self.tlog):
             tout = open(self.tlog, "a")
         else:
@@ -865,88 +947,7 @@ class Tool_Factory:
         return p.returncode
 
 
-
-    def fast_local_test(self):
-        """
-        galaxy-tool-test -u http://localhost:8080 -a 1613612977827175424 -t tacrev -o local --publish-history
-        does not work from a tool run - fine on the command line. Back to Planemo...
-        """
-        self.test_outs = self.tooltestd
-        scrpt = os.path.join(self.args.tool_dir, "toolfactory_fast_test.sh")
-        extrapaths = self.tooltestd.replace(self.args.galaxy_root, "")[1:]  # drop leading /
-        cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
-        if os.path.exists(self.tlog):
-            tout = open(self.tlog, "a")
-        else:
-            tout = open(self.tlog, "w")
-        tout.write("fast_local_test executing %s with path=%s\n" % (" ".join(cl), os.environ.get("PATH", None)))
-        p = subprocess.run(
-            " ".join(cl),
-            shell=True,
-            cwd=self.toold,
-            stderr=tout,
-            stdout=tout,
-        )
-        tout.close()
-        dest = self.repdir
-        src = self.test_outs
-        shutil.copytree(src, dest, dirs_exist_ok=True)
-        return p.returncode
-
-    def update_toolconf(self):
-        """tempting to recreate it from the local_tools directory each time
-        currently adds new tools if not there.
-        """
-
-        def sortchildrenby(parent, attr):
-            parent[:] = sorted(parent, key=lambda child: child.get(attr))
-
-        tcpath = self.local_tool_conf
-        xmlfile = os.path.join(self.tool_name, "%s.xml" % self.tool_name)
-        try:
-            parser = ET.XMLParser(remove_blank_text=True)
-            tree = ET.parse(tcpath, parser)
-        except ET.XMLSyntaxError:
-            print(
-                "Toolfactory - tool configuration update access error - %s cannot be parsed as xml by element tree"
-                % tcpath
-            )
-            return
-        root = tree.getroot()
-        hasTF = False
-        e = root.findall("section")
-        if len(e) > 0:
-            hasTF = True
-            TFsection = e[0]
-        if not hasTF:
-            TFsection = ET.Element("section", {"id": "localtools", "name": "Local Tools"})
-            root.insert(0, TFsection)  # at the top!
-        our_tools = TFsection.findall("tool")
-        conf_tools = [x.attrib["file"] for x in our_tools]
-        if xmlfile not in conf_tools:  # new
-            ET.SubElement(TFsection, "tool", {"file": xmlfile})
-        sortchildrenby(TFsection, "file")
-        tree.write(tcpath, pretty_print=True)
-
-    def install_deps(self):
-        """
-        use script to install new tool dependencies
-        """
-        if os.path.exists(self.tlog):
-            tout = open(self.tlog, "a")
-        else:
-            tout = open(self.tlog, "w")
-        cll = ["/usr/bin/bash", "%s/install_tf_deps.sh" % self.args.tool_dir, self.tool_name]
-        tout.write("running\n%s\n" % " ".join(cll))
-        subp = subprocess.run(
-            cll,
-            shell=False,
-            capture_output=True,
-        )
-        tout.write("installed %s - got retcode %d\n" % (self.tool_name, subp.returncode))
-        tout.close()
-        return subp.returncode
-
+################
 
 def main():
     """
@@ -1001,11 +1002,15 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.writeShedyml()
     time.sleep(2)  # wait for tool to become installed
     tf.install_deps()
-    #testret = tf.fast_local_test()
-    testret = tf.planemo_engine_update()
-    if testret:
-        print('Planemo returned error code', testret, " so your script did not run correctly with the given inputs.")
-        print("Make sure you didn't get those wrong compared with your command line testing")
+    testret = tf.fast_local_test()
+    if int(testret) > 0:
+        print("ToolFactory tool build and test failed. :(")
+        print("This is usually because the supplied script or dependency did not run correctly with the test inputs and parameter settings")
+        print("when tested with galaxy_tool_test.  Error code:%d" % testret, ".")
+        print("The 'i' (information) option shows how the ToolFactory was called, stderr and stdout, and what the command line was.")
+        print("Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it")
+        print("Make sure it is the same as your working test command line and double check that data files are coming from and going to where they should")
+        print("In the output collection, the tool xml <command> element must be the equivalent of your working command line for the test to work")
     tf.makeToolTar(testret)
 
 
