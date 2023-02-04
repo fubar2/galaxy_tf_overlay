@@ -1,5 +1,20 @@
 <toolbox tool_path="./local_tools">
   <section id="localtools" name="Local tools">
+    <tool file="bwa_test_command_override/bwa_test_command_override.xml"/>
+    <tool file="bwa_test_toolfactory_positional_bash/bwa_test_toolfactory_positional_bash.xml"/>
+    <tool file="evil_script_that_fails/evil_script_that_fails.xml"/>
+    <tool file="hello_toolshed/hello_toolshed.xml"/>
+    <tool file="lisp_toolfactory_demo/lisp_toolfactory_demo.xml"/>
+    <tool file="perl_gc_counter/perl_gc_counter.xml"/>
+    <tool file="planemo_lint/planemo_lint.xml"/>
+    <tool file="plotter/plotter.xml"/>
+    <tool file="prolog_flight_schedule_demo/prolog_flight_schedule_demo.xml"/>
+    <tool file="prolog_simple_script/prolog_simple_script.xml"/>
+    <tool file="pyrev_argparse_test/pyrev_argparse_test.xml"/>
+    <tool file="pyrev_pos_test/pyrev_pos_test.xml"/>
+    <tool file="repeat_demo/repeat_demo.xml"/>
+    <tool file="sedtest_toolshed/sedtest_toolshed.xml"/>
+    <tool file="select_test/select_test.xml"/>
     <tool file="tacrev/tacrev.xml"/>
     <tool file="toolfactory/toolfactory.xml"/>
   </section>

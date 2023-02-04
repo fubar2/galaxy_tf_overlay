@@ -33,7 +33,7 @@ import lxml.etree as ET
 
 import yaml
 
-GALAXY_ADMIN_KEY="replaced by sed during installation"
+GALAXY_ADMIN_KEY="1450870775459037184"
 myversion = "V3.0 January 2023"
 verbose = True
 debug = True
@@ -799,7 +799,7 @@ class Tool_Factory:
         """
         self.test_outs = self.tooltestd
         scrpt = os.path.join(self.args.tool_dir, "toolfactory_fast_test.sh")
-        extrapaths = self.tooltestd.replace(self.args.galaxy_root, "")[1:]  # drop leading /
+        extrapaths = self.tooltestd
         cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
         if os.path.exists(self.tlog):
             tout = open(self.tlog, "a")
