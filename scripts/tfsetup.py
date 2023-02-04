@@ -138,7 +138,8 @@ if __name__ == "__main__":
     from galaxy.model.mapping import init
     from galaxy.model.orm.scripts import get_config
 
-    db_url = "postgresql:///ubuntu?host=/var/run/postgresql"
+    db_url = "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
+    #"postgresql:///ubuntu?host=/var/run/postgresql"
     # get_config(sys.argv, use_argparse=False)["db_url"]
     mapping = init("/tmp/", db_url)
     sa_session = mapping.context
