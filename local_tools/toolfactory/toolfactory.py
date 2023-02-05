@@ -33,7 +33,7 @@ import lxml.etree as ET
 
 import yaml
 
-GALAXY_ADMIN_KEY="1450870775459037184"
+GALAXY_ADMIN_KEY="162977495161523712"
 myversion = "V3.0 January 2023"
 verbose = True
 debug = True

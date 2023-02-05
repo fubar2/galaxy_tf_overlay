@@ -104,8 +104,8 @@ def run_sed(options):
     fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
     fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % os.path.join(options.galaxy_root, 'venv'), fixfile))
-    fixme.append(('APIK=', 'APIK=%s' % options.key, fixfile))
-    fixme.append(('UAPIK=', 'UAPIK=%s' % options.botkey, fixfile))
+    fixme.append(('USER_API_KEY="', 'USER_API_KEY="%s"' % options.botkey, fixfile))
+    fixme.append(('API_KEY="', 'API_KEY="%s"' % options.key, fixfile))
     for line_start, line_replacement, file_to_edit in fixme:
         cmd = ["sed", "-i", "s#.*%s.*#%s#g" % (line_start, line_replacement), file_to_edit]
         print("executing", ' '.join(cmd))
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     from galaxy.model.mapping import init
     from galaxy.model.orm.scripts import get_config
 
-    db_url = "sqlite:///%s/database/universe.sqlite?isolation_level=IMMEDIATE" % options.galaxy_root
+    db_url =  "postgresql:///ross?host=/var/run/postgresql"
     # or perhaps "postgresql:///ubuntu?host=/var/run/postgresql"
     # this is harder to please get_config(sys.argv, use_argparse=False)["db_url"]
     print('db_url',db_url)

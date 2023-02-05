@@ -384,7 +384,7 @@ galaxy:
   # should use the "install_database_engine_option_" prefix.
   # For more options, please check SQLAlchemy's documentation at
   # https://docs.sqlalchemy.org/en/14/core/engines.html?highlight=create_engine#sqlalchemy.create_engine
-  #database_connection: postgresql:///ubuntu?host=/var/run/postgresql
+  database_connection: postgresql:///ross?host=/var/run/postgresql
 
   # If the server logs errors about not having enough database pool
   # connections, you will want to increase these values, or consider
@@ -405,7 +405,7 @@ galaxy:
   # issues in the Galaxy process, leave the result on the server
   # instead.  This option is only available for PostgreSQL and is highly
   # recommended.
-  #database_engine_option_server_side_cursors: false
+  database_engine_option_server_side_cursors: true
 
   # Log all database transactions, can be useful for debugging and
   # performance profiling.  Logging is done via Python's 'logging'
@@ -2604,7 +2604,7 @@ galaxy:
   # either, Galaxy will automatically create and use a separate sqlite
   # database located in your <galaxy>/database folder (indicated in the
   # commented out line below).
-  #amqp_internal_connection: sqlalchemy+sqlite:///./database/control.sqlite?isolation_level=IMMEDIATE
+  # amqp_internal_connection: sqlalchemy+sqlite:///./database/control.sqlite?isolation_level=IMMEDIATE
 
   # Configuration options passed to Celery.
   # To refer to a task by name, use the template `galaxy.foo` where
