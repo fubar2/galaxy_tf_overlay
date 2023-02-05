@@ -128,6 +128,7 @@ if __name__ == "__main__":
     parser.add_argument("--botkey", help="bot API-Key.", default=apikey2)
     parser.add_argument("--username", default="tfadmin")
     parser.add_argument("--force", default=None, action="store_true")
+    parser.add_argument("--db_url", default="sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE")
     parser.add_argument("args", nargs=argparse.REMAINDER)
 
     options = parser.parse_args()
@@ -140,7 +141,7 @@ if __name__ == "__main__":
     from galaxy.model.mapping import init
     from galaxy.model.orm.scripts import get_config
 
-    db_url =  "postgresql:///ross?host=/var/run/postgresql"
+    db_url =  options.db_url
     # or perhaps "postgresql:///ubuntu?host=/var/run/postgresql"
     # this is harder to please get_config(sys.argv, use_argparse=False)["db_url"]
     print('db_url',db_url)
