@@ -12,6 +12,7 @@ from urllib.error import URLError
 from bioblend import galaxy
 
 """
+libsqlite3-dev needed?
 
 python scripts/tfsetup.py --galaxy_root ~/rossgit/galaxytf  db_url "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
 python scripts/tfsetup.py --galaxy_root /evol/galaxytf  db_url "postgresql:///ubuntu?host=/var/run/postgresql"
@@ -113,7 +114,11 @@ def run_sed(options):
         if not res.returncode == 0:
             print('### Non zero %d return code from %s ' % (res.returncode, ''.join(cmd)))
 
-
+'''
+get_config(argv=['-c','galaxy', "--config-section","database_connection",],cwd='.')
+{'db_url': 'sqlite:////home/ross/rossgit/galaxytf/config/data/universe.sqlite?isolation_level=IMMEDIATE',
+'repo': None, 'config_file': '/home/ross/rossgit/galaxytf/config/galaxy.yml', 'database': 'galaxy', 'install_database_connection': None}
+'''
 if __name__ == "__main__":
     ALREADY = False
     apikey = "%s" % hash(random.random())
@@ -141,7 +146,8 @@ if __name__ == "__main__":
     from galaxy.model.mapping import init
     from galaxy.model.orm.scripts import get_config
 
-    db_url =  options.db_url
+    db_url = get_config(argv=['-c','galaxy', ],cwd=options.galaxy_root)["db_url"]
+    # options.db_url
     # or perhaps "postgresql:///ubuntu?host=/var/run/postgresql"
     # this is harder to please get_config(sys.argv, use_argparse=False)["db_url"]
     print('db_url',db_url)
