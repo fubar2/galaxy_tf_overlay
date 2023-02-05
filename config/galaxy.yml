@@ -18,7 +18,7 @@
 #
 # Configuration for Gravity process manager.
 # ``uwsgi:`` section will be ignored if Galaxy is started via Gravity commands (e.g ``./run.sh``, ``galaxy`` or ``galaxyctl``).
-virtualenv: venv
+
 gravity:
   # Process manager to use.
   # ``supervisor`` is the default process manager when Gravity is invoked as a non-root user.
@@ -384,7 +384,7 @@ galaxy:
   # should use the "install_database_engine_option_" prefix.
   # For more options, please check SQLAlchemy's documentation at
   # https://docs.sqlalchemy.org/en/14/core/engines.html?highlight=create_engine#sqlalchemy.create_engine
-  database_connection: postgresql:///ross?host=/var/run/postgresql
+  database_connection: "postgresql:///ross?host=/var/run/postgresql"
 
   # If the server logs errors about not having enough database pool
   # connections, you will want to increase these values, or consider
@@ -2259,7 +2259,7 @@ galaxy:
   # configuration file or the <job_config> option.
   # The value of this option will be resolved with respect to
   # <config_dir>.
-  #job_config_file: job_conf.yml
+  job_config_file: job_conf.xml
 
   # Description of job running configuration, can be embedded into
   # Galaxy configuration or loaded from an additional file with the

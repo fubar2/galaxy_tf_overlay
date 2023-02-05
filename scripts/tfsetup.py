@@ -104,12 +104,14 @@ def run_sed(options):
     fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
     fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % os.path.join(options.galaxy_root, 'venv'), fixfile))
-    fixme.append(('USER_API_KEY="', 'USER_API_KEY="%s"' % options.botkey, fixfile))
-    fixme.append(('API_KEY="', 'API_KEY="%s"' % options.key, fixfile))
+    fixme.append(('API_KEY_USER=', 'API_KEY_USER="%s"' % options.botkey, fixfile))
+    fixme.append(('API_KEY=', 'API_KEY="%s"' % options.key, fixfile))
     for line_start, line_replacement, file_to_edit in fixme:
         cmd = ["sed", "-i", "s#.*%s.*#%s#g" % (line_start, line_replacement), file_to_edit]
-        print("executing", ' '.join(cmd))
-        subprocess.run(cmd)
+        print("## executing", ' '.join(cmd))
+        res = subprocess.run(cmd)
+        if not res.returncode == 0:
+            print('### Non zero %d return code from %s ' % (res.returncode, ''.join(cmd)))
 
 
 if __name__ == "__main__":
