@@ -807,8 +807,8 @@ class Tool_Factory:
             tout = open(self.tlog, "w")
         tout.write("fast_local_test executing %s with path=%s\n" % (" ".join(cl), os.environ.get("PATH", None)))
         p = subprocess.run(
-            cl,
-            shell=False,
+            ' '.join(cl),
+            shell=True,
             cwd=self.toold,
             stderr=tout,
             stdout=tout,
@@ -872,82 +872,6 @@ class Tool_Factory:
         tout.write("installed %s - got retcode %d\n" % (self.tool_name, subp.returncode))
         tout.close()
         return subp.returncode
-
-########## reduntant now
-    def planemo_test_update(self):
-        """planemo is a requirement so is available for testing"""
-        xreal = "%s.xml" % self.tool_name
-        tool_test_path = os.path.join(self.tooltestd, f"{self.tool_name}_planemo_test_report.html")
-        if os.path.exists(self.tlog):
-            tout = open(self.tlog, "a")
-        else:
-            tout = open(self.tlog, "w")
-        cll = [
-            "planemo",
-            "test",
-            "--biocontainers",
-            "--test_data",
-            os.path.abspath(self.tooltestd),
-            "--test_output",
-            os.path.abspath(tool_test_path),
-            "--update_test_data",
-            "--job_output_files",
-            self.tooltestd ,
-
-            os.path.join(self.toold, xreal),
-        ]
-        p = subprocess.run(
-            cll,
-            shell=False,
-            cwd=self.tooloutdir,
-            stderr=tout,
-            stdout=tout,
-        )
-        tout.close()
-        return p.returncode
-
-    def planemo_engine_update(self):
-        """planemo is a requirement so is available for testing
-        planemo test --engine external_galaxy --galaxy_url http://localhost:8080 --galaxy_admin_key 587376144307511552 --update_test_data /evol/galaxytf/local_tools/tacrev/tacrev.xml
-        """
-        xreal = "%s.xml" % self.tool_name
-        tool_test_path = os.path.join(self.tooltestd, f"{self.tool_name}_planemo_test_report.html")
-        if os.path.exists(self.tlog):
-            tout = open(self.tlog, "a")
-        else:
-            tout = open(self.tlog, "w")
-        cll = [
-            "planemo",
-            "test",
-            "--galaxy_url",
-            "http://localhost:8080",
-            "--galaxy_admin_key",
-            GALAXY_ADMIN_KEY,
-            "--engine",
-           "external_galaxy",
-            "--update_test_data",
-           "--biocontainers",
-            "--test_data",
-            self.tooltestd ,
-            "--test_output",
-            tool_test_path ,
-            "--job_output_files",
-            self.tooltestd ,
-           os.path.join(self.toold, xreal),
-        ]
-        tout.write("planemo engine running: %s\n" % ' '.join(cll))
-        p = subprocess.run(
-            cll,
-            shell=False,
-            cwd=self.toold,
-            stderr=tout,
-            stdout=tout,
-        )
-        tout.close()
-        return p.returncode
-
-
-################
 
 def main():
     """

@@ -12,7 +12,6 @@ from urllib.error import URLError
 from bioblend import galaxy
 
 """
-libsqlite3-dev needed?
 
 python scripts/tfsetup.py --galaxy_root ~/rossgit/galaxytf  db_url "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
 python scripts/tfsetup.py --galaxy_root /evol/galaxytf  db_url "postgresql:///ubuntu?host=/var/run/postgresql"

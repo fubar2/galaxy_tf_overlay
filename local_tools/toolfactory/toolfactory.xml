@@ -376,7 +376,6 @@ ${help_text}
       </sanitizer>
     </param>
     <expand macro="tool_metadata" />
-    <!-- new planemo linting requirement - all test params must be params  - doh! -->
     <param name="useremail"  type="hidden" value="" />
     <param name="script_path"  type="hidden" value="" />
   </inputs>
