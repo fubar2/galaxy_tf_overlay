@@ -12,8 +12,8 @@ sudo apt install postgresql-14
 
 git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay
 cp -rvu galaxy_tf_overlay/* ./
-sudo -u postgres psql -c "create role $USER if not exists;"
-sudo -u postgres psql -c "drop database galaxydev if exists;"
+sudo -u postgres psql -c "create role $USER;"
+sudo -u postgres psql -c "drop database galaxydev;"
 sudo -u postgres psql -c "create database galaxydev;"
 sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
 
