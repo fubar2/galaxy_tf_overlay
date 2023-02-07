@@ -184,8 +184,6 @@
 <requirements>
      <requirement type="package" version="0.4.14">galaxyxml</requirement>
      <requirement type="package" version="1.0.0">bioblend</requirement>
-     <requirement type="package" version="2.38.1">git</requirement>
-     <requirement type="package" version="0.75.3">planemo</requirement>
 </requirements>
 
 <command detect_errors="exit_code"><![CDATA[
