@@ -924,7 +924,7 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.makeTool()
     tf.update_toolconf()
     tf.writeShedyml()
-    time.sleep(2)  # wait for tool to become installed
+    time.sleep(6)  # wait for tool to become installed
     tf.install_deps()
     testret = tf.fast_local_test()
     if int(testret) > 0:
