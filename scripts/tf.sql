@@ -1,4 +1,4 @@
-create role ubuntu;
-drop database ubuntu;
-create database ubuntu;
-grant all privileges on database ubuntu to ubuntu;
+create role $USER;
+drop database galaxydev;
+create database galaxydev;
+grant all privileges on database galaxydev to $USER;
