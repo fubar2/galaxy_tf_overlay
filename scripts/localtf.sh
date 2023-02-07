@@ -10,7 +10,7 @@ git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay
 cp -rvu galaxy_tf_overlay/* ./
 # now have a fresh clone with the TF configuration files in place
 HERE=`pwd`
-export GRAVITY_STATE_DIR=$HERE/database
+export GALAXY_GRAVITY_STATE_DIR=$HERE/database
 export NODE_PATH=$HERE/venv/lib/node_modules
 export NODE_VIRTUAL_ENV=$HERE/venv
 export NPM_CONFIG_PREFIX=$HERE/venv
