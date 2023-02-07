@@ -31,7 +31,7 @@ def run_wait_gal(url, galdir):
         return ALREADY
     except URLError:
         print('no galaxy yet at',url)
-    cmd = "cd %s && GALAXY_VIRTUAL_ENV=%s/venv && /bin/bash run.sh --daemon" % (galdir, galdir)
+    cmd = "cd %s && GALAXY_VIRTUAL_ENV=%s/venv && /bin/bash run.sh --no-create-venv --daemon" % (galdir, galdir)
     print('executing', cmd)
     subprocess.run(cmd, shell=True)
     ok = False
