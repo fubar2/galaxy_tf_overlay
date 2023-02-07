@@ -41,7 +41,7 @@ def run_wait_gal(url, galdir):
             ok = True
         except URLError:
             print('no galaxy yet at',url)
-            sleep(2)
+            sleep(3)
     return ALREADY
 
 def stop_gal(url, galdir):
