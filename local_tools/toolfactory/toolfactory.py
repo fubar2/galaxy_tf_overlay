@@ -26,6 +26,9 @@ import tarfile
 import tempfile
 import time
 
+from bioblend import galaxy
+from bioblend import ConnectionError
+
 import galaxyxml.tool as gxt
 import galaxyxml.tool.parameters as gxtp
 
@@ -33,7 +36,8 @@ import lxml.etree as ET
 
 import yaml
 
-GALAXY_ADMIN_KEY="2068606201556084992"
+GALAXY_ADMIN_KEY="1382700433949979904"
+GALAXY_URL="http://localhost:8080"
 myversion = "V3.0 January 2023"
 verbose = True
 debug = True
@@ -827,17 +831,23 @@ class Tool_Factory:
         def sortchildrenby(parent, attr):
             parent[:] = sorted(parent, key=lambda child: child.get(attr))
 
+
+        if os.path.exists(self.tlog):
+            tout = open(self.tlog, "a")
+        else:
+            tout = open(self.tlog, "w")
+        tout.write("### updating tool conf files for %s\n" % (self.tool_name))
         tcpath = self.local_tool_conf
         xmlfile = os.path.join(self.tool_name, "%s.xml" % self.tool_name)
         try:
             parser = ET.XMLParser(remove_blank_text=True)
             tree = ET.parse(tcpath, parser)
         except ET.XMLSyntaxError:
-            print(
-                "Toolfactory - tool configuration update access error - %s cannot be parsed as xml by element tree"
+            tout.write(
+                "### Update_toolconf - tool configuration update access error - %s cannot be parsed as xml by element tree\n"
                 % tcpath
             )
-            return
+            sys.exit(4)
         root = tree.getroot()
         hasTF = False
         e = root.findall("section")
@@ -853,6 +863,26 @@ class Tool_Factory:
             ET.SubElement(TFsection, "tool", {"file": xmlfile})
         sortchildrenby(TFsection, "file")
         tree.write(tcpath, pretty_print=True)
+        gi = galaxy.GalaxyInstance(url=GALAXY_URL, key=GALAXY_ADMIN_KEY)
+        toolready = False
+        now = time.time()
+        nloop = 10
+        while nloop >=0 and not toolready:
+            try:
+                res = gi.tools.show_tool(tool_id = self.tool_name)
+                toolready = True
+                tout.write('### Tool %s ready after %f seconds - %s\n' % (self.tool_name, time.time()-now, res))
+            except ConnectionError:
+                nloop -= 1
+                time.sleep(1)
+                tout.write('### Connection error - waiting a second.\n')
+        if nloop < 1:
+           tout.write('### Tool %s still not ready after %f seconds - please check the form and the generated xml for errors? \n' % (self.tool_name, time.time()-now))
+           tout.close()
+           sys.exit(3)
+        tout.close()
+
+
 
     def install_deps(self):
         """
@@ -863,13 +893,13 @@ class Tool_Factory:
         else:
             tout = open(self.tlog, "w")
         cll = ["/usr/bin/bash", "%s/install_tf_deps.sh" % self.args.tool_dir, self.tool_name]
-        tout.write("running\n%s\n" % " ".join(cll))
+        tout.write("### running %s\n" % " ".join(cll))
         subp = subprocess.run(
             cll,
             shell=False,
             capture_output=True,
         )
-        tout.write("installed %s - got retcode %d\n" % (self.tool_name, subp.returncode))
+        tout.write("### Installed %s - got retcode %d\n" % (self.tool_name, subp.returncode))
         tout.close()
         return subp.returncode
 
