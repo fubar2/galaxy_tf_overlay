@@ -9,12 +9,18 @@ cd galaxytf
 mv galaxy-$REL/* .
 rm -rf galaxy-$REL
 sudo apt install postgresql-14
-sudo -u postgres psql -a -f scripts/tf.sql
+
 git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay
 cp -rvu galaxy_tf_overlay/* ./
+sudo -u postgres psql -c "create role $USER if not exists;"
+sudo -u postgres psql -c "drop database galaxydev if exists;"
+sudo -u postgres psql -c "create database galaxydev;"
+sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
+
 # now have a fresh clone with the TF configuration files in place or your local mods
 # using git is painful because we mess with the repository and common-startup.sh checks HEAD
 # for the client build hash in a way that fails :(
+
 HERE=`pwd`
 export GALAXY_GRAVITY_STATE_DIR=$HERE/database
 export NODE_PATH=$HERE/venv/lib/node_modules
