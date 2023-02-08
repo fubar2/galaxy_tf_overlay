@@ -7,6 +7,10 @@
 # suggestions for improvement and bug fixes welcome at
 # https://github.com/fubar2/toolfactory
 #
+# February 2023: Refactored to use galaxy-tool-test script in galaxyutil
+# planemo not needed if tool is already installed.
+# sqlite does not seem to work - switch to postgresql in the installation script
+#
 # march 2022: Refactored into two tools - generate and test/install
 # as part of GTN tutorial development and biocontainer adoption
 # The tester runs planemo on a non-tested archive, creates the test outputs
@@ -36,15 +40,13 @@ import lxml.etree as ET
 
 import yaml
 
-GALAXY_ADMIN_KEY="1382700433949979904"
-GALAXY_URL="http://localhost:8080"
+# sed will update these settings during tfsetup.py first run
+GALAXY_ADMIN_KEY = "1382700433949979904"
+GALAXY_URL = "http://localhost:8080"
 myversion = "V3.0 January 2023"
 verbose = True
 debug = True
 toolFactoryURL = "https://github.com/fubar2/galaxy"
-FAKEEXE = "~~~REMOVE~~~ME~~~"
-# need this until a PR/version bump to fix galaxyxml prepending the exe even
-# with override.
 
 
 def timenow():
@@ -143,10 +145,10 @@ class Tool_Factory:
             self.tool_id,
             self.args.tool_version,
             self.args.tool_desc,
-            FAKEEXE,
+            "",
         )
-        self.toold =   os.path.join(self.local_tools, self.tool_name)
-        self.tooltestd =  os.path.join(self.toold, 'test-data')
+        self.toold = os.path.join(self.local_tools, self.tool_name)
+        self.tooltestd = os.path.join(self.toold, "test-data")
         self.tooloutdir = "tfout"
         self.repdir = "toolgen"
         self.newtarpath = args.tested_tool_out
@@ -702,8 +704,7 @@ class Tool_Factory:
             "Created by %s at %s using the Galaxy Tool Factory." % (self.args.user_email, timenow())
         )
         self.newtool.add_comment("Source in git at: %s" % (toolFactoryURL))
-        exml0 = self.newtool.export()
-        exml = exml0.replace(FAKEEXE, "")  # temporary work around until PR accepted
+        exml = self.newtool.export()
         if self.test_override:  # cannot do this inside galaxyxml as it expects lxml objects for tests
             part1 = exml.split("<tests>")[0]
             part2 = exml.split("</tests>")[1]
@@ -744,22 +745,22 @@ class Tool_Factory:
         xreal = "%s.xml" % self.tool_name
         xout = os.path.join(self.toold, xreal)
         shutil.copyfile(xreal, xout)
-        print('## Copied %s to %s' % (xreal, xout))
+        print("## Copied %s to %s" % (xreal, xout))
         xfout = os.path.join(self.toold, xreal)
         shutil.copyfile(xreal, xfout)
-        print('Copied %s to %s' % (xreal, xfout))
+        print("Copied %s to %s" % (xreal, xfout))
         xrename = "%s_toolxml.xml" % self.tool_name
         xout = os.path.join(self.repdir, xrename)
         shutil.copyfile(xreal, xout)
-        print('## Copied %s to %s' % (xreal, xout))
+        print("## Copied %s to %s" % (xreal, xout))
         for p in self.infiles:
             pth = p["name"]
             dest = os.path.join(self.tooltestd, "%s_sample" % p["infilename"])
             shutil.copyfile(pth, dest)
-            print('## Copied %s to %s' % (pth, dest))
+            print("## Copied %s to %s" % (pth, dest))
             dest = os.path.join(self.repdir, "%s_sample.%s" % (p["infilename"], p["format"]))
             shutil.copyfile(pth, dest)
-            print('## Copied %s to %s' % (pth, dest))
+            print("## Copied %s to %s" % (pth, dest))
 
     def makeToolTar(self, good_test=False):
         """move outputs into test-data and prepare the tarball"""
@@ -773,18 +774,18 @@ class Tool_Factory:
             tout = open(self.tlog, "a")
         else:
             tout = open(self.tlog, "w")
-        tout.write('### makeToolTar starting with good_test=%s\n' % good_test)
+        tout.write("### makeToolTar starting with good_test=%s\n" % good_test)
         for p in self.outfiles:
             oname = p["name"]
             src = os.path.join(self.tooltestd, "%s_sample" % oname)
             dest = os.path.join(self.repdir, "%s_sample_%s.%s" % (oname, p["format"], p["format"]))
             shutil.copyfile(src, dest)
-            print('## Copied %s to %s' % (src, dest))
-        td = os.listdir(self.tooltestd )
+            print("## Copied %s to %s" % (src, dest))
+        td = os.listdir(self.tooltestd)
         for src in td:
             dest = os.path.join(self.repdir, src)
-            shutil.copyfile(os.path.join(self.tooltestd ,src), dest)
-            tout.write('copied %s %s\n' %  (src, dest))
+            shutil.copyfile(os.path.join(self.tooltestd, src), dest)
+            tout.write("copied %s %s\n" % (src, dest))
         tf = tarfile.open(self.newtarpath, "w:gz")
         tf.add(
             name=self.toold,
@@ -811,7 +812,7 @@ class Tool_Factory:
             tout = open(self.tlog, "w")
         tout.write("fast_local_test executing %s with path=%s\n" % (" ".join(cl), os.environ.get("PATH", None)))
         p = subprocess.run(
-            ' '.join(cl),
+            " ".join(cl),
             shell=True,
             cwd=self.toold,
             stderr=tout,
@@ -830,7 +831,6 @@ class Tool_Factory:
 
         def sortchildrenby(parent, attr):
             parent[:] = sorted(parent, key=lambda child: child.get(attr))
-
 
         if os.path.exists(self.tlog):
             tout = open(self.tlog, "a")
@@ -867,22 +867,23 @@ class Tool_Factory:
         toolready = False
         now = time.time()
         nloop = 20
-        while nloop >=0 and not toolready:
+        while nloop >= 0 and not toolready:
             try:
-                res = gi.tools.show_tool(tool_id = self.tool_name)
+                res = gi.tools.show_tool(tool_id=self.tool_name)
                 toolready = True
-                tout.write('### Tool %s ready after %f seconds - %s\n' % (self.tool_name, time.time()-now, res))
+                tout.write("### Tool %s ready after %f seconds - %s\n" % (self.tool_name, time.time() - now, res))
             except ConnectionError:
                 nloop -= 1
                 time.sleep(1)
-                tout.write('### Connection error - waiting a second.\n')
+                tout.write("### Connection error - waiting a second.\n")
         if nloop < 1:
-           tout.write('### Tool %s still not ready after %f seconds - please check the form and the generated xml for errors? \n' % (self.tool_name, time.time()-now))
-           tout.close()
-           sys.exit(3)
+            tout.write(
+                "### Tool %s still not ready after %f seconds - please check the form and the generated xml for errors? \n"
+                % (self.tool_name, time.time() - now)
+            )
+            tout.close()
+            sys.exit(3)
         tout.close()
-
-
 
     def install_deps(self):
         """
@@ -902,6 +903,7 @@ class Tool_Factory:
         tout.write("### Installed %s - got retcode %d\n" % (self.tool_name, subp.returncode))
         tout.close()
         return subp.returncode
+
 
 def main():
     """
@@ -955,18 +957,26 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.update_toolconf()
     tf.writeShedyml()
     time.sleep(2)
-    # update returns after the tool is installed but an extra pause seems needed
+    # update now only returns after the tool installed but extra pauses seems needed for the workflow to run even in serial mode
     tf.install_deps()
     time.sleep(2)
     testret = tf.fast_local_test()
     if int(testret) > 0:
         print("ToolFactory tool build and test failed. :(")
-        print("This is usually because the supplied script or dependency did not run correctly with the test inputs and parameter settings")
+        print(
+            "This is usually because the supplied script or dependency did not run correctly with the test inputs and parameter settings"
+        )
         print("when tested with galaxy_tool_test.  Error code:%d" % testret, ".")
-        print("The 'i' (information) option shows how the ToolFactory was called, stderr and stdout, and what the command line was.")
+        print(
+            "The 'i' (information) option shows how the ToolFactory was called, stderr and stdout, and what the command line was."
+        )
         print("Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it")
-        print("Make sure it is the same as your working test command line and double check that data files are coming from and going to where they should")
-        print("In the output collection, the tool xml <command> element must be the equivalent of your working command line for the test to work")
+        print(
+            "Make sure it is the same as your working test command line and double check that data files are coming from and going to where they should"
+        )
+        print(
+            "In the output collection, the tool xml <command> element must be the equivalent of your working command line for the test to work"
+        )
         sys.exit(5)
     else:
         tf.makeToolTar(testret)
