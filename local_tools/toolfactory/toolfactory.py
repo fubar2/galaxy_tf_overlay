@@ -971,3 +971,4 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
 
 if __name__ == "__main__":
     main()
+
