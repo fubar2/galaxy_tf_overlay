@@ -954,7 +954,9 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.makeTool()
     tf.update_toolconf()
     tf.writeShedyml()
+    time.sleep(1)
     tf.install_deps()
+    time.sleep(1) # seems to need a snooze after doing things
     testret = tf.fast_local_test()
     if int(testret) > 0:
         print("ToolFactory tool build and test failed. :(")
