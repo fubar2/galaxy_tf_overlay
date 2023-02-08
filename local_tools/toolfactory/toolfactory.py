@@ -954,9 +954,7 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.makeTool()
     tf.update_toolconf()
     tf.writeShedyml()
-    time.sleep(1)
     tf.install_deps()
-    time.sleep(1) # seems to need a snooze after doing things
     testret = tf.fast_local_test()
     if int(testret) > 0:
         print("ToolFactory tool build and test failed. :(")
@@ -966,9 +964,10 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
         print("Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it")
         print("Make sure it is the same as your working test command line and double check that data files are coming from and going to where they should")
         print("In the output collection, the tool xml <command> element must be the equivalent of your working command line for the test to work")
-    tf.makeToolTar(testret)
+        sys.exit(5)
+    else:
+        tf.makeToolTar(testret)
 
 
 if __name__ == "__main__":
     main()
-
