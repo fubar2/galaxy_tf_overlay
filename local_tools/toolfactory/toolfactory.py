@@ -866,7 +866,7 @@ class Tool_Factory:
         gi = galaxy.GalaxyInstance(url=GALAXY_URL, key=GALAXY_ADMIN_KEY)
         toolready = False
         now = time.time()
-        nloop = 10
+        nloop = 20
         while nloop >=0 and not toolready:
             try:
                 res = gi.tools.show_tool(tool_id = self.tool_name)
@@ -954,7 +954,6 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.makeTool()
     tf.update_toolconf()
     tf.writeShedyml()
-    time.sleep(6)  # wait for tool to become installed
     tf.install_deps()
     testret = tf.fast_local_test()
     if int(testret) > 0:
