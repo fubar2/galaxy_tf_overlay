@@ -43,7 +43,7 @@ import yaml
 # sed will update these settings during tfsetup.py first run
 GALAXY_ADMIN_KEY = "1382700433949979904"
 GALAXY_URL = "http://localhost:8080"
-myversion = "V3.0 January 2023"
+myversion = "V3.0 February 2023"
 verbose = True
 debug = True
 toolFactoryURL = "https://github.com/fubar2/galaxy"
