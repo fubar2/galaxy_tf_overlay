@@ -97,8 +97,8 @@ def run_sed(options):
     fixfile = "%s/config/galaxy.yml" % options.galaxy_root
     fixme.append(('  virtualenv:', '  virtualenv="%s"' % os.path.join(options.galaxy_root,'venv'), fixfile ))
     fixfile = "%s/local_tools/toolfactory/toolfactory.py" % options.galaxy_root
-    fixme.append(('GALAXY_ADMIN_KEY=', 'GALAXY_ADMIN_KEY="%s"' % options.key, fixfile ))
-    fixme.append(('GALAXY_URL=', 'GALAXY_URL="%s"' % options.galaxy_url, fixfile ))
+    fixme.append(('GALAXY_ADMIN_KEY = ', 'GALAXY_ADMIN_KEY = "%s"' % options.key, fixfile ))
+    fixme.append(('GALAXY_URL = ' , 'GALAXY_URL = "%s"' % options.galaxy_url, fixfile ))
     fixfile = "%s/local_tools/toolfactory/install_tf_deps.sh" % options.galaxy_root
     fixme.append(('APIK=', 'APIK="%s"' % options.key, fixfile ))
     fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(options.galaxy_root, "local_tools"),  fixfile))
