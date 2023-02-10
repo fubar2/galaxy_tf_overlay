@@ -9,6 +9,10 @@ export NPM_CONFIG_PREFIX=$HERE/venv
 export GALAXY_VIRTUAL_ENV=$HERE/venv
 GALAXY_VIRTUAL_ENV=$HERE/venv
 echo $GALAXY_VIRTUAL_ENV
+sudo -u postgres psql -c "create role $USER;"
+sudo -u postgres psql -c "drop database galaxydev;"
+sudo -u postgres psql -c "create database galaxydev;"
+sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
 . venv/bin/activate
