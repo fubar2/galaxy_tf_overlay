@@ -956,10 +956,10 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.makeTool()
     tf.update_toolconf()
     tf.writeShedyml()
-    time.sleep(2)
+    time.sleep(1)
     # update now only returns after the tool installed but extra pauses seems needed for the workflow to run even in serial mode
     tf.install_deps()
-    time.sleep(2)
+    time.sleep(1)
     testret = tf.fast_local_test()
     if int(testret) > 0:
         print("ToolFactory tool build and test failed. :(")

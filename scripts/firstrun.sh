@@ -2,17 +2,14 @@
 # no need to make this into playbooks
 HERE=`pwd`
 echo "$HERE"
-export GRAVITY_STATE_DIR=$HERE/database
-export NODE_PATH=$HERE/venv/lib/node_modules
-export NODE_VIRTUAL_ENV=$HERE/venv
-export NPM_CONFIG_PREFIX=$HERE/venv
-export GALAXY_VIRTUAL_ENV=$HERE/venv
 GALAXY_VIRTUAL_ENV=$HERE/venv
 echo $GALAXY_VIRTUAL_ENV
 sudo -u postgres psql -c "create role $USER;"
 sudo -u postgres psql -c "drop database galaxydev;"
 sudo -u postgres psql -c "create database galaxydev;"
 sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
+sudo rm -rf database/jobs_directory/000/*
+# fresh db so need clean jobs?
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
 . venv/bin/activate

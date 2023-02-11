@@ -16,10 +16,7 @@ sudo -u postgres psql -c "create database galaxydev;"
 sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
 # now have a fresh clone with the TF configuration files in place
 HERE=`pwd`
-GALAXY_GRAVITY_STATE_DIR=$HERE/database
-export GALAXY_GRAVITY_STATE_DIR=$GALAXY_GRAVITY_STATE_DIR
 GALAXY_VIRTUAL_ENV=$HERE/venv
-export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
 echo $GALAXY_VIRTUAL_ENV
 python3 -m venv $GALAXY_VIRTUAL_ENV
 GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV && sh scripts/common_startup.sh --no-create-venv
