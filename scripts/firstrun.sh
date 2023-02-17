@@ -10,6 +10,13 @@ echo $GALAXY_VIRTUAL_ENV
 #sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
 #sudo rm -rf database/jobs_directory/000/*
 # fresh db so need clean jobs?
+if [ -f "database/universe.sqlite" ];
+  echo "Deleting existing sqlite database and jobs directories"
+  rm database/*.sqlite
+  rm -rf database/jobs_directory/*
+else
+   echo "Creating new sqlite database"
+fi
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
 . venv/bin/activate
@@ -19,5 +26,5 @@ echo "Your dev server is ready to run. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
 Local web browser url is http://localhost:8080. Admin already exists.\
 Admin login is toolfactory@galaxy.org with ChangeMe! as the temporary password. \
-Please do change it. Do not expose this development server on the open internet please.
+Please do change it. Do not expose this development server on the open internet please. \
 It has none of the layers of isolation that a secure public server needs."

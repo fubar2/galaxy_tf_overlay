@@ -9,17 +9,15 @@ else
    echo "No $REL.zip. Getting"
    wget $GALZIP
 fi
+if [ -d "$OURDIR" ];
+  echo "Deleting existing $OURDIR"
+  rm -rf $OURDIR
+fi
 unzip $REL.zip
 mv  galaxy-$REL $OURDIR
 cd $OURDIR
-sudo apt install postgresql-14
 git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay
 cp -rvu galaxy_tf_overlay/* ./
-#sudo -u postgres psql -c "create role $USER;"
-#sudo -u postgres psql -c "drop database galaxydev;"
-#sudo -u postgres psql -c "create database galaxydev;"
-#sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
-# now have a fresh clone with the TF configuration files in place
 HERE=`pwd`
 GALAXY_VIRTUAL_ENV=$HERE/venv
 echo $GALAXY_VIRTUAL_ENV

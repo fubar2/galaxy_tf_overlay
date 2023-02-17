@@ -762,7 +762,7 @@ class Tool_Factory:
             shutil.copyfile(pth, dest)
             print("## Copied %s to %s" % (pth, dest))
 
-    def makeToolTar(self, good_test=False):
+    def makeToolTar(self, test_retcode=0):
         """move outputs into test-data and prepare the tarball"""
         excludeme = "_planemo_test_report.html"
 
@@ -774,7 +774,7 @@ class Tool_Factory:
             tout = open(self.tlog, "a")
         else:
             tout = open(self.tlog, "w")
-        tout.write("### makeToolTar starting with good_test=%s\n" % good_test)
+        tout.write("### makeToolTar starting with tool test retcode=%d\n" % test_retcode)
         for p in self.outfiles:
             oname = p["name"]
             src = os.path.join(self.tooltestd, "%s_sample" % oname)

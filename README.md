@@ -126,7 +126,7 @@ on the command line. Clues can be found in the run log if available, or the info
 
 ### Scope and limitations
 
-Sqlite does not seem to work. Postgresql must be installed and configurable by the installation script.
+Sqlite works fine. Postgres is more reliable and seems faster but sqlite out of the box is stable and reliable with the right immediate transactions connection string.
 
 If two jobs run Conda at the same time, dependencies may become corrupted, so job_conf.yml specifies a queue for the ToolFactory
 that only runs jobs serially. All other tools run normally on the local runner.
@@ -168,7 +168,7 @@ Run the shell script (localtf.sh) included with this repository. Sudo will be ne
 It will download and configure a development server with the ToolFactory installed, by doing these things:
 
  * Download and unpack a zip of (default) 23.0 which is working well as at February 2023, or perhaps a stable 22.05 release - edit localtf.sh to suit.
- * Build the client (slow) and prepare a new postgres database (replacing any old one!)
+ * Build the client (slow) and prepare a new sqlite database (replacing any old one!)
  * Install the ToolFactory configuration overlay
  * Create the default admin user and insert the API keys in various ToolFactory scripts.
  * Upload the default history and a workflow to build the examples.
@@ -177,8 +177,8 @@ This takes some time - 15-20 minutes or so, to complete.
 A functioning development server will weigh in at 8GB or so of disk space, so be sure your hard drive has plenty of room.
 It is all based in a single directory, *galaxytf* created wherever it is run from.
 
-Rerunning the script will destroy the postgres database and jobs directory to create a clean new installation. It should only need to be run once in the life
-of the development server.
+Rerunning the script will destroy the old database and jobs directory to create a clean new installation.
+It should only need to be run once in the life of the development server.
 
 Remove the *galaxytf* directory to remove the entire development server when it is no longer needed. Save all your tools and histories,
 because the jobs in a history can be used to update a tool easily, and a history can be imported into a fresh development instance
