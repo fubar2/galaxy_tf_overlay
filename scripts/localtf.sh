@@ -3,10 +3,9 @@ echo "First run takes a while. Go for a walk or do something else more useful th
 REL="release_23.0"
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip"
 wget $GALZIP
-unzip $REL.zip -d galaxytf
+unzip $REL.zip
+mv  galaxy-$REL galaxytf
 cd galaxytf
-mv galaxy-$REL/* .
-rm -rf galaxy-$REL
 sudo apt install postgresql-14
 git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay
 cp -rvu galaxy_tf_overlay/* ./

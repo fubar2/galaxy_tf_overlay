@@ -1,5 +1,5 @@
 # ansible command calls this to do most of the work
-# no need to make this into playbooks
+# no need to make this into a playbook
 HERE=`pwd`
 echo "$HERE"
 GALAXY_VIRTUAL_ENV=$HERE/venv
