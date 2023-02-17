@@ -1,18 +1,24 @@
 #!/usr/bin/bash
 echo "First run takes a while. Go for a walk or do something else more useful than watching"
+OURDIR="galaxytf"
 REL="release_23.0"
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip"
-wget $GALZIP
+if [ -f "$REL.zip" ];
+  echo "$REL.zip exists"
+else
+   echo "No $REL.zip. Getting"
+   wget $GALZIP
+fi
 unzip $REL.zip
-mv  galaxy-$REL galaxytf
-cd galaxytf
+mv  galaxy-$REL $OURDIR
+cd $OURDIR
 sudo apt install postgresql-14
 git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay
 cp -rvu galaxy_tf_overlay/* ./
-sudo -u postgres psql -c "create role $USER;"
-sudo -u postgres psql -c "drop database galaxydev;"
-sudo -u postgres psql -c "create database galaxydev;"
-sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
+#sudo -u postgres psql -c "create role $USER;"
+#sudo -u postgres psql -c "drop database galaxydev;"
+#sudo -u postgres psql -c "create database galaxydev;"
+#sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
 # now have a fresh clone with the TF configuration files in place
 HERE=`pwd`
 GALAXY_VIRTUAL_ENV=$HERE/venv
@@ -26,9 +32,5 @@ echo "Your dev server is ready to run. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
 Local web browser url is http://localhost:8080. Admin already exists.\
 Admin login is toolfactory@galaxy.org with ChangeMe! as the temporary password. \
-Please do change it. Do not expose this development server on the open internet please.
+Please do change it. Do not expose this development server on the open internet please. \
 It has none of the layers of isolation that a secure public server needs."
-
-
-
-

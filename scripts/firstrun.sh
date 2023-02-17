@@ -4,11 +4,11 @@ HERE=`pwd`
 echo "$HERE"
 GALAXY_VIRTUAL_ENV=$HERE/venv
 echo $GALAXY_VIRTUAL_ENV
-sudo -u postgres psql -c "create role $USER;"
-sudo -u postgres psql -c "drop database galaxydev;"
-sudo -u postgres psql -c "create database galaxydev;"
-sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
-sudo rm -rf database/jobs_directory/000/*
+#sudo -u postgres psql -c "create role $USER;"
+#sudo -u postgres psql -c "drop database galaxydev;"
+#sudo -u postgres psql -c "create database galaxydev;"
+#sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
+#sudo rm -rf database/jobs_directory/000/*
 # fresh db so need clean jobs?
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
