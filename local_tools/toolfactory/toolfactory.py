@@ -20,6 +20,7 @@
 import argparse
 import copy
 import json
+import logging
 import os
 import re
 import shlex
@@ -47,7 +48,8 @@ myversion = "V3.0 February 2023"
 verbose = True
 debug = True
 toolFactoryURL = "https://github.com/fubar2/galaxy"
-
+REP_DIR = "toolgen"
+logger = logging.getLogger(__name__)
 
 def timenow():
     """return current time as a string"""
@@ -80,39 +82,44 @@ class Tool_Factory:
 
     """
 
+    logger = logging.getLogger(__name__)
+
     def __init__(self, args=None):  # noqa
         """
         prepare command line cl for running the tool here
         and prepare elements needed for galaxyxml tool generation
         """
+        self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
+        self.tool_id = self.tool_name
         self.local_tools = os.path.join(args.galaxy_root, "local_tools")
         self.local_tool_conf = os.path.join(args.galaxy_root, "config", "local_tool_config", "local_tool_conf.xml")
         self.ourcwd = os.getcwd()
         self.collections = []
+
         if len(args.collection) > 0:
             try:
                 self.collections = [json.loads(x) for x in args.collection if len(x.strip()) > 1]
             except Exception:
-                print(f"--collections parameter {str(args.collection)} is malformed - should be a dictionary")
+                log.error(f"--collections parameter {str(args.collection)} is malformed - should be a dictionary")
         try:
             self.infiles = [json.loads(x) for x in args.input_files if len(x.strip()) > 1]
         except Exception:
-            print(f"--input_files parameter {str(args.input_files)} is malformed - should be a dictionary")
+            log.error(f"--input_files parameter {str(args.input_files)} is malformed - should be a dictionary")
         try:
             self.outfiles = [json.loads(x) for x in args.output_files if len(x.strip()) > 1]
         except Exception:
-            print(f"--output_files parameter {args.output_files} is malformed - should be a dictionary")
+            log.error(f"--output_files parameter {args.output_files} is malformed - should be a dictionary")
         assert (
             len(self.outfiles) + len(self.collections)
         ) > 0, "No outfiles or output collections specified. The Galaxy job runner will fail without an output of some sort"
         try:
             self.addpar = [json.loads(x) for x in args.additional_parameters if len(x.strip()) > 1]
         except Exception:
-            print(f"--additional_parameters {args.additional_parameters} is malformed - should be a dictionary")
+            log.error(f"--additional_parameters {args.additional_parameters} is malformed - should be a dictionary")
         try:
             self.selpar = [json.loads(x) for x in args.selecttext_parameters if len(x.strip()) > 1]
         except Exception:
-            print(f"--selecttext_parameters {args.selecttext_parameters} is malformed - should be a dictionary")
+            log.error(f"--selecttext_parameters {args.selecttext_parameters} is malformed - should be a dictionary")
         self.args = args
         self.cleanuppar()
         self.lastxclredirect = None
@@ -138,8 +145,6 @@ class Tool_Factory:
             "argparse",
             "positional",
         ], 'args.parampass must be "0","positional" or "argparse"'
-        self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
-        self.tool_id = self.tool_name
         self.newtool = gxt.Tool(
             self.tool_name,
             self.tool_id,
@@ -150,7 +155,7 @@ class Tool_Factory:
         self.toold = os.path.join(self.local_tools, self.tool_name)
         self.tooltestd = os.path.join(self.toold, "test-data")
         self.tooloutdir = "tfout"
-        self.repdir = "toolgen"
+        self.repdir = REP_DIR
         self.newtarpath = args.tested_tool_out
         self.testdir = os.path.join(self.tooloutdir, "test-data")
         if not os.path.exists(self.tooloutdir):
@@ -159,7 +164,6 @@ class Tool_Factory:
             os.mkdir(self.testdir)
         if not os.path.exists(self.repdir):
             os.mkdir(self.repdir)
-        self.tlog = os.path.join(self.repdir, "%s_TF_run_log.txt" % self.tool_name)
         self.tinputs = gxtp.Inputs()
         self.toutputs = gxtp.Outputs()
         self.testparam = []
@@ -262,7 +266,7 @@ class Tool_Factory:
             nam = p["name"]
             rep = p["repeat"] == "1"  # repeats make NO sense
             if rep:
-                print(f"### warning. Repeats for {nam} ignored - not permitted in positional parameter command lines!")
+                logger.warning(f"### warning. Repeats for {nam} ignored - not permitted in positional parameter command lines!")
             over = p["override"]
             xclsuffix.append([p["CL"], '"$%s"' % nam, over])
         for p in self.selpar:
@@ -459,7 +463,7 @@ class Tool_Factory:
                     aninput.positional = int(p["origCL"])
                     aninput.command_line_override = "$%s" % newname
             if reps:
-                repe = gxtp.Repeat(name=f"R_{newname}", title=f"Add as many {alab} as needed")
+                repe = gxtp.Repeat(name=f"R_{newname}", title=f"Any number of {alab} repeats are allowed")
                 repe.append(aninput)
                 self.tinputs.append(repe)
                 tparm = gxtp.TestRepeat(name=f"R_{newname}")
@@ -524,7 +528,7 @@ class Tool_Factory:
             if self.is_positional:
                 aparm.positional = int(oldcl)
             if reps:
-                repe = gxtp.Repeat(name=f"R_{newname}", title=f"Add as many {newlabel} as needed")
+                repe = gxtp.Repeat(name=f"R_{newname}", title=f"Any number of {newlabel} repeats are allowed")
                 repe.append(aparm)
                 self.tinputs.append(repe)
                 tparm = gxtp.TestRepeat(name=f"R_{newname}")
@@ -678,7 +682,7 @@ class Tool_Factory:
                         requirements.append(gxtp.Requirement("package", packg.strip(), ver))
                         self.condaenv.append(d)
             except Exception:
-                print(
+                logger.error(
                     "### malformed packages string supplied - cannot parse =",
                     self.args.packages,
                 )
@@ -745,22 +749,19 @@ class Tool_Factory:
         xreal = "%s.xml" % self.tool_name
         xout = os.path.join(self.toold, xreal)
         shutil.copyfile(xreal, xout)
-        print("## Copied %s to %s" % (xreal, xout))
-        xfout = os.path.join(self.toold, xreal)
-        shutil.copyfile(xreal, xfout)
-        print("Copied %s to %s" % (xreal, xfout))
+        logger.info("Copied %s to %s" % (xreal, xout))
         xrename = "%s_toolxml.xml" % self.tool_name
         xout = os.path.join(self.repdir, xrename)
         shutil.copyfile(xreal, xout)
-        print("## Copied %s to %s" % (xreal, xout))
+        logger.info("Copied %s to %s" % (xreal, xout))
         for p in self.infiles:
             pth = p["name"]
             dest = os.path.join(self.tooltestd, "%s_sample" % p["infilename"])
             shutil.copyfile(pth, dest)
-            print("## Copied %s to %s" % (pth, dest))
+            logger.info("Copied %s to %s" % (pth, dest))
             dest = os.path.join(self.repdir, "%s_sample.%s" % (p["infilename"], p["format"]))
             shutil.copyfile(pth, dest)
-            print("## Copied %s to %s" % (pth, dest))
+            logger.info("Copied %s to %s" % (pth, dest))
 
     def makeToolTar(self, test_retcode=0):
         """move outputs into test-data and prepare the tarball"""
@@ -769,23 +770,18 @@ class Tool_Factory:
         def exclude_function(tarinfo):
             filename = tarinfo.name
             return None if filename.endswith(excludeme) else tarinfo
-
-        if os.path.exists(self.tlog):
-            tout = open(self.tlog, "a")
-        else:
-            tout = open(self.tlog, "w")
-        tout.write("### makeToolTar starting with tool test retcode=%d\n" % test_retcode)
+        logger.info("makeToolTar starting with tool test retcode=%d\n" % test_retcode)
         for p in self.outfiles:
             oname = p["name"]
             src = os.path.join(self.tooltestd, "%s_sample" % oname)
             dest = os.path.join(self.repdir, "%s_sample_%s.%s" % (oname, p["format"], p["format"]))
             shutil.copyfile(src, dest)
-            print("## Copied %s to %s" % (src, dest))
+            logger.info("Copied %s to %s" % (src, dest))
         td = os.listdir(self.tooltestd)
         for src in td:
             dest = os.path.join(self.repdir, src)
             shutil.copyfile(os.path.join(self.tooltestd, src), dest)
-            tout.write("copied %s %s\n" % (src, dest))
+            logger.info("Copied %s %s\n" % (src, dest))
         tf = tarfile.open(self.newtarpath, "w:gz")
         tf.add(
             name=self.toold,
@@ -794,7 +790,7 @@ class Tool_Factory:
         )
         shutil.copy(self.newtarpath, os.path.join(self.tooloutdir, f"{self.tool_name}_toolshed.gz"))
         tf.close()
-        tout.close()
+
 
     def fast_local_test(self):
         """
@@ -806,19 +802,17 @@ class Tool_Factory:
         scrpt = os.path.join(self.args.tool_dir, "toolfactory_fast_test.sh")
         extrapaths = self.tooltestd
         cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
-        if os.path.exists(self.tlog):
-            tout = open(self.tlog, "a")
-        else:
-            tout = open(self.tlog, "w")
-        tout.write("fast_local_test executing %s with path=%s\n" % (" ".join(cl), os.environ.get("PATH", None)))
+        logger.info("fast_local_test executing %s with path=%s\n" % (" ".join(cl), os.environ.get("PATH", None)))
         p = subprocess.run(
             " ".join(cl),
             shell=True,
             cwd=self.toold,
-            stderr=tout,
-            stdout=tout,
+            capture_output=True,
+            check=True,
+            text=True
         )
-        tout.close()
+        for errline in p.stderr.splitlines():
+            logger.info(errline)
         dest = self.repdir
         src = self.test_outs
         shutil.copytree(src, dest, dirs_exist_ok=True)
@@ -832,19 +826,15 @@ class Tool_Factory:
         def sortchildrenby(parent, attr):
             parent[:] = sorted(parent, key=lambda child: child.get(attr))
 
-        if os.path.exists(self.tlog):
-            tout = open(self.tlog, "a")
-        else:
-            tout = open(self.tlog, "w")
-        tout.write("### updating tool conf files for %s\n" % (self.tool_name))
+        logger.info("Updating tool conf files for %s\n" % (self.tool_name))
         tcpath = self.local_tool_conf
         xmlfile = os.path.join(self.tool_name, "%s.xml" % self.tool_name)
         try:
             parser = ET.XMLParser(remove_blank_text=True)
             tree = ET.parse(tcpath, parser)
         except ET.XMLSyntaxError:
-            tout.write(
-                "### Update_toolconf - tool configuration update access error - %s cannot be parsed as xml by element tree\n"
+            logger.error(
+                "### Tool configuration update access error - %s cannot be parsed as xml by element tree\n"
                 % tcpath
             )
             sys.exit(4)
@@ -871,38 +861,35 @@ class Tool_Factory:
             try:
                 res = gi.tools.show_tool(tool_id=self.tool_name)
                 toolready = True
-                tout.write("### Tool %s ready after %f seconds - %s\n" % (self.tool_name, time.time() - now, res))
+                logger.info("Tool %s ready after %f seconds - %s\n" % (self.tool_name, time.time() - now, res))
             except ConnectionError:
                 nloop -= 1
                 time.sleep(1)
-                tout.write("### Connection error - waiting a second.\n")
+                logger.info("Connection error - waiting a second.\n")
         if nloop < 1:
-            tout.write(
-                "### Tool %s still not ready after %f seconds - please check the form and the generated xml for errors? \n"
+            logger.error(
+                "Tool %s still not ready after %f seconds - please check the form and the generated xml for errors? \n"
                 % (self.tool_name, time.time() - now)
             )
-            tout.close()
             sys.exit(3)
-        tout.close()
+
 
     def install_deps(self):
         """
         use script to install new tool dependencies
         """
-        if os.path.exists(self.tlog):
-            tout = open(self.tlog, "a")
-        else:
-            tout = open(self.tlog, "w")
         cll = ["/usr/bin/bash", "%s/install_tf_deps.sh" % self.args.tool_dir, self.tool_name]
-        tout.write("### running %s\n" % " ".join(cll))
-        subp = subprocess.run(
+        logger.info("Running %s\n" % " ".join(cll))
+        p = subprocess.run(
             cll,
             shell=False,
             capture_output=True,
+            check=True,
+            text=True
         )
-        tout.write("### Installed %s - got retcode %d\n" % (self.tool_name, subp.returncode))
-        tout.close()
-        return subp.returncode
+        for errline in p.stderr.splitlines():
+            logger.info(errline)
+        return p.returncode
 
 
 def main():
@@ -952,6 +939,17 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
             % (args.bad_user, args.bad_user)
         )
     assert args.tool_name, "## This ToolFactory cannot build a tool without a tool name. Please supply one."
+
+    logfilename = os.path.join(REP_DIR, 'ToolFactory_make_%s.log' % args.tool_name)
+    if not os.path.exists(REP_DIR):
+            os.mkdir(REP_DIR)
+    # basicconfig to a file failed. This works.  tf does not yet exist.
+    f = open(logfilename, "w")
+    f.close()
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(logfilename)
+    fh.setLevel(logging.DEBUG)
+    logger.addHandler(fh)
     tf = Tool_Factory(args)
     tf.makeTool()
     tf.update_toolconf()
@@ -962,24 +960,26 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     time.sleep(1)
     testret = tf.fast_local_test()
     if int(testret) > 0:
-        print("ToolFactory tool build and test failed. :(")
-        print(
+        logger.error("ToolFactory tool build and test failed. :(")
+        logger.info(
             "This is usually because the supplied script or dependency did not run correctly with the test inputs and parameter settings"
         )
-        print("when tested with galaxy_tool_test.  Error code:%d" % testret, ".")
-        print(
+        logger.info("when tested with galaxy_tool_test.  Error code:%d" % testret, ".")
+        logger.info(
             "The 'i' (information) option shows how the ToolFactory was called, stderr and stdout, and what the command line was."
         )
-        print("Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it")
-        print(
+        logger.info("Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it")
+        logger.info(
             "Make sure it is the same as your working test command line and double check that data files are coming from and going to where they should"
         )
-        print(
+        logger.info(
             "In the output collection, the tool xml <command> element must be the equivalent of your working command line for the test to work"
         )
+        logging.shutdown()
         sys.exit(5)
     else:
         tf.makeToolTar(testret)
+    logging.shutdown()
 
 
 if __name__ == "__main__":
