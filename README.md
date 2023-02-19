@@ -6,32 +6,40 @@ Using the ToolFactory pre-installed in this handy Galaxy development server.
 
 ##  Intended users
 
-Scientists who routinely write and test their own scripts for analyses, who would like to use them in Galaxy workflows, but do not yet have the skills required to their own tools
+Scientists who routinely write and test their own scripts for analyses, who would like to use them in Galaxy workflows, but do not yet have the skills required to create new tools.
+They still need to be installed in a proper Galaxy server to be useful for research, but can be tested in the development server.
 
 ## Summary
 
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.
 
- * It loads and runs like an ordinary Galaxy tool but only runs for a server administrator.
+ * It loads and runs like an ordinary Galaxy tool
+     * It will only run for a server administrator. That is the only security barrier.
      * See below for details - in particular, *do not* expose on a public server
  * It creates an ordinary Galaxy tool with designated Conda dependencies and user controlled command line parameters, with an optional built in script.
- * The new tool is defined by elements defined on the ToolFactory form.
- * The generated tool has normal form elements, including help text, prompts, input parameters and history input data selectors.
+ * The new tool is defined by elements described on the ToolFactory form.
+ * The generated tool has a typical form with the supplied help text, prompts, input parameters and history input data selector elements.
  * The new tool is immediately installed in the development server, ready to use.
  * It will work exactly as the user will see it wherever it is installed.
  * Generated tools are functionally equivalent and as secure as simple hand written XML.
  * The XML wrapper document is automatically generated from the form settings, by a [specialised XML parser](https://github.com/hexylena/galaxyxml).
  * Test inputs and settings supplied at tool generation are used as the built in tool test.
 
+## Disclaimer
 
+This is an automated program generator. It is very simple, and there are many requirements it will not meet.
+For example, conditionals allowing specific parameters, such as for paired or unpaired sequence inputs, are not automated, so not possible.
+Those and many other common complex tool features will need an expert developer to write.
+Many simple tools do not need them. Simple tools are sometimes very useful in complex analyses, so the ToolFactory
+may offer a solution for a developer lacking the necessary additional Galaxy tool building skills.
 
 ### Basic idea
 
-The ToolFactory generates tool XML based on settings on a Galaxy tool form, installs it and tests it using the supplied test data, then packages it up as a Toolshed ready archive,
+The ToolFactory generates tool XML based on settings on a Galaxy tool form, installs it and tests it using the supplied test data, and returns a Toolshed ready archive,
 with the test built in.
 
 Automated XML is very limited and inflexible, but it can be useful for simple tools, when developers with Galaxy tool development skills are not readily available.
-When a tool is generated, it is written, installed and tested and returned to the history. Jobs run in 10-20 seconds plus time needed for Conda to install any new dependencies.
+Jobs run in 10-20 seconds plus time needed for Conda to install any new dependencies.
 A browser screen refresh is needed to reload the tool panel to see and start using the newly installed tool.
 
 Many Galaxy tool wrappers need to be made by an experienced developer using [specialised development methods](https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-from-scratch/tutorial.html).
@@ -61,7 +69,6 @@ Selects and repeats are available for new tool form parameters, and any tool can
 not needed individually for downstream processing.
 
 In addition to scripting interpreters, any Conda dependencies, such as BWA and samtools can be loaded for your script or an over-ridden command line as the BWA examples show.
-
 
 ### Building your own tools.
 
@@ -120,7 +127,7 @@ The archive is ready to upload to a toolshed if it is reliable, generalisable, w
 
 Input files and parameters can be defined as repeatable form elements, if the script or conda dependency is designed to handle
 repeated parameters such as argparser does. Repeated output history files are not available, but a collection is usually a
-convenient workaround for outputs not needed downstream as the Plotter example shows.
+convenient workaround for outputs not needed downstream as the Plotter Rscript example shows.
 
 Numeric and text parameters can be used and passed as argparse (--foo) style or in positional order if necessary.
 
@@ -128,8 +135,6 @@ The Repeats example configures an input text parameter as repeating, so the new 
 of text strings that are concatenated and returned at run time as a text file, as shown in the example script, using Python's argparser.
 
 The select example shows how to build a select parameter into a ToolFactory tool form. Tests will include it.
-
-Collections can handle arbitrary script outputs to a single directory, as shown by the Plotter Rscript example.
 
 All the input example features can be mixed to build the form needed for a new simple tool.
 
@@ -139,12 +144,12 @@ on the command line. Clues can be found in the run log if available, or the info
 
 ### Scope and limitations
 
-Sqlite works fine. Postgres is more reliable and seems faster but sqlite out of the box seems stable and useable.
+Sqlite works fine. Postgres seems faster but sqlite out of the box seems stable and useable.
 
-If multiple Conda jobs run the same time, processes can spin endlessly or dependencies may become corrupted, so job_conf.yml specifies a queue for the ToolFactory
+If multiple Conda jobs run at the same time, processes can spin endlessly or dependencies may become corrupted, so job_conf.yml specifies a queue for the ToolFactory
 that only runs jobs serially. All other tools run normally on the local runner.
 
-Reliable tests cannot be automatically generated for tools that create arbitrary collections, since the contents are not yet available at tool generation time.
+Reliable tests cannot be automatically generated for tools that create arbitrary collections, since the contents are not yet available at tool XML generation time.
 They do appear after the test so send code - PR please if you care. A suitable test XML section can be supplied, as the Plotter example shows, but really, a Galaxy form
 is a clumsy way to write XML. Better to use the proper developer tools, rather than a limited automated code generator, if you need collection outputs tested or other
 hard to generate complications. Conventional development tools are recommended for wrapping complex packages.
@@ -153,10 +158,10 @@ The ToolFactory is only capable of meeting relatively simple needs, such as a ha
 Long forms become unpleasant to navigate. In theory they should work, but clearly there will be many things that a simple XML
 parser and document generator cannot do.
 
-Implemented as a Galaxy tool in a development Galaxy server, it can speed up the development and testing of
-new simple tools, from existing working scripts and/or conda packages. The learning curve is smaller and the scope
-is correspondingly limited by the code generator used. Those limitations can be worked around in some situations,
-by changing the way the script expects parameters, but an experienced tool developer is probably the best choice at that point...
+The learning curve is smaller and the scope is correspondingly limited by the code generator used. Those limitations can be worked around in some situations,
+by changing the way the script expects parameters, but an experienced tool developer is probably the best choice at that point.
+Implemented as a Galaxy tool in a development Galaxy server, it can speed up the development and testing of new simple tools, from existing working
+scripts and/or conda packages.
 
 ### Local installation and login
 
@@ -176,19 +181,26 @@ They should always be inspected before installation from an untrusted source.
 
 #### ToolFactory development server installation script
 
-Run the shell script (localtf.sh) included with this repository. Sudo will be needed multiple times.
+From a convenient directory, make a clone of the overlay configuration needed to turn a Galaxy clone into a ToolFactory development server
 
-It will download and configure a development server with the ToolFactory installed, by doing these things:
+```
+git clone https://github.com/fubar2/galaxy_tf_overlay.git
+cd galaxy_tf_overlay
+sh ./localtf.sh
+```
+The localtf.sh script will create a new directory, as ../galaxytf from the root of the galaxy_tf_overlay clone.
+It will download and configure a development server with the ToolFactory installed:
 
  * Download and unpack a zip of (default) 23.0 which is working well as at February 2023, or perhaps a stable 22.05 release - edit localtf.sh to suit.
  * Build the client (slow) and prepare a new sqlite database (replacing any old one!)
- * Install the ToolFactory configuration overlay
+ * Install the ToolFactory configuration overlay already cloned
  * Create the default admin user and insert the API keys in various ToolFactory scripts.
  * Upload the default history and a workflow to build the examples.
 
-This takes some time - 15-20 minutes or so, to complete.
+This takes some time - 20 minutes or more to complete.
 A functioning development server will weigh in at 8GB or so of disk space, so be sure your hard drive has plenty of room.
-It is all based in a single directory, *galaxytf* created as ../galaxytf from the cloned repository root where the script should be run.
+It will be based in a single directory, *galaxytf* in the same directory as the galaxy_tf_overlay repository was cloned into.
+That is where the script should be run as shown above.
 
 Rerunning the script will *destroy the entire galaxytf directory* - all ~8GB, and create a clean new installation.
 It should only need to be run once in the life of the development server.
@@ -207,8 +219,3 @@ Once installation is complete:
 
 The server should be ready in 30 seconds or less, at *http://localhost:8080*.
 Initial login as admin using *toolfactory@galaxy.org* with password *ChangeMe!* which of course you should change!
-
-.. figure:: https://galaxyproject.org/images/galaxy-logos/galaxy_project_logo.jpg
-   :alt: Galaxy Logo
-
-The latest information about Galaxy can be found on the `Galaxy Community Hub <https://galaxyproject.org/>`__.
