@@ -4,13 +4,13 @@ OURDIR="../galaxytf"
 # assume run from the git galaxy_tf_overlay clone directory
 REL="release_23.0"
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip"
-if [ -f "$REL.zip" ];
+if [ -f "$REL.zip" ]; then
   echo "$REL.zip exists"
 else
    echo "No $REL.zip. Getting"
    wget $GALZIP
 fi
-if [ -d "$OURDIR" ];
+if [ -d "$OURDIR" ]; then
   echo "Deleting existing $OURDIR"
   rm -rf $OURDIR
 fi
