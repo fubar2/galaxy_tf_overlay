@@ -1,8 +1,7 @@
-# A local, disposable ToolFactory development server.
+# Build your own local, disposable ToolFactory development server.
 
-##  Turn scripts into Galaxy tools!
-
-Using the ToolFactory pre-installed in this handy Galaxy development server.
+Clone the latest Galaxy code and install this specialised configuration overlay, so your new development server can
+*turn scripts into working, shareable Galaxy tools*, using the ToolFactory.
 
 ##  Intended users
 
@@ -41,12 +40,6 @@ with the test built in.
 Automated XML is very limited and inflexible, but it can be useful for simple tools, when developers with Galaxy tool development skills are not readily available.
 Jobs run in 10-20 seconds plus time needed for Conda to install any new dependencies.
 A browser screen refresh is needed to reload the tool panel to see and start using the newly installed tool.
-
-Many Galaxy tool wrappers need to be made by an experienced developer using [specialised development methods](https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-from-scratch/tutorial.html).
-All developers are encouraged to learn those skills.
-
-Where they are not readily available, the ToolFactory provides a very simple XML generator, capable of generating simple tools.
-Filling in a form can turn a simple, working command line driven script, that has some small test data samples, and a handful of  parameters, into an ordinary, shareable Galaxy tool.
 
 Even using an automated generator, planning and preparation are the key to efficiently creating a useful tool. Debugging the script in the ToolFactory
 is very clumsy. Get it right first, then build the new tool knowing that any defects are likely from the way the form is configured, not the script, test data or dependencies.
@@ -144,10 +137,16 @@ on the command line. Clues can be found in the run log if available, or the info
 
 ### Scope and limitations
 
-Sqlite works fine. Postgres seems faster but sqlite out of the box seems stable and useable.
+Many Galaxy tool wrappers require an experienced developer using [specialised development methods](https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-from-scratch/tutorial.html).
+All developers are encouraged to learn those skills.
 
-If multiple Conda jobs run at the same time, processes can spin endlessly or dependencies may become corrupted, so job_conf.yml specifies a queue for the ToolFactory
-that only runs jobs serially. All other tools run normally on the local runner.
+Where those skills are not readily available, the ToolFactory provides a simple XML generator, capable of generating simple tools.
+Filling in a form can turn a simple, working command line driven script, that has some small test data samples, and a handful of  parameters, into an ordinary, shareable Galaxy tool.
+
+The learning curve is smaller and the scope is correspondingly limited by the code generator used. Those limitations can be worked around in some situations,
+by changing the way the script expects parameters, but an experienced tool developer is probably the best choice at that point.
+Implemented as a Galaxy tool in a development Galaxy server, it can speed up the development and testing of new simple tools, from existing working
+scripts and/or conda packages.
 
 Reliable tests cannot be automatically generated for tools that create arbitrary collections, since the contents are not yet available at tool XML generation time.
 They do appear after the test so send code - PR please if you care. A suitable test XML section can be supplied, as the Plotter example shows, but really, a Galaxy form
@@ -158,10 +157,10 @@ The ToolFactory is only capable of meeting relatively simple needs, such as a ha
 Long forms become unpleasant to navigate. In theory they should work, but clearly there will be many things that a simple XML
 parser and document generator cannot do.
 
-The learning curve is smaller and the scope is correspondingly limited by the code generator used. Those limitations can be worked around in some situations,
-by changing the way the script expects parameters, but an experienced tool developer is probably the best choice at that point.
-Implemented as a Galaxy tool in a development Galaxy server, it can speed up the development and testing of new simple tools, from existing working
-scripts and/or conda packages.
+Sqlite works fine. Postgres seems faster but sqlite out of the box seems stable and useable.
+
+If multiple Conda jobs run at the same time, processes can spin endlessly or dependencies may become corrupted, so job_conf.yml specifies a queue for the ToolFactory
+that only runs jobs serially. All other tools run normally on the local runner.
 
 ### Local installation and login
 
@@ -188,7 +187,7 @@ git clone https://github.com/fubar2/galaxy_tf_overlay.git
 cd galaxy_tf_overlay
 sh ./localtf.sh
 ```
-The localtf.sh script will create a new directory, as ../galaxytf from the root of the galaxy_tf_overlay clone.
+Running *localtf.sh* will create a new directory, as *../galaxytf* from the root of the galaxy_tf_overlay clone.
 It will download and configure a development server with the ToolFactory installed:
 
  * Download and unpack a zip of (default) 23.0 which is working well as at February 2023, or perhaps a stable 22.05 release - edit localtf.sh to suit.
@@ -198,7 +197,7 @@ It will download and configure a development server with the ToolFactory install
  * Upload the default history and a workflow to build the examples.
 
 This takes some time - 20 minutes or more to complete.
-A functioning development server will weigh in at 8GB or so of disk space, so be sure your hard drive has plenty of room.
+A functioning development server will occupy ~9GB of disk space, so be sure your machine has plenty of room.
 It will be based in a single directory, *galaxytf* in the same directory as the galaxy_tf_overlay repository was cloned into.
 That is where the script should be run as shown above.
 
@@ -218,4 +217,4 @@ Once installation is complete:
  * In 23.0 that is equivalent to *venv/bin/galaxyctl start* and *venv/bin/galaxyctl stop*.
 
 The server should be ready in 30 seconds or less, at *http://localhost:8080*.
-Initial login as admin using *toolfactory@galaxy.org* with password *ChangeMe!* which of course you should change!
+Initial login (it already exists) as admin using *toolfactory@galaxy.org* with password *ChangeMe!* which of course you should change.
