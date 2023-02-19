@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 echo "First run takes a while. Go for a walk or do something else more useful than watching"
-OURDIR="galaxytf"
+OURDIR="../galaxytf"
+# assume run from the git galaxy_tf_overlay clone directory
 REL="release_23.0"
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip"
 if [ -f "$REL.zip" ];
@@ -16,8 +17,7 @@ fi
 unzip $REL.zip
 mv  galaxy-$REL $OURDIR
 cd $OURDIR
-git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay
-cp -rvu galaxy_tf_overlay/* ./
+cp -rvu ../galaxy_tf_overlay/* ./
 HERE=`pwd`
 GALAXY_VIRTUAL_ENV=$HERE/venv
 echo $GALAXY_VIRTUAL_ENV

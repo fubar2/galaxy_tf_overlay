@@ -100,26 +100,26 @@ class Tool_Factory:
             try:
                 self.collections = [json.loads(x) for x in args.collection if len(x.strip()) > 1]
             except Exception:
-                log.error(f"--collections parameter {str(args.collection)} is malformed - should be a dictionary")
+                logger.error(f"--collections parameter {str(args.collection)} is malformed - should be a dictionary")
         try:
             self.infiles = [json.loads(x) for x in args.input_files if len(x.strip()) > 1]
         except Exception:
-            log.error(f"--input_files parameter {str(args.input_files)} is malformed - should be a dictionary")
+            logger.error(f"--input_files parameter {str(args.input_files)} is malformed - should be a dictionary")
         try:
             self.outfiles = [json.loads(x) for x in args.output_files if len(x.strip()) > 1]
         except Exception:
-            log.error(f"--output_files parameter {args.output_files} is malformed - should be a dictionary")
+            logger.error(f"--output_files parameter {args.output_files} is malformed - should be a dictionary")
         assert (
             len(self.outfiles) + len(self.collections)
         ) > 0, "No outfiles or output collections specified. The Galaxy job runner will fail without an output of some sort"
         try:
             self.addpar = [json.loads(x) for x in args.additional_parameters if len(x.strip()) > 1]
         except Exception:
-            log.error(f"--additional_parameters {args.additional_parameters} is malformed - should be a dictionary")
+            logger.error(f"--additional_parameters {args.additional_parameters} is malformed - should be a dictionary")
         try:
             self.selpar = [json.loads(x) for x in args.selecttext_parameters if len(x.strip()) > 1]
         except Exception:
-            log.error(f"--selecttext_parameters {args.selecttext_parameters} is malformed - should be a dictionary")
+            logger.error(f"--selecttext_parameters {args.selecttext_parameters} is malformed - should be a dictionary")
         self.args = args
         self.cleanuppar()
         self.lastxclredirect = None
@@ -182,7 +182,7 @@ class Tool_Factory:
         if self.args.script_path:
             for ex in self.executeme:
                 aXCL(ex)
-            aXCL("$runme")
+            aXCL('$runme')
         else:
             for ex in self.executeme:
                 aXCL(ex)
@@ -202,10 +202,10 @@ class Tool_Factory:
         aXCL = self.xmlcl.append
         if len(self.infiles) > 0:
             aXCL("<")
-            aXCL("$%s" % self.infiles[0]["infilename"])
+            aXCL('$%s' % self.infiles[0]["infilename"])
         if len(self.outfiles) > 0:
             aXCL(">")
-            aXCL("$%s" % self.outfiles[0]["name"])
+            aXCL('$%s' % self.outfiles[0]["name"])
         if self.args.cl_user_suffix:  # DIY CL end
             clp = shlex.split(self.args.cl_user_suffix)
             for c in clp:
@@ -219,14 +219,14 @@ class Tool_Factory:
                 xappendme = [
                     nam,
                     nam,
-                    "< $%s" % nam,
+                    '< $%s' % nam,
                 ]
             else:
                 rep = p["repeat"] == "1"
                 over = ""
                 if rep:
                     over = f'#for $rep in $R_{nam}:\n--{nam} "$rep.{nam}"\n#end for'
-                xappendme = [p["CL"], "$%s" % p["CL"], over]
+                xappendme = [p["CL"], '$%s' % p["CL"], over]
             xclsuffix.append(xappendme)
         for i, p in enumerate(self.outfiles):
             if p["origCL"].strip().upper() == "STDOUT":
@@ -588,8 +588,8 @@ class Tool_Factory:
                 tparm = gxtp.TestOutputCollection(newname)  # broken until PR merged.
                 self.testparam.append(tparm)
             except Exception:
-                print(
-                    "#### WARNING: Galaxyxml version does not have the PR merged yet - tests for collections must be over-ridden until then!"
+                logging.error(
+                    "WARNING: Galaxyxml version does not have the PR merged yet - tests for collections must be over-ridden until then!"
                 )
 
     def doNoXMLparam(self):
@@ -619,7 +619,7 @@ class Tool_Factory:
             newname = self.outfiles[0]["name"]
             newfmt = self.outfiles[0]["format"]
             anout = gxtp.OutputData(newname, format=newfmt, num_dashes=0)
-            anout.command_line_override = "> $%s" % newname
+            anout.command_line_override = '> $%s' % newname
             anout.positional = self.is_positional
             self.toutputs.append(anout)
             tp = gxtp.TestOutput(name=newname, value="%s_sample" % newname)
@@ -802,7 +802,7 @@ class Tool_Factory:
         scrpt = os.path.join(self.args.tool_dir, "toolfactory_fast_test.sh")
         extrapaths = self.tooltestd
         cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
-        logger.info("fast_local_test executing %s with path=%s\n" % (" ".join(cl), os.environ.get("PATH", None)))
+        logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
         p = subprocess.run(
             " ".join(cl),
             shell=True,
@@ -940,14 +940,11 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
         )
     assert args.tool_name, "## This ToolFactory cannot build a tool without a tool name. Please supply one."
 
-    logfilename = os.path.join(REP_DIR, 'ToolFactory_make_%s.log' % args.tool_name)
+    logfilename = os.path.join(REP_DIR, 'ToolFactory_make_%s_log.txt' % args.tool_name)
     if not os.path.exists(REP_DIR):
             os.mkdir(REP_DIR)
-    # basicconfig to a file failed. This works.  tf does not yet exist.
-    f = open(logfilename, "w")
-    f.close()
     logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler(logfilename)
+    fh = logging.FileHandler(logfilename, mode='w')
     fh.setLevel(logging.DEBUG)
     logger.addHandler(fh)
     tf = Tool_Factory(args)
