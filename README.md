@@ -1,80 +1,86 @@
 # Build a local, disposable ToolFactory development server.
 
 Clone the latest Galaxy server code and install a configuration overlay, allowing your new development server to
-*turn scripts into working, shareable Galaxy tools*.
+*turn scripts into shareable Galaxy tools*.
 
 ##  Intended users
 
 Scientists who would like to use their own code in Galaxy workflows, but do not yet have the skills required to create new tools.
 
-## Installation quick guide
+## Installation quick start
 
-Clone this github repository, and use *localtf.sh*  to bootstrap, configure and build a new development server.
+Clone this github repository in a convenient directory, and use *localtf.sh*  to bootstrap, configure and build a new development server, with
+the following shell commands. It will install galaxy in a new and disposable directory, *galaxytf*.:
 
 ```
 git clone https://github.com/fubar2/galaxy_tf_overlay.git
 cd galaxy_tf_overlay
 sh ./localtf.sh
 ```
-Take a break for the 30+ minutes it takes to build the client and complete.
-See the end of this document for more details about installing, starting, logging in as admin, using and stopping the server
+
+Take a break for the 30+ minutes it will take to build and complete. A good time to read the rest of this documentation.
+See the end of this document for more details about installing, starting, logging in as admin, using and stopping the server.
+
 
 ## Summary
 
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.
 
- * It loads and runs like an ordinary Galaxy tool
-     * It will only run for a server administrator as a simple security barrier.
-     * See below for details - in particular, *do not* expose on a public server
- * It creates an ordinary Galaxy tool with designated Conda dependencies and user controlled command line parameters, with an optional built in script.
- * The new tool is defined by elements described on the ToolFactory form.
+ * Tools created by the ToolFactory are ordinary, secure, shareable Galaxy tools.
+ * The new tool is defined by elements added to the ToolFactory form and is generated when the ToolFactory is executed.
  * The generated tool has a typical form with the supplied help text, prompts, input parameters and history input data selector elements.
  * The new tool is immediately installed in the development server, ready to use.
  * It will work exactly as the user will see it wherever it is installed.
- * Generated tools are functionally equivalent and as secure as simple hand written XML.
  * The XML wrapper document is generated from the form settings, using a [specialised XML parser](https://github.com/hexylena/galaxyxml).
  * Test inputs and settings supplied at tool generation are used as the built-in tool test.
- * Tools need to be installed in a well managed Galaxy server to be useful for research, but they are ready to share after testing.
+ * Tools need to be installed in a well managed Galaxy server to be useful for research, but they are ready to share.
 
-## Disclaimer
-
-This is a simple automated program generator, so there are many requirements it will not be able to satisfy.
-For example, tools with conditional parameters, such as for paired or unpaired sequence inputs, are not supported at present.
-Those and many other common advanced tool features will need an expert developer to write.
-Many simple tools do not need them. Simple tools are sometimes very useful in complex analyses, so the ToolFactory
-may offer a solution for a developer lacking the necessary additional Galaxy tool building skills.
+It uses a simple automated XML code generator, so there are many requirements it will not be able to satisfy.
+Conditional parameters, that depend on user choices such as selecting paired or unpaired sequence inputs, are not supported at present.
+Those and most other advanced tool features will need an expert developer.
+Fortunately, many simple tools do not need them, or tools requiring them can be split into several separate tools if necessary.
+Simple tools are sometimes very useful in complex analyses, so the ToolFactory may offer a solution
+for a developer lacking the necessary additional Galaxy tool building skills.
 
 ### Basic idea
 
 The ToolFactory generates tool XML based on settings on a Galaxy tool form, installs it and tests it using the supplied test data, and returns a Toolshed ready archive,
 with the test built in.
 
-Automated XML is very limited and inflexible, but it can be useful for simple tools, when developers with Galaxy tool development skills are not readily available.
-Jobs run in 10-20 seconds plus time needed for Conda to install any new dependencies.
-A browser screen refresh is needed to reload the tool panel to see and start using the newly installed tool.
+Automated XML is relatively limited in scope, but it can be useful for simple tools.
+ToolFactory jobs run in 10-20 seconds plus time needed for Conda to install any new dependencies in the development server.
+A browser screen refresh will be needed to reload the tool panel to see and start using the newly installed tool.
 
-Even using an automated generator, planning and preparation are the key to efficiently creating a useful tool. Debugging the script in the ToolFactory
-is very clumsy. Get it right first, then build the new tool knowing that any defects are likely from the way the form is configured, not the script, test data or dependencies.
+Even using an automated generator, planning and preparation are the key to efficiently creating a useful tool.
+Debugging the script in the ToolFactory is very clumsy.
+Get it right first, then build the new tool knowing that any defects are likely from the way the form is configured, not the script, test data or dependencies.
 
-### Different approaches for building simple tools are illustrated by the examples
+### Simple tool examples as models
 
-A history appears when the admin account is used. It contains the results of running a workflow (also available) that generates all the examples.
+The default history for the admin account contains the results of running a workflow (also installed) that generates all the examples.
 The most convenient way to see how the ToolFactory works, is to use Galaxy's inbuilt redo ⭮ button for any interesting example outputs
 in the default starting history. The form settings that created that tool will be restored, ready for experimenting with your own scripts.
 
-For example, there are argparse and positional parameter passing examples for Python.
+Tool requirements are determined by the requirements of the Conda dependency or the script.
+An unlimited number of elements can be added to a form, but with dozens, it becomes unwieldy.
+Most will require one or more input files, with specific datatypes, designated on the ToolFactory form.
+Most will require one or more parameters as strings, numbers or selections added to the ToolFactory form.
+A tool can be built without requiring any user supplied input files or parameters, but every functional tool must create one or more outputs in the history.
+
+There are argparse and positional parameter passing examples for Python, and the Repeats example uses argparser.
 Argparse is far less prone to accidentally mixed up parameters than positional parameters.
 
 Shell script models include a tac|rev and Hello examples. Trivial, but versatile models for potentially more complicated and useful tools.
-Tacrev is the simplest filter tool model using STDIN and STDOUT to really reverse a text file selected as an input.
-Hello demostrates a user supplied parameter in a bash script for a string sent to STDOUT that appears as a new file in the history.
+Tacrev is the simplest model, a shell script filter to really reverse a text file selected as an input.
+Hello also uses a one line bash script, with a user supplied parameter written to a string, captured as a new file in the history.
+Recreating the form will show how STDIN and STDOUT can be conveniently used for input and output in simple tasks.
 
 Any Conda interpreter can be used. Perl, Lisp and Prolog examples demonstrate user-supplied (Lisp) and inbuilt (Prolog, Perl) script models.
-The Rscript Plotter example illustrates parameter passing to R, and presenting arbitrary plots or other script outputs as history collections.
-Selects and repeats are available for new tool form parameters, and any tool can return collections where there are multiple informational outputs that are
-not needed individually for downstream processing.
+More broadly, any Conda dependencies, such as BWA and samtools can be loaded for a simple bash script or a developer supplied (*over-ridden*)
+XML command line, as the BWA examples demonstrate.
 
-In addition to scripting interpreters, any Conda dependencies, such as BWA and samtools can be loaded for your script or an over-ridden command line as the BWA examples show.
+The Plotter example illustrates parameter passing to Rscript, and presenting arbitrary plots or other new outputs as history collections.
+
 
 ### Building your own tools.
 
@@ -91,18 +97,19 @@ If there are complications in the way the script requires parameter passed that 
 XML code generator. Otherwise it will need an experienced developer and the usual tools.
 
 Upload all the working test data samples into a Galaxy history, ready to select on the ToolFactory form as each user input history element is added to the form. These provide data for the test.
-The tool *cannot be tested and built* if they are not supplied.
+The tool *cannot be tested and built* if they are not available.
 
 #### Common tool patterns
 
-The ToolFactory offers some common models for useful analysis tools and filters to use in workflows.
-Simple *filters* taking STDIN and writing to STDOUT like the tac|rev example, are easy and quick to create.
+The ToolFactory offers simple *filters* taking STDIN and writing to STDOUT like the tac|rev example.
+These are easy and quick to create.
+Adding parameters and i/o in a more complicated command line driven model, with Conda packages, with or without a supplied script, covers a large range
+of common requirements.
 
-For many common requirements, the command line driven model, with Conda packages, with or without a supplied script, can usually be adapted.
-Tools can take any number of user chosen input files from the history, and parameters set on the tool form at run time.
-Output files can be written as new history items for downstream analyses, or as a collection.
+Each tool can specify any number of user selected history input files, and user supplied parameters.
+Output files can be written as individual new history items for downstream analyses, or mixed together in a collection.
 
-#### Items needed for a new tool
+#### Information needed for a new tool
 
 Details are supplied on the form for each of the elements needed for the new tool. These include:
 
@@ -111,17 +118,17 @@ Details are supplied on the form for each of the elements needed for the new too
  * Input sample files uploaded in the history so they can be selected when defining input files, and used for the tool test.
  * Output files that will appear in the history when the new tool is run.
  * User-controlled command line parameters.
- * Command line construction and how parameters are passed to the script or dependency.
 
- Many of these involve related choices, including:
+Many of these involve related choices, including:
 
   * an internal parameter name
   * a form or file parameter type
   * optional default value
   * user form prompt and help text
 
- The tool itself has specific details including:
+ The tool itself has metadata, and other options including:
 
+  * Command line construction to pass parameters to the script or dependency.
   * Help text
   * Links to related repositories and help
   * Citations
@@ -150,11 +157,12 @@ Select lists, and the usual numeric and text parameters can be used in forms.
 These can be passed to the dependency or script on the command line as argparse (*--foo*) style or in positional order if necessary.
 
 The Repeats example configures an input text parameter as repeating, so the new tool form allows the user to create any number
-of text strings on the command line, parsed using Python's argparser, concatenated and returned at run time as a text file in the history.
+of different text strings. These are passed to the script, where they are parsed out of the command line with Python's argparser,
+concatenated and written to a new text file in the history.
 
-The Select example shows how to build a select parameter into a ToolFactory tool form. Tests will include it.
+The Select example shows a select parameter, returning the string from the option chosen on the ToolFactory tool form to the history.
 
-All the input example features can be mixed to build the form needed for a new simple tool.
+Input features can be mixed, to build the form needed for a new simple tool.
 
 Supplied inputs and the default parameter values are used to construct a test for the tool. If the test fails, the tool will
 not build properly. This should never happen because of errors in the script, if it is already know to work properly with the same inputs
@@ -175,7 +183,6 @@ The learning curve is smaller and the scope is correspondingly limited by the co
 Those limitations can be worked around in some situations, by changing the way the script expects parameters, but an experienced tool developer
 is probably the best choice at that point.
 
-
 Reliable tests cannot be automatically generated for tools that create arbitrary collections, since the contents are not yet available at tool XML generation time.
 They do appear after the test so send code - PR please if you care. A suitable test XML section can be supplied, as the Plotter example shows, but really, a Galaxy form
 is a clumsy way to write XML. Better to use the proper developer tools, rather than a limited automated code generator, if you need collection outputs tested or other
@@ -194,8 +201,8 @@ that only runs jobs serially. All other tools run normally on the local runner.
 
 Only an administrator can execute the ToolFactory. Any new administrator email must be added to
 *galaxytf/config/galaxy.yml* in the *admin_users* setting. Do not allow
-any spaces between addresses if new ones are added, and restart the server for them to become active.
-Do not remove the default toolfactory@galaxy.org one or the ToolFactory will fail since it uses that account's API key in scripts.
+any spaces between addresses, and restart the server for them to become active.
+Do not remove the default admin *toolfactory@galaxy.org* or the ToolFactory will always fail because it depends on that API key in scripts.
 
 #### Do not expose this Galaxy server on the public internet. It is not secured.
 
@@ -209,7 +216,7 @@ There is an important protection - *the ToolFactory will only work for administr
 Ordinary and anonymous users can fill in the form, but it will be a waste of time, because tool execution exit with an error before a tool is generated.
 
 Generated tools are ordinary Galaxy tools.
-They should always be inspected before installation from an untrusted source.
+Code should always be inspected before installation from an untrusted source.
 
 #### ToolFactory development server installation
 
@@ -229,16 +236,17 @@ The steps include:
 
  * Download and unpack a zip of (default) 23.0 working well as at February 2023, or a stable 22.05 release - edit *localtf.sh* to suit.
  * Install the ToolFactory configuration overlay already cloned
-  * Build the client (slow!)
+ * Build the client (slow!)
  * Create the default admin user and insert the API keys in various ToolFactory scripts.
  * Upload the default history and a workflow to build the examples.
 
-This takes 20 minutes or more to complete.
+This takes 30 minutes or more to complete.
+
 A functioning development server will occupy ~9GB of disk space, so be sure your machine has plenty of room.
 It will be based in a single directory, *galaxytf* in the same directory as the galaxy_tf_overlay repository was cloned into.
 That is where the script should be run as shown above.
 
-Rerunning the *localtf.sh* script will *destroy the entire galaxytf directory* - all ~8GB, and create a clean new installation.
+Rerunning the *localtf.sh* script will *destroy the entire galaxytf directory* - all ~9GB, and create a clean new installation.
 It should only need to be run once in the life of the development server.
 
 Remove the *galaxytf* directory to remove the entire development server when it is no longer needed. Save all your tools and histories,

@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-echo "First run takes a while. Go for a walk or do something else more useful than watching"
+echo "First run takes a while. Go for a walk, read the manual, or do something else more useful than watching"
 OURDIR="../galaxytf"
 # assume run from the git galaxy_tf_overlay clone directory
 REL="release_23.0"
