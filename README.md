@@ -18,7 +18,7 @@ cd galaxy_tf_overlay
 sh ./localtf.sh
 ```
 
-Take a break for the 30+ minutes it will take to build and complete. A good time to read the rest of this documentation.
+Take a break for the 20+ minutes it will take to build and complete. A good time to read the rest of this documentation.
 See the end of this document for more details about installing, starting, logging in as admin, using and stopping the server.
 
 
@@ -240,7 +240,7 @@ The steps include:
  * Create the default admin user and insert the API keys in various ToolFactory scripts.
  * Upload the default history and a workflow to build the examples.
 
-This takes 30 minutes or more to complete.
+This takes 20 minutes or more to complete.
 
 A functioning development server will occupy ~9GB of disk space, so be sure your machine has plenty of room.
 It will be based in a single directory, *galaxytf* in the same directory as the galaxy_tf_overlay repository was cloned into.
