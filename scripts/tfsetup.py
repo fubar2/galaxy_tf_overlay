@@ -94,8 +94,11 @@ def run_sed(options):
     line_start = 'APIK='
     """
     fixme = []
-    fixfile = "%s/config/galaxy.yml" % options.galaxy_root
-    fixme.append(('  virtualenv:', '  virtualenv="%s"' % os.path.join(options.galaxy_root,'venv'), fixfile ))
+    if os.environ.get('GALAXY_CONFIG_FILE', None):
+        fixfile = os.environ['GALAXY_CONFIG_FILE']
+    else:
+        fixfile = "%s/config/galaxy.yml" % options.galaxy_root
+    fixme.append(('  tool_config_file:', '  tool_config_file: "tool_conf.xml,%s"' % os.path.join(options.galaxy_root, 'local_tools', 'local_tool_conf.xml'), fixfile ))
     fixfile = "%s/local_tools/toolfactory/toolfactory.py" % options.galaxy_root
     fixme.append(('GALAXY_ADMIN_KEY = ', 'GALAXY_ADMIN_KEY = "%s"' % options.key, fixfile ))
     fixme.append(('GALAXY_URL = ' , 'GALAXY_URL = "%s"' % options.galaxy_url, fixfile ))
@@ -175,9 +178,6 @@ if __name__ == "__main__":
     print(f"installed {WF_FILE} Returned = {wf}\n")
     hist = gi.histories.import_history(file_path=HIST_FILE)
     print("hist=", hist)
-    history_id = hist["id"]
-    print(f"installed {HIST_FILE} Returned = {hist}\n")
-
     j = gi.jobs.get_jobs()
     nj = len([x for x in j if x["state"] in ("waiting", "running", "queued")])
     while nj:
@@ -185,7 +185,7 @@ if __name__ == "__main__":
         sleep(2)
         j = gi.jobs.get_jobs()
         nj = len([x for x in j if x["state"] in ("waiting", "running", "queued")])
-    cmd = ["/usr/bin/bash", os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"), "toolfactory"]
+    cmd = ["/bin/bash", os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"), "toolfactory"]
     print("executing", cmd)
     subprocess.run(cmd)
     if not ALREADY:
