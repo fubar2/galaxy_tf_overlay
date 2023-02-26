@@ -92,7 +92,7 @@ class Tool_Factory:
         self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
         self.tool_id = self.tool_name
         self.local_tools = os.path.join(args.galaxy_root, "local_tools")
-        self.local_tool_conf = os.path.join(args.galaxy_root, "config", "local_tool_config", "local_tool_conf.xml")
+        self.local_tool_conf = os.path.join(self.local_tools, "local_tool_conf.xml")
         self.ourcwd = os.getcwd()
         self.collections = []
 

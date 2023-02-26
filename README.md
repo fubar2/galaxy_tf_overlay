@@ -7,7 +7,7 @@ Clone the latest Galaxy server code and install a configuration overlay, allowin
 
 Scientists who would like to use their own code in Galaxy workflows, but do not yet have the skills required to create new tools.
 
-## Installation quick start
+## Installation quick start for those in a hurry
 
 Clone this github repository in a convenient directory, and use *localtf.sh*  to bootstrap, configure and build a new development server, with
 the following shell commands. It will install galaxy in a new and disposable directory, *galaxytf*.:
@@ -73,6 +73,7 @@ Argparse is far less prone to accidentally mixed up parameters than positional p
 Shell script models include a tac|rev and Hello examples. Trivial, but versatile models for potentially more complicated and useful tools.
 Tacrev is the simplest model, a shell script filter to really reverse a text file selected as an input.
 Hello also uses a one line bash script, with a user supplied parameter written to a string, captured as a new file in the history.
+The sedtest runs a sed edit string on the chosen input file so is like the IUC tools that allow scripts for specific interpreters.
 Recreating the form will show how STDIN and STDOUT can be conveniently used for input and output in simple tasks.
 
 Any Conda interpreter can be used. Perl, Lisp and Prolog examples demonstrate user-supplied (Lisp) and inbuilt (Prolog, Perl) script models.
@@ -94,17 +95,19 @@ tool generation job in your history.
 *Do not try to debug your script* using the ToolFactory, because it is a very inefficient way to do something more easily done in a shell session.
 
 If there are complications in the way the script requires parameter passed that the ToolFactory cannot satisfy, it may sometimes be possible to adjust the script, to suit the simple ToolFactory
-XML code generator. Otherwise it will need an experienced developer and the usual tools.
+XML code generator. Otherwise it will need an experienced developer and the usual development tools.
 
-Upload all the working test data samples into a Galaxy history, ready to select on the ToolFactory form as each user input history element is added to the form. These provide data for the test.
-The tool *cannot be tested and built* if they are not available.
+Before starting the form, if the tool takes any history input files, upload the working test data samples you already have, into a Galaxy history, ready to select on the
+ToolFactory form as each user input history element  is defined
+.
+These provide data for the test. A tool *cannot be tested and built* if they are not available.
 
 #### Common tool patterns
 
-The ToolFactory offers simple *filters* taking STDIN and writing to STDOUT like the tac|rev example.
-These are easy and quick to create.
+The ToolFactory offers simple *filters* taking STDIN and writing to STDOUT like the tac|rev example. These can use any Conda dependency and are easy and
+quick to create. Unix utilities can be included as Conda dependencies to ensure that the tool will run, even in execution environments lacking common utilities.
 Adding parameters and i/o in a more complicated command line driven model, with Conda packages, with or without a supplied script, covers a large range
-of common requirements.
+of common requirements, bearing in mind the many limitations of an automated code generator.
 
 Each tool can specify any number of user selected history input files, and user supplied parameters.
 Output files can be written as individual new history items for downstream analyses, or mixed together in a collection.
@@ -128,18 +131,18 @@ Many of these involve related choices, including:
 
  The tool itself has metadata, and other options including:
 
-  * Command line construction to pass parameters to the script or dependency.
-  * Help text
-  * Links to related repositories and help
+  * Unique id
+  * Command line construction method to pass parameters to the script or dependency.
+  * Help text and links
   * Citations
 
 #### At job completion
 
-The new generated tool is installed in the local tools section, but will need a screen refresh to appear.
+The new generated tool is installed in the *Local tools* section, but will need a screen refresh to appear.
 Dependencies will already be installed, so it can be used like any other tool and will work the way it will work when installed into any Galaxy server.
 
-The new tool is installed in the Local Tools menu, ready to try out. Seeing the generated form will often make it possible to make adjustments
-so it's easier to use. The "redo" button ⭮ recreates the ToolFactory form, ready to adjust and rerun. If the tool ID is not changed, the old version will
+Seeing the generated form will often make it possible to make adjustments so it's easier to use.
+The "redo" button ⭮ recreates the ToolFactory form, ready to adjust and rerun. If the tool ID is not changed, the old matching one will
 be overwritten.
 
 A collection of tool related files also appears in the history, including a log of the tool test and job run.
@@ -154,7 +157,7 @@ Repeated output history files are not available, but a collection is usually a
 convenient workaround for outputs not needed downstream as the Plotter Rscript example shows.
 
 Select lists, and the usual numeric and text parameters can be used in forms.
-These can be passed to the dependency or script on the command line as argparse (*--foo*) style or in positional order if necessary.
+Their settings can be passed to the dependency or script on the command line as argparse (*--foo*) style or in positional order if necessary.
 
 The Repeats example configures an input text parameter as repeating, so the new tool form allows the user to create any number
 of different text strings. These are passed to the script, where they are parsed out of the command line with Python's argparser,
