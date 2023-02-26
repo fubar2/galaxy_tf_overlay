@@ -1,5 +1,5 @@
 # build ToolFactory image from the latest and greatest
-FROM quay.io/bgruening/galaxy
+FROM bgruening/galaxy-stable
 MAINTAINER Ross Lazarus ross.lazarus@gmail.com
 ADD galaxy_tf_overlay/local /galaxy-central/local
 ADD galaxy_tf_overlay/local_tools /galaxy-central/local_tools
@@ -9,6 +9,7 @@ ADD galaxy_tf_overlay/config_docker/post-start-actions.sh /galaxy-central
 ENV GALAXY_CONFIG_BRAND "ToolFactory Docker"
 ENV GALAXY_CONFIG_TOOL_CONFIG_FILE "/etc/galaxy/tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml"
 ENV GALAXY_CONFIG_ADMIN_USERS "admin@galaxy.org,toolfactory@galaxy.org"
+RUN chown -R galaxy:galaxy /galaxy-central/local /galaxy-central/local_tools
 
 #ENTRYPOINT ["/sbin/tini", "--"]
 
