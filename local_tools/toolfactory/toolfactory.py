@@ -801,7 +801,7 @@ class Tool_Factory:
         self.test_outs = self.tooltestd
         scrpt = os.path.join(self.args.tool_dir, "toolfactory_fast_test.sh")
         extrapaths = self.tooltestd
-        cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
+        cl = ["bash", scrpt, self.tool_name, extrapaths, extrapaths]
         logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
         p = subprocess.run(
             " ".join(cl),
@@ -878,11 +878,11 @@ class Tool_Factory:
         """
         use script to install new tool dependencies
         """
-        cll = ["/usr/bin/bash", "%s/install_tf_deps.sh" % self.args.tool_dir, self.tool_name]
+        cll = ["bash", "%s/install_tf_deps.sh" % self.args.tool_dir, self.tool_name]
         logger.info("Running %s\n" % " ".join(cll))
         p = subprocess.run(
             cll,
-            shell=False,
+            shell=True,
             capture_output=True,
             check=True,
             text=True
