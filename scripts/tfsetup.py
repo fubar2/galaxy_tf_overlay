@@ -94,11 +94,6 @@ def run_sed(options):
     line_start = 'APIK='
     """
     fixme = []
-    if os.environ.get('GALAXY_CONFIG_FILE', None):
-        fixfile = os.environ['GALAXY_CONFIG_FILE']
-    else:
-        fixfile = "%s/config/galaxy.yml" % options.galaxy_root
-    fixme.append(('  tool_config_file:', '  tool_config_file: "tool_conf.xml,%s"' % os.path.join(options.galaxy_root, 'local_tools', 'local_tool_conf.xml'), fixfile ))
     fixfile = "%s/local_tools/toolfactory/toolfactory.py" % options.galaxy_root
     fixme.append(('GALAXY_ADMIN_KEY = ', 'GALAXY_ADMIN_KEY = "%s"' % options.key, fixfile ))
     fixme.append(('GALAXY_URL = ' , 'GALAXY_URL = "%s"' % options.galaxy_url, fixfile ))
