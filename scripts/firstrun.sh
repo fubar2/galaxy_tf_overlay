@@ -4,23 +4,15 @@ HERE=`pwd`
 echo "$HERE"
 GALAXY_VIRTUAL_ENV=$HERE/venv
 echo $GALAXY_VIRTUAL_ENV
-#sudo -u postgres psql -c "create role $USER;"
-#sudo -u postgres psql -c "drop database galaxydev;"
-#sudo -u postgres psql -c "create database galaxydev;"
-#sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
-#sudo rm -rf database/jobs_directory/000/*
 # fresh db so need clean jobs?
-if [ -f "database/universe.sqlite" ];
-  echo "Deleting existing sqlite database and jobs directories"
-  rm database/*.sqlite
-  rm -rf database/jobs_directory/*
-else
-   echo "Creating new sqlite database"
+if [ -f "/galaxy-central/database/jobs_directory/000" ];
+echo "Deleting existing jobs directories"
+rm -rf database/jobs_directory/*
 fi
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
-. venv/bin/activate
-pip3 install bioblend ephemeris planemo
+. $GALAXY_VIRTUAL_ENV/bin/activate
+pip3 install -U bioblend ephemeris planemo
 python3 scripts/tfsetup.py --galaxy_root $HERE
 echo "Your dev server is ready to run. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
