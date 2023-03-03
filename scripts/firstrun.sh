@@ -5,10 +5,7 @@ echo "$HERE"
 GALAXY_VIRTUAL_ENV=$HERE/venv
 echo $GALAXY_VIRTUAL_ENV
 # fresh db so need clean jobs?
-if [ -f "/galaxy-central/database/jobs_directory/000" ];
-echo "Deleting existing jobs directories"
 rm -rf database/jobs_directory/*
-fi
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
 . $GALAXY_VIRTUAL_ENV/bin/activate
