@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-USER="ubuntu" # or whatever..this for my play server
-sudo -u postgres psql -c "create role $USER;"
-sudo -u postgres psql -c "drop database galaxydev;"
-sudo -u postgres psql -c "create database galaxydev;"
-sudo -u postgres psql -c "grant all privileges on database galaxydev to $USER;"
+# ansible command calls this to do most of the work
+# no need to make this into a playbook
 echo $GALAXY_VIRTUAL_ENV
+service postgresql start
 . $GALAXY_VIRTUAL_ENV/bin/activate
 cd $GALAXY_ROOT
 pip3 install -U bioblend ephemeris planemo
