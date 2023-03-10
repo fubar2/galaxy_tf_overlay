@@ -179,10 +179,11 @@ gravity:
   # Configure dynamic handlers in this section.
   # See https://docs.galaxyproject.org/en/latest/admin/scaling.html#dynamically-defined-handlers for details.
   # handlers: {}
+
 galaxy:
   watch_tools: true
-  tool_config_file: tool_conf.xml,../local_tools/local_tool_conf.xml
-  database_connection: sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE
+  tool_config_file: "tool_conf.xml,../local_tools/local_tool_conf.xml"
+  database_connection: "postgresql:///galaxy@localhost/galaxydev" #  sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE
   brand: ToolFactoryDevGalaxy
   admin_users: toolfactory@galaxy.org,admin@galaxy.org
   # Display the "Galaxy" text in the masthead.

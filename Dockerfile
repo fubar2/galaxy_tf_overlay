@@ -48,13 +48,17 @@ RUN apt-get -y upgrade \
     && git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay.git \
    && wget $GALZIP \
    && unzip $REL.zip \
+   && sudo -u postgres psql -c "create role $GALAXY_USER;"
+   && sudo -u postgres psql -c "drop database galaxydev;"
+   && sudo -u postgres psql -c "create database galaxydev;"
+   && sudo -u postgres psql -c "grant all privileges on database galaxydev to $GALAXY_USER;"
    && mv $BUILD_DIR/galaxy-$REL/* $GALAXY_ROOT/  \
    && echo `ls -l` \
    && echo `ls -l /` \
    && echo `ls -l /galaxytf` \
    && cd $GALAXY_ROOT \
    && cp -rvu $BUILD_DIR/galaxy_tf_overlay/* $GALAXY_ROOT/ \
-    && mkdir -p /etc/apt/keyrings $BUILD_DIR \
+    && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
       $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
@@ -68,8 +72,8 @@ USER $GALAXY_USER
 RUN cd $GALAXY_ROOT \
   && . $GALAXY_VIRTUAL_ENV/bin/activate \
   && sh scripts/common_startup.sh --no-create-venv \
-  && pip3 install bioblend ephemeris  planemo \
-  && python3 scripts/tfsetup.py --galaxy_root $GALAXY_ROOT
+  && pip3 install bioblend ephemeris  planemo
+  # \   && python3 scripts/tfsetup.py --galaxy_root $GALAXY_ROOT
 
 USER root
 RUN find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
