@@ -32,15 +32,17 @@ GALAXY_CONFIG_BRAND="ToolFactory Docker" \
 GALAXY_CONFIG_TOOL_CONFIG_FILE="/etc/galaxy/tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml" \
 GALAXY_CONFIG_ADMIN_USERS="admin@galaxy.org,toolfactory@galaxy.org"
 
-RUN apt-get -y upgrade \
+RUN apt-get update && apt-get -y upgrade \
     && apt-get install -y -qq --no-install-recommends locales tzdata openssl netbase apt-utils apt-transport-https unzip supervisor \
      software-properties-common ca-certificates curl python3-dev gcc python3-pip build-essential python3-venv \
-     python3-wheel nano wget git python3-setuptools gnupg mercurial lsb-release \
+     python3-wheel nano wget git python3-setuptools gnupg mercurial lsb-release sudo \
     && locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 \
     && dpkg-reconfigure -f noninteractive tzdata \
     && groupadd -f galaxy \
+    && groupadd -f postgres \
     && useradd -r -m -g galaxy galaxy \
+    && useradd -r -m -g postgres postgres \
     && groupadd -f docker \
     && usermod -aG docker galaxy \
     && mkdir -p $GALAXY_ROOT $BUILD_DIR \
@@ -48,35 +50,35 @@ RUN apt-get -y upgrade \
     && git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay.git \
    && wget $GALZIP \
    && unzip $REL.zip \
-   && sudo -u postgres psql -c "create role $GALAXY_USER;"
-   && sudo -u postgres psql -c "drop database galaxydev;"
-   && sudo -u postgres psql -c "create database galaxydev;"
-   && sudo -u postgres psql -c "grant all privileges on database galaxydev to $GALAXY_USER;"
    && mv $BUILD_DIR/galaxy-$REL/* $GALAXY_ROOT/  \
-   && echo `ls -l` \
-   && echo `ls -l /` \
-   && echo `ls -l /galaxytf` \
    && cd $GALAXY_ROOT \
-   && cp -rvu $BUILD_DIR/galaxy_tf_overlay/* $GALAXY_ROOT/ \
+   && cp -rv $BUILD_DIR/galaxy_tf_overlay/* $GALAXY_ROOT/ \
     && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
       $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
     && apt-get -y update  \
-    && apt-get install -y docker-ce-cli docker-ce containerd.io docker-compose-plugin postgresql-14 \
+   && apt-get install -y docker-ce-cli docker-ce containerd.io docker-compose-plugin \
+    && printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d \
+   && apt-get install -y postgresql-14 \
     && python3 -m venv $GALAXY_VIRTUAL_ENV \
-    && chown -R galaxy:galaxy $GALAXY_ROOT  $BUILD_DIR $GALAXY_VIRTUAL_ENV  /home/galaxy
-
+    && chown -R galaxy:galaxy $GALAXY_ROOT  $BUILD_DIR $GALAXY_VIRTUAL_ENV  /home/galaxy \
+    && service postgresql start \
+   && sudo -u postgres /usr/bin/psql -c "create role $GALAXY_USER with login createdb;" \
+   && sudo -u postgres /usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;" \
+   && sudo -u postgres /usr/bin/psql -c "create database galaxydev;" \
+   && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to $GALAXY_USER;"
 
 USER $GALAXY_USER
 RUN cd $GALAXY_ROOT \
   && . $GALAXY_VIRTUAL_ENV/bin/activate \
   && sh scripts/common_startup.sh --no-create-venv \
-  && pip3 install bioblend ephemeris  planemo
-  # \   && python3 scripts/tfsetup.py --galaxy_root $GALAXY_ROOT
+  && pip3 install bioblend ephemeris  planemo \
+  && python3 scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --force
 
 USER root
-RUN find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
+RUN service postgresql stop \
+    && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
     && find /var/log/ -name '*.log' -delete | true \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
