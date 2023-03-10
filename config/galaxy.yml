@@ -180,9 +180,11 @@ gravity:
   # See https://docs.galaxyproject.org/en/latest/admin/scaling.html#dynamically-defined-handlers for details.
   # handlers: {}
 galaxy:
-   database_connection: sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE
-   brand: ToolFactoryDevGalaxy
-
+  watch_tools: true
+  tool_config_file: tool_conf.xml,../local_tools/local_tool_conf.xml
+  database_connection: sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE
+  brand: ToolFactoryDevGalaxy
+  admin_users: toolfactory@galaxy.org,admin@galaxy.org
   # Display the "Galaxy" text in the masthead.
   display_galaxy_brand: false
 

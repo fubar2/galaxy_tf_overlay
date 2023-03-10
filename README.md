@@ -7,7 +7,7 @@ Clone the latest Galaxy server code and install a configuration overlay, allowin
 
 Scientists who would like to use their own code in Galaxy workflows, but do not yet have the skills required to create new tools.
 
-## Installation quick start for those in a hurry
+## Installation and very quick start instructions
 
 Clone this github repository in a convenient directory, and use *localtf.sh*  to bootstrap, configure and build a new development server, with
 the following shell commands. It will install galaxy in a new and disposable directory, *galaxytf*.:
@@ -21,8 +21,6 @@ sh ./localtf.sh
 Take a break for the 20+ minutes it will take to build and complete. A good time to read the rest of this documentation.
 See the end of this document for more details about installing, starting, logging in as admin, using and stopping the server.
 
-
-## Summary
 
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.
 
@@ -42,7 +40,11 @@ Fortunately, many simple tools do not need them, or tools requiring them can be 
 Simple tools are sometimes very useful in complex analyses, so the ToolFactory may offer a solution
 for a developer lacking the necessary additional Galaxy tool building skills.
 
-### Basic idea
+For a quick overview, look at how the "Hello" tool was generated, by clicking the circular arrow redo button ⭮ on the archive in the default history.
+That's a trivial example, but essentially shows how to run your own simple bash script using a single string obtained from the user.
+This can be easily extended to do more useful things, by adding more complex scripts with more user input parameters.
+
+## Basic idea
 
 The ToolFactory generates tool XML based on settings on a Galaxy tool form, installs it and tests it using the supplied test data, and returns a Toolshed ready archive,
 with the test built in.
@@ -55,7 +57,7 @@ Even using an automated generator, planning and preparation are the key to effic
 Debugging the script in the ToolFactory is very clumsy.
 Get it right first, then build the new tool knowing that any defects are likely from the way the form is configured, not the script, test data or dependencies.
 
-### Simple tool examples as models
+## Simple tool examples as models
 
 The default history for the admin account contains the results of running a workflow (also installed) that generates all the examples.
 The most convenient way to see how the ToolFactory works, is to use Galaxy's inbuilt redo ⭮ button for any interesting example outputs
@@ -83,7 +85,7 @@ XML command line, as the BWA examples demonstrate.
 The Plotter example illustrates parameter passing to Rscript, and presenting arbitrary plots or other new outputs as history collections.
 
 
-### Building your own tools.
+## Building your own tools.
 
 Start out with a script that works correctly on a command line with associated packages and dependency versions for Conda.
 It might be an open source package, or your own Python or shell script. Working means correctly processing some small but realistic test data inputs.
@@ -102,7 +104,7 @@ ToolFactory form as each user input history element  is defined
 .
 These provide data for the test. A tool *cannot be tested and built* if they are not available.
 
-#### Common tool patterns
+### Common tool patterns
 
 The ToolFactory offers simple *filters* taking STDIN and writing to STDOUT like the tac|rev example. These can use any Conda dependency and are easy and
 quick to create. Unix utilities can be included as Conda dependencies to ensure that the tool will run, even in execution environments lacking common utilities.
@@ -112,7 +114,7 @@ of common requirements, bearing in mind the many limitations of an automated cod
 Each tool can specify any number of user selected history input files, and user supplied parameters.
 Output files can be written as individual new history items for downstream analyses, or mixed together in a collection.
 
-#### Information needed for a new tool
+### Information needed for a new tool
 
 Details are supplied on the form for each of the elements needed for the new tool. These include:
 
@@ -136,7 +138,7 @@ Many of these involve related choices, including:
   * Help text and links
   * Citations
 
-#### At job completion
+### At job completion
 
 The new generated tool is installed in the *Local tools* section, but will need a screen refresh to appear.
 Dependencies will already be installed, so it can be used like any other tool and will work the way it will work when installed into any Galaxy server.
@@ -171,7 +173,7 @@ Supplied inputs and the default parameter values are used to construct a test fo
 not build properly. This should never happen because of errors in the script, if it is already know to work properly with the same inputs
 on the command line. Clues can be found in the run log if available, or the information (i) and bug pages.
 
-### Scope and limitations
+## Scope and limitations
 
 Many Galaxy tool wrappers require an experienced developer using [specialised development methods](https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-from-scratch/tutorial.html).
 All developers are encouraged to learn those skills.
@@ -200,14 +202,14 @@ Sqlite works fine. Postgres seems faster but sqlite out of the box seems stable 
 If multiple Conda jobs run at the same time, processes can spin endlessly or dependencies may become corrupted, so job_conf.yml specifies a queue for the ToolFactory
 that only runs jobs serially. All other tools run normally on the local runner.
 
-### Local installation and admin login
+## Local installation and admin login
 
 Only an administrator can execute the ToolFactory. Any new administrator email must be added to
 *galaxytf/config/galaxy.yml* in the *admin_users* setting. Do not allow
 any spaces between addresses, and restart the server for them to become active.
 Do not remove the default admin *toolfactory@galaxy.org* or the ToolFactory will always fail because it depends on that API key in scripts.
 
-#### Do not expose this Galaxy server on the public internet. It is not secured.
+### Do not expose this Galaxy server on the public internet. It is not secured.
 
 All the usual layers of isolation required to make a server secure for public exposure, are missing as installed.
 It's easy and safe to run locally, so installation on any public server is strongly discouraged.
@@ -221,7 +223,7 @@ Ordinary and anonymous users can fill in the form, but it will be a waste of tim
 Generated tools are ordinary Galaxy tools.
 Code should always be inspected before installation from an untrusted source.
 
-#### ToolFactory development server installation
+### ToolFactory development server installation
 
 The recommended installation involves cloning a bootstrap github repository, and using the *localtf.sh* script to build a new development server.
 
@@ -256,7 +258,7 @@ Remove the *galaxytf* directory to remove the entire development server when it 
 because the jobs in a history can be used to update a tool easily, and a history can be imported into a fresh development instance
 when needed.
 
-#### Starting, using and stopping the server after installation
+### Starting, using and stopping the server after installation
 
 Once installation is complete:
  * start the server from the *galaxytf* directory with *sh run.sh*. The logs will be displayed.
