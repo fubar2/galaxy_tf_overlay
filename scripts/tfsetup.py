@@ -22,8 +22,7 @@ This will start and stop new Galaxy instance if there is not one already running
 Requires --force to rerun if admin user already exists
 
 """
-
-def run_wait_gal(url, galdir):
+def run_wait_gal(url, galdir, venvdir):
     ALREADY=False
     try:
         request.urlopen(url=url)
@@ -31,7 +30,7 @@ def run_wait_gal(url, galdir):
         return ALREADY
     except URLError:
         print('no galaxy yet at',url)
-    cmd = "cd %s && GALAXY_VIRTUAL_ENV=%s/venv && /bin/bash run.sh --no-create-venv --daemon" % (galdir, galdir)
+    cmd = "cd %s && GALAXY_VIRTUAL_ENV=%s && /bin/bash run.sh --no-create-venv --daemon" % (galdir, venvdir)
     print('executing', cmd)
     subprocess.run(cmd, shell=True)
     ok = False
@@ -44,8 +43,9 @@ def run_wait_gal(url, galdir):
             sleep(3)
     return ALREADY
 
+
 def stop_gal(url, galdir):
-    cmd = "cd %s && GALAXY_VIRTUAL_ENV=%s/venv && /bin/bash run.sh --stop-daemon" % (galdir, galdir)
+    cmd = "cd %s && GALAXY_VIRTUAL_ENV=%s/.venv && /bin/bash run.sh --stop-daemon" % (galdir, galdir)
     print("executing", cmd)
     subprocess.run(cmd, shell=True)
 
@@ -124,6 +124,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create Galaxy Admin User.")
     parser.add_argument("--galaxy_url", help="Galaxy server URL", default="http://localhost:8080")
     parser.add_argument("--galaxy_root", required=True, help="Galaxy root directory path", default="./")
+    parser.add_argument("--galaxy_venv", required=True, help="Galaxy venv path", default="/galaxytf/.venv")
     parser.add_argument("--user", help="Username - an email address.", default="toolfactory@galaxy.org")
     parser.add_argument("--password", help="Password", default="ChangeMe!")
     parser.add_argument("--password2", help="Password", default=apikey2)
@@ -139,7 +140,7 @@ if __name__ == "__main__":
     sys.path.insert(1, options.galaxy_root)
     sys.path.insert(1, os.path.join(options.galaxy_root, "lib"))
 
-    ALREADY = run_wait_gal(url=options.galaxy_url, galdir=options.galaxy_root)
+    ALREADY = run_wait_gal(url=options.galaxy_url, galdir=options.galaxy_root, venvdir=options.galaxy_venv)
     from galaxy.model import User, APIKeys
     from galaxy.model.mapping import init
     from galaxy.model.orm.scripts import get_config

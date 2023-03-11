@@ -73,11 +73,15 @@ USER $GALAXY_USER
 RUN cd $GALAXY_ROOT \
   && . $GALAXY_VIRTUAL_ENV/bin/activate \
   && sh scripts/common_startup.sh --no-create-venv \
-  && pip3 install bioblend ephemeris  planemo \
-  && python3 scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --force
+  && pip3 install bioblend ephemeris planemo
+
+RUN python3 scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --force
 
 USER root
+ADD scripts_docker/export_user_files.py /usr/local/bin/export_user_files.py
+ADD scripts_docker/startuptf.sh /usr/local/bin/startup
 RUN service postgresql stop \
+    && chmod a+x /usr/local/bin/*.py \
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
     && find /var/log/ -name '*.log' -delete | true \
@@ -85,15 +89,15 @@ RUN service postgresql stop \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
-EXPOSE 8080
-USER galaxy
+EXPOSE :8080
 
+USER galaxy
 
 
 #ENTRYPOINT ["/sbin/tini", "--"]
 
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy)
-EXPOSE :80
+# EXPOSE :80
 #EXPOSE :21
 #EXPOSE :8800
 #VOLUME ["/export/", "/data/", "/var/lib/docker"]

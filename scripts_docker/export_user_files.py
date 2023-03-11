@@ -9,8 +9,8 @@ import subprocess
 if len( sys.argv ) == 2:
     PG_DATA_DIR_DEFAULT = sys.argv[1]
 else:
-    PG_DATA_DIR_DEFAULT = "/var/lib/postgresql/9.3/main"
-PG_DATA_DIR_HOST = os.environ.get("PG_DATA_DIR_HOST", "/export/postgresql/9.3/main/")
+    PG_DATA_DIR_DEFAULT = "/var/lib/postgresql/14/main"
+PG_DATA_DIR_HOST = os.environ.get("PG_DATA_DIR_HOST", "/export/postgresql/14/main/")
 
 def change_path( src ):
     """
