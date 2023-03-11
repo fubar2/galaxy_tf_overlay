@@ -22,10 +22,10 @@
 FROM phusion/baseimage:jammy-1.0.1
 MAINTAINER ross dot lazarus at gmail period com
 ENV DEBIAN_FRONTEND=noninteractive \
-GALAXY_ROOT=/galaxytf \
+GALAXY_ROOT=/galaxy-central \
 BUILD_DIR=/tf_build  \
 GALAXY_USER=galaxy \
-GALAXY_VIRTUAL_ENV=/galaxytf/.venv \
+GALAXY_VIRTUAL_ENV=/galaxy-central/.venv \
 REL=release_23.0 \
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.0.zip" \
 GALAXY_CONFIG_BRAND="ToolFactory Docker" \
@@ -77,9 +77,12 @@ RUN cd $GALAXY_ROOT \
 
 USER root
 ADD scripts_docker/export_user_files.py /usr/local/bin/export_user_files.py
-ADD scripts_docker/startuptf.sh /usr/local/bin/startup
+ADD scripts_docker/startuptf.sh /usr/bin/startup
+ADD scripts_docker/galaxy.conf /etc/supervisor/conf.d/galaxy.conf
+ADD config_docker/post-start-actions.sh /export/
+
 RUN service postgresql stop \
-    && chmod a+x /usr/local/bin/*.py \
+    && chmod a+x /usr/local/bin/*.py  /export/post-start-actions.sh \
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
     && find /var/log/ -name '*.log' -delete | true \
@@ -89,15 +92,19 @@ RUN service postgresql stop \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 EXPOSE :8080
 
-USER galaxy
+ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
+    SUPERVISOR_MANAGE_POSTGRES=True \
+    SUPERVISOR_MANAGE_CRON=True \
+    SUPERVISOR_MANAGE_PROFTP=False \
+    SUPERVISOR_MANAGE_REPORTS=False \
+    SUPERVISOR_MANAGE_IE_PROXY=False \
+    SUPERVISOR_MANAGE_CONDOR=False \
+    SUPERVISOR_MANAGE_SLURM= \
+    HOST_DOCKER_LEGACY= \
+    GALAXY_EXTRAS_CONFIG_POSTGRES=True \
+    STARTUP_EXPORT_USER_FILES=True
 
+ENTRYPOINT ["/sbin/tini", "--"]
 
-#ENTRYPOINT ["/sbin/tini", "--"]
-
-# Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy)
-# EXPOSE :80
-#EXPOSE :21
-#EXPOSE :8800
-#VOLUME ["/export/", "/data/", "/var/lib/docker"]
 # Autostart script that is invoked during container start
-CMD ["/usr/bin/bash"]
+CMD ["/usr/bin/startup"]
