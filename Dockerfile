@@ -75,8 +75,6 @@ RUN cd $GALAXY_ROOT \
   && sh scripts/common_startup.sh --no-create-venv \
   && pip3 install bioblend ephemeris planemo
 
-RUN python3 scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --force
-
 USER root
 ADD scripts_docker/export_user_files.py /usr/local/bin/export_user_files.py
 ADD scripts_docker/startuptf.sh /usr/local/bin/startup
