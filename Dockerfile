@@ -80,14 +80,17 @@ USER root
 ADD scripts_docker/check_database.py /usr/local/bin/check_database.py
 ADD scripts_docker/export_user_files.py /usr/local/bin/export_user_files.py
 ADD scripts_docker/startuptf.sh /usr/bin/startup
+ADD config_docker/configure_slurm.py /usr/sbin/configure_slurm.py
 ADD config_docker/galaxy.conf /etc/supervisor/conf.d/galaxy.conf
 ADD config_docker/post-start-actions.sh /export/post-start-actions.sh
+ADD config_docker/job_conf.xml /etc/galaxy/job_conf.xml
+
 # use https://github.com/krallin/tini/ as tiny but valid init and PID 1
 ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
 ADD config_docker/galaxy.yml /etc/galaxy/galaxy.yml
 RUN chmod +x /sbin/tini \
     && service postgresql stop \
-    && chmod a+x /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup \
+    && chmod a+x /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup /usr/sbin/configure_slurm.py \
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
     && find /var/log/ -name '*.log' -delete | true \
