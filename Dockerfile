@@ -1,23 +1,16 @@
-# build ToolFactory image
-# This Dockerfile builds a development Galaxy server with a Galaxy tool to generate and test new Galaxy tools
-# There is no persistence for your work! It is only for temporary use.
-# To build the docker image, go to the top level directory of your training git repository and run:
-#    docker build -t galaxytf -f topics/tool-generators/docker/Dockerfile .
-# Take a break. Takes 20 minutes or more because it has to build a working server from the git code.
-# To run the completed image:
-#    docker run -p "8080:8080"  -t tool-generators
-# ToolFactory development server will be available on localhost:9090
-# Toolshed archives you generate can be downloaded and then unpacked under the mytools directory.
-# They will be loaded by planemo into the Galaxy it runs and be available in the tool menu the next time you restart the container and planemo
-# This allows you to load newly generated tools for testing and refinement.
-# WARNING:
-# Export your history before you shut this container down if you want to keep it. It will disappear forever otherwise!
-# The exported history .tgz file can be imported next time you start up. You may need to regenerate tools by rerunning the job to reuse them.
-#
-# The ToolFactory always starts with the same sample history and workflow built in once you login as toolfactory@galaxy.org
-# using the password 'ChangeMe!'. This won't be saved if you change it :( so please do not ever expose this development server on the open internet.
-# Without the usual protection from a proper
-
+# Galaxy 23.0 in docker-galaxy-unstable
+# Please do not ever expose this development server on the open internet.
+# includes a ToolFactory - a Galaxy tool to generate and test new Galaxy tools
+# The ToolFactory always starts with the same sample history and workflow built in
+# Login as toolfactory@galaxy.org using the password 'ChangeMe!'.
+# Only an administrative user can run the ToolFactory - anon and ordinary users cannot.
+# Most of the infrastructure is copied directly from Bjoern Gruening's docker-galaxy-stable and
+# has been hacked to work with the current dev 23.0
+# Note that nginx, proftpd, tus, cvmfs, condor....etc are not installed because this is supposed to be a throw-away dev server
+# Recommended command line is something like docker run -d -p 8080:8080 -v /evol/export:/export fubar2:toolfactory_docker
+# The exported directory maintains persistence between docker image runs and can be
+# deleted when no longer needed provided you have made copies of histories containing the jobs for any useful tools
+# you have generated...
 
 FROM phusion/baseimage:jammy-1.0.1
 MAINTAINER ross dot lazarus at gmail period com
@@ -25,12 +18,18 @@ ENV DEBIAN_FRONTEND=noninteractive \
 GALAXY_ROOT=/galaxy-central \
 BUILD_DIR=/tf_build  \
 GALAXY_USER=galaxy \
+GALAXY_HOME=/home/galaxy \
+EXPORT_DIR=/export \
 GALAXY_VIRTUAL_ENV=/galaxy-central/.venv \
 REL=release_23.0 \
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.0.zip" \
 GALAXY_CONFIG_BRAND="ToolFactory Docker" \
 GALAXY_CONFIG_TOOL_CONFIG_FILE="/etc/galaxy/tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml" \
-GALAXY_CONFIG_ADMIN_USERS="admin@galaxy.org,toolfactory@galaxy.org"
+GALAXY_CONFIG_ADMIN_USERS="admin@galaxy.org,toolfactory@galaxy.org" \
+GALAXY_UID=1450 \
+GALAXY_GID=1450 \
+GALAXY_POSTGRES_UID=1550 \
+GALAXY_POSTGRES_GID=1550
 
 RUN apt-get update && apt-get -y upgrade \
     && apt-get install -y -qq --no-install-recommends locales tzdata openssl netbase apt-utils apt-transport-https unzip supervisor \
@@ -39,10 +38,12 @@ RUN apt-get update && apt-get -y upgrade \
     && locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 \
     && dpkg-reconfigure -f noninteractive tzdata \
-    && groupadd -f galaxy \
-    && groupadd -f postgres \
-    && useradd -r -m -g galaxy galaxy \
-    && useradd -r -m -g postgres postgres \
+    && groupadd -r postgres -g $GALAXY_POSTGRES_GID \
+    && adduser --system --quiet --home /var/lib/postgresql --no-create-home --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres \
+    && groupadd -r $GALAXY_USER -g $GALAXY_GID \
+    && adduser --system --quiet --home /home/galaxy --uid $GALAXY_UID --gid $GALAXY_GID $GALAXY_USER \
+    && mkdir -p $EXPORT_DIR $GALAXY_HOME  \
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
     && groupadd -f docker \
     && usermod -aG docker galaxy \
     && mkdir -p $GALAXY_ROOT $BUILD_DIR \
@@ -52,22 +53,22 @@ RUN apt-get update && apt-get -y upgrade \
    && unzip $REL.zip \
    && mv $BUILD_DIR/galaxy-$REL/* $GALAXY_ROOT/  \
    && cd $GALAXY_ROOT \
-   && cp -rv $BUILD_DIR/galaxy_tf_overlay/* $GALAXY_ROOT/ \
+   && cp -rv $BUILD_DIR/galaxy_tf_overlay/* $GALAXY_ROOT/  \
     && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
       $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt-get -y update  \
+    && apt-get -y update \
    && apt-get install -y docker-ce-cli docker-ce containerd.io docker-compose-plugin \
     && printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d \
    && apt-get install -y postgresql-14 \
     && python3 -m venv $GALAXY_VIRTUAL_ENV \
     && chown -R galaxy:galaxy $GALAXY_ROOT  $BUILD_DIR $GALAXY_VIRTUAL_ENV  /home/galaxy \
     && service postgresql start \
-   && sudo -u postgres /usr/bin/psql -c "create role $GALAXY_USER with login createdb;" \
+   && sudo -u postgres /usr/bin/psql -c "create role galaxy with login createdb;" \
    && sudo -u postgres /usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;" \
    && sudo -u postgres /usr/bin/psql -c "create database galaxydev;" \
-   && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to $GALAXY_USER;"
+   && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;"
 
 USER $GALAXY_USER
 RUN cd $GALAXY_ROOT \
@@ -76,13 +77,17 @@ RUN cd $GALAXY_ROOT \
   && pip3 install bioblend ephemeris planemo
 
 USER root
+ADD scripts_docker/check_database.py /usr/local/bin/check_database.py
 ADD scripts_docker/export_user_files.py /usr/local/bin/export_user_files.py
 ADD scripts_docker/startuptf.sh /usr/bin/startup
-ADD scripts_docker/galaxy.conf /etc/supervisor/conf.d/galaxy.conf
-ADD config_docker/post-start-actions.sh /export/
-
-RUN service postgresql stop \
-    && chmod a+x /usr/local/bin/*.py  /export/post-start-actions.sh \
+ADD config_docker/galaxy.conf /etc/supervisor/conf.d/galaxy.conf
+ADD config_docker/post-start-actions.sh /export/post-start-actions.sh
+# use https://github.com/krallin/tini/ as tiny but valid init and PID 1
+ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
+ADD config_docker/galaxy.yml /etc/galaxy/galaxy.yml
+RUN chmod +x /sbin/tini \
+    && service postgresql stop \
+    && chmod a+x /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup \
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
     && find /var/log/ -name '*.log' -delete | true \
@@ -90,6 +95,7 @@ RUN service postgresql stop \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+
 EXPOSE :8080
 
 ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
