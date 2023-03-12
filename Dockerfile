@@ -39,9 +39,9 @@ RUN apt-get update && apt-get -y upgrade \
     && update-locale LANG=en_US.UTF-8 \
     && dpkg-reconfigure -f noninteractive tzdata \
     && groupadd -r postgres -g $GALAXY_POSTGRES_GID \
-    && adduser --system --quiet --home /var/lib/postgresql --no-create-home --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres \
+    && adduser --system --quiet --shell /usr/bin/bash --home /var/lib/postgresql --no-create-home --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres \
     && groupadd -r $GALAXY_USER -g $GALAXY_GID \
-    && adduser --system --quiet --home /home/galaxy --uid $GALAXY_UID --gid $GALAXY_GID $GALAXY_USER \
+    && adduser --system --quiet --home /home/galaxy --uid $GALAXY_UID --gid $GALAXY_GID --shell /usr/bin/bash $GALAXY_USER \
     && mkdir -p $EXPORT_DIR $GALAXY_HOME  \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
     && groupadd -f docker \
