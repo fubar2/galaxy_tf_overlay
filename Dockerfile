@@ -24,7 +24,7 @@ GALAXY_VIRTUAL_ENV=/galaxy-central/.venv \
 REL=release_23.0 \
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.0.zip" \
 GALAXY_CONFIG_BRAND="ToolFactory Docker" \
-GALAXY_CONFIG_TOOL_CONFIG_FILE="/etc/galaxy/tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml" \
+GALAXY_CONFIG_TOOL_CONFIG_FILE="tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml" \
 GALAXY_CONFIG_ADMIN_USERS="admin@galaxy.org,toolfactory@galaxy.org" \
 GALAXY_UID=1450 \
 GALAXY_GID=1450 \
@@ -64,21 +64,22 @@ RUN apt-get update && apt-get -y upgrade \
    && apt-get install -y postgresql-14 \
     && python3 -m venv $GALAXY_VIRTUAL_ENV \
     && chown -R galaxy:galaxy $GALAXY_ROOT  $BUILD_DIR $GALAXY_VIRTUAL_ENV  /home/galaxy \
-    && service postgresql start \
+    && sudo -u postgres /lib/postgresql/14/bin/pg_ctl start -D /export/postgresql/14/main \
    && sudo -u postgres /usr/bin/psql -c "create role galaxy with login createdb;" \
    && sudo -u postgres /usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;" \
    && sudo -u postgres /usr/bin/psql -c "create database galaxydev;" \
-   && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;"
+   && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;" \
+   && sudo -u postgres /lib/postgresql/14/bin/pg_ctl stop -D /export/postgresql/14/main
 
 USER $GALAXY_USER
 RUN cd $GALAXY_ROOT \
   && . $GALAXY_VIRTUAL_ENV/bin/activate \
-  && sh scripts/common_startup.sh --no-create-venv \
+  && sh $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv \
   && pip3 install bioblend ephemeris planemo
 
 USER root
 
-ADD config_docker/galaxy.yml /etc/galaxy/galaxy.yml
+ADD config_docker/galaxy.yml $GALAXY_ROOT/config/galaxy.yml
 ADD scripts_docker/check_database.py /usr/local/bin/check_database.py
 ADD scripts_docker/export_user_files.py /usr/local/bin/export_user_files.py
 ADD scripts_docker/startuptf.sh /usr/bin/startup
