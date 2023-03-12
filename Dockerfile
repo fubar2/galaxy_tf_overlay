@@ -77,11 +77,8 @@ RUN cd $GALAXY_ROOT \
   && pip3 install bioblend ephemeris planemo
 
 USER root
-RUN sudo add-apt-repository ppa:natefoo/slurm-drmaa \
-    && apt-get update -qq \
-    && apt-get install slurm-client slurmd slurmctld slurm-drmaa1 --no-install-recommends -y \
-    && ln -s /usr/lib/slurm-drmaa/lib/libdrmaa.so.1 /usr/lib/slurm-drmaa/lib/libdrmaa.so
 
+ADD config_docker/galaxy.yml /etc/galaxy/galaxy.yml
 ADD scripts_docker/check_database.py /usr/local/bin/check_database.py
 ADD scripts_docker/export_user_files.py /usr/local/bin/export_user_files.py
 ADD scripts_docker/startuptf.sh /usr/bin/startup
@@ -89,13 +86,16 @@ ADD config_docker/configure_slurm.py /usr/sbin/configure_slurm.py
 ADD config_docker/galaxy.conf /etc/supervisor/conf.d/galaxy.conf
 ADD config_docker/post-start-actions.sh /export/post-start-actions.sh
 ADD config_docker/job_conf.xml /etc/galaxy/job_conf.xml
+ADD config_docker/job_conf.xml $GALAXY_ROOT/config/job_conf.xml
+ADD config/tool_conf.xml /etc/galaxy/tool_conf.xml
+ADD config/tool_conf.xml $GALAXY_ROOT/config/tool_conf.xml
 ENV PG_VERSION=14 \
        PG_DATA_DIR_DEFAULT=/var/lib/postgresql/14/main \
        PG_CONF_DIR_DEFAULT=/etc/postgresql/14/main \
        PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/14/main
 # use https://github.com/krallin/tini/ as tiny but valid init and PID 1
 ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
-ADD config_docker/galaxy.yml /etc/galaxy/galaxy.yml
+
 RUN chmod +x /sbin/tini \
     && service postgresql stop \
     && chmod a+x /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup /usr/sbin/configure_slurm.py \
