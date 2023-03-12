@@ -29,7 +29,11 @@ GALAXY_CONFIG_ADMIN_USERS="admin@galaxy.org,toolfactory@galaxy.org" \
 GALAXY_UID=1450 \
 GALAXY_GID=1450 \
 GALAXY_POSTGRES_UID=1550 \
-GALAXY_POSTGRES_GID=1550
+GALAXY_POSTGRES_GID=1550 \
+PG_VERSION=12 \
+PG_DATA_DIR_DEFAULT=/var/lib/postgresql/$PG_VERSION/main \
+PG_CONF_DIR_DEFAULT=/etc/postgresql/$PG_VERSION/main \
+PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/$PG_VERSION/main
 
 RUN apt-get update && apt-get -y upgrade \
     && apt-get install -y -qq --no-install-recommends locales tzdata openssl netbase apt-utils apt-transport-https unzip supervisor \
@@ -61,15 +65,14 @@ RUN apt-get update && apt-get -y upgrade \
     && apt-get -y update \
    && apt-get install -y docker-ce-cli docker-ce containerd.io docker-compose-plugin \
     && printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d \
-   && apt-get install -y postgresql-14 \
+   && apt-get install -y postgresql-$PG_VERSION \
     && python3 -m venv $GALAXY_VIRTUAL_ENV \
     && chown -R galaxy:galaxy $GALAXY_ROOT  $BUILD_DIR $GALAXY_VIRTUAL_ENV  /home/galaxy \
-    && sudo -u postgres /lib/postgresql/14/bin/pg_ctl start -D /var/lib/postgresql/14/main \
    && sudo -u postgres /usr/bin/psql -c "create role galaxy with login createdb;" \
    && sudo -u postgres /usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;" \
    && sudo -u postgres /usr/bin/psql -c "create database galaxydev;" \
    && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;" \
-   && sudo -u postgres /lib/postgresql/14/bin/pg_ctl stop -D /var/lib/postgresql/14/main
+   && sudo -u postgres /lib/postgresql/$PG_VERSION/bin/pg_ctl stop -D /etc/postgresql/$PG_VERSION/main
 
 USER $GALAXY_USER
 RUN cd $GALAXY_ROOT \
@@ -90,10 +93,6 @@ ADD config_docker/job_conf.xml /etc/galaxy/job_conf.xml
 ADD config_docker/job_conf.xml $GALAXY_ROOT/config/job_conf.xml
 ADD config/tool_conf.xml /etc/galaxy/tool_conf.xml
 ADD config/tool_conf.xml $GALAXY_ROOT/config/tool_conf.xml
-ENV PG_VERSION=14 \
-       PG_DATA_DIR_DEFAULT=/var/lib/postgresql/14/main \
-       PG_CONF_DIR_DEFAULT=/etc/postgresql/14/main \
-       PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/14/main
 # use https://github.com/krallin/tini/ as tiny but valid init and PID 1
 ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
 

@@ -6,11 +6,12 @@ import os
 import shutil
 import subprocess
 
+PGV = os.environ.get('PG_VERSION','12')
 if len( sys.argv ) == 2:
     PG_DATA_DIR_DEFAULT = sys.argv[1]
 else:
-    PG_DATA_DIR_DEFAULT = "/var/lib/postgresql/14/main"
-PG_DATA_DIR_HOST = os.environ.get("PG_DATA_DIR_HOST", "/export/postgresql/14/main/")
+    PG_DATA_DIR_DEFAULT = "/var/lib/postgresql/%s/main" % PGV
+PG_DATA_DIR_HOST = os.environ.get("PG_DATA_DIR_HOST", "/export/postgresql/%s/main/" % PGV)
 
 def change_path( src ):
     """
@@ -110,7 +111,7 @@ if __name__ == "__main__":
     for filename in os.listdir('/export/'):
         if filename.startswith('welcome'):
             export_file = os.path.join( '/export/', filename)
-            image_file = os.path.join('/etc/galaxy/web/', filename)
+            image_file = os.path.join(galaxy_root_dir, filename)
             shutil.copy(export_file, image_file)
             os.chown( image_file, int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )
 
@@ -119,7 +120,7 @@ if __name__ == "__main__":
     # replace Galaxy's copy with these. Use symbolic link instead of copying so
     # deployer can update and reload Galaxy and changes will be reflected.
     for config in [ 'galaxy.yml', 'job_conf.xml' ]:
-        image_config = os.path.join('/etc/galaxy/', config)
+        image_config = os.path.join(galaxy_root_dir, 'config', config)
         export_config = os.path.join( '/export/galaxy-central/config', config )
         export_sample = export_config + ".docker_sample"
         shutil.copy(image_config, export_sample)
@@ -161,7 +162,8 @@ if __name__ == "__main__":
         # User given dbpath, usually a directory from the host machine
         # copy the postgresql data folder to the new location
         subprocess.call('cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
-        os.symlink( os.path.join(os.environ.get('PG_CONF_DIR_DEFAULT'), 'conf.d'), os.path.join(PG_DATA_DIR_HOST, 'conf.d') )
+        #os.symlink( os.path.join(os.environ.get('PG_CONF_DIR_DEFAULT'), 'conf.d'), os.path.join(PG_DATA_DIR_HOST, 'conf.d') )
+        os.symlink( os.environ.get('PG_CONF_DIR_DEFAULT'), os.path.join(PG_DATA_DIR_HOST, 'conf.d') )
         # copytree needs an non-existing dst dir, how annoying :(
         # shutil.copytree(PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST)
         subprocess.call('chown -R postgres:postgres /export/postgresql/', shell=True)

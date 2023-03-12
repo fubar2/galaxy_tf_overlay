@@ -14,10 +14,6 @@ fi
 cd $GALAXY_ROOT
 . $GALAXY_VIRTUAL_ENV/bin/activate
 
-if $PRIVILEGED; then
-    umount /var/lib/docker
-fi
-
 if [[ ! -z $STARTUP_EXPORT_USER_FILES ]]; then
     # If /export/ is mounted, export_user_files file moving all data to /export/
     # symlinks will point from the original location to the new path under /export/
