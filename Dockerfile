@@ -64,12 +64,12 @@ RUN apt-get update && apt-get -y upgrade \
    && apt-get install -y postgresql-14 \
     && python3 -m venv $GALAXY_VIRTUAL_ENV \
     && chown -R galaxy:galaxy $GALAXY_ROOT  $BUILD_DIR $GALAXY_VIRTUAL_ENV  /home/galaxy \
-    && sudo -u postgres /lib/postgresql/14/bin/pg_ctl start -D /export/postgresql/14/main \
+    && sudo -u postgres /lib/postgresql/14/bin/pg_ctl start -D /var/lib/postgresql/14/main \
    && sudo -u postgres /usr/bin/psql -c "create role galaxy with login createdb;" \
    && sudo -u postgres /usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;" \
    && sudo -u postgres /usr/bin/psql -c "create database galaxydev;" \
    && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;" \
-   && sudo -u postgres /lib/postgresql/14/bin/pg_ctl stop -D /export/postgresql/14/main
+   && sudo -u postgres /lib/postgresql/14/bin/pg_ctl stop -D /var/lib/postgresql/14/main
 
 USER $GALAXY_USER
 RUN cd $GALAXY_ROOT \
