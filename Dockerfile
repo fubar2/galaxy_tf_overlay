@@ -74,17 +74,8 @@ RUN apt-get update && apt-get -y upgrade \
    && sudo -u postgres /usr/bin/psql -c "create role galaxy with login createdb;" \
    && sudo -u postgres /usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;" \
    && sudo -u postgres /usr/bin/psql -c "create database galaxydev;" \
-   && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;" \
-   && sudo -u postgres /lib/postgresql/$PG_VERSION/bin/pg_ctl stop -D /etc/postgresql/$PG_VERSION/main
+   && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;"
 
-
-USER $GALAXY_USER
-RUN cd $GALAXY_ROOT \
-  && . $GALAXY_VIRTUAL_ENV/bin/activate \
-  && sh $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv \
-  && pip3 install bioblend ephemeris planemo
-
-USER root
 
 ADD config_docker/galaxy.yml $GALAXY_ROOT/config/galaxy.yml
 ADD scripts_docker/check_database.py /usr/local/bin/check_database.py
@@ -100,8 +91,17 @@ ADD config/tool_conf.xml $GALAXY_ROOT/config/tool_conf.xml
 # use https://github.com/krallin/tini/ as tiny but valid init and PID 1
 ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
 
+USER $GALAXY_USER
+RUN cd $GALAXY_ROOT \
+  && . $GALAXY_VIRTUAL_ENV/bin/activate \
+  && sh $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv \
+  && sh $GALAXY_ROOT/manage_db.sh --init \
+  && pip3 install bioblend ephemeris planemo
+
+USER root
+
 RUN chmod +x /sbin/tini \
-    && service postgresql stop \
+    && sudo -u postgres /lib/postgresql/$PG_VERSION/bin/pg_ctl stop -D /etc/postgresql/$PG_VERSION/main \
     && chmod a+x /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup /usr/sbin/configure_slurm.py \
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \

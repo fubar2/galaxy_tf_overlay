@@ -163,7 +163,9 @@ if __name__ == "__main__":
         # copy the postgresql data folder to the new location
         subprocess.call('cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
         #os.symlink( os.path.join(os.environ.get('PG_CONF_DIR_DEFAULT'), 'conf.d'), os.path.join(PG_DATA_DIR_HOST, 'conf.d') )
-        os.symlink( os.environ.get('PG_CONF_DIR_DEFAULT'), os.path.join(PG_DATA_DIR_HOST, 'conf.d') )
+        #os.symlink( os.environ.get('PG_CONF_DIR_DEFAULT'), os.path.join(PG_DATA_DIR_HOST, 'conf.d') )
+        subprocess.call('cp -R %s/*.conf %s/' % (PG_CONF_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
+
         # copytree needs an non-existing dst dir, how annoying :(
         # shutil.copytree(PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST)
         subprocess.call('chown -R postgres:postgres /export/postgresql/', shell=True)

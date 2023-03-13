@@ -1,25 +1,20 @@
 #!/usr/bin/env python
 
-# This script checks if the database is connected by querying an user
+import socket
+import time
+import os
 
-import sys
-sys.path.insert(1,'/galaxy-central')
-sys.path.insert(1,'/galaxy-central/lib')
+port = 5432
 
-from galaxy.model import User
-from galaxy.model.mapping import init
-from galaxy.model.orm.scripts import get_config
-import argparse
-
-__author__ = "Lukas Voegtle"
-__email__ = "voegtlel@tf.uni-freiburg.de"
+def wait_postgres():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while True:
+        try:
+            s.connect(('localhost', port))
+            s.close()
+            break
+        except socket.error as ex:
+            time.sleep(1)
 
 if __name__ == "__main__":
-    db_url = get_config(sys.argv)['db_url']
-    mapping = init('/tmp/', db_url)
-    sa_session = mapping.context
-    security_agent = mapping.security_agent
-
-    # Just query something
-    query = sa_session.query(User).filter_by(email="toolfactory@galaxy.org")
-    query.count()
+    wait_postgres()
