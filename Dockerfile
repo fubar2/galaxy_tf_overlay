@@ -14,15 +14,15 @@
 
 FROM phusion/baseimage:jammy-1.0.1
 MAINTAINER ross dot lazarus at gmail period com
+ARG PGV=14 REL=release_23.0 GALAXY_ROOT=/galaxy-central GALAXY_USER=galaxy
 ENV DEBIAN_FRONTEND=noninteractive \
-GALAXY_ROOT=/galaxy-central \
+GALAXY_ROOT=$GALAXY_ROOT \
 BUILD_DIR=/tf_build  \
-GALAXY_USER=galaxy \
-GALAXY_HOME=/home/galaxy \
+GALAXY_USER=$GALAXY_USER \
+GALAXY_HOME=/home/$GALAXY_USER \
 EXPORT_DIR=/export \
-GALAXY_VIRTUAL_ENV=/galaxy-central/.venv \
-REL=release_23.0 \
-GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.0.zip" \
+GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
+GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$PGV.zip" \
 GALAXY_CONFIG_BRAND="ToolFactory Docker" \
 GALAXY_CONFIG_TOOL_CONFIG_FILE="tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml" \
 GALAXY_CONFIG_ADMIN_USERS="admin@galaxy.org,toolfactory@galaxy.org" \
@@ -30,10 +30,11 @@ GALAXY_UID=1450 \
 GALAXY_GID=1450 \
 GALAXY_POSTGRES_UID=1550 \
 GALAXY_POSTGRES_GID=1550 \
-PG_VERSION=12 \
-PG_DATA_DIR_DEFAULT=/var/lib/postgresql/$PG_VERSION/main \
-PG_CONF_DIR_DEFAULT=/etc/postgresql/$PG_VERSION/main \
-PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/$PG_VERSION/main
+GALAXY_LOGS_DIR=$GALAXY_ROOT/database/logs \
+PG_VERSION=$PGV \
+PG_DATA_DIR_DEFAULT=/var/lib/postgresql/$PGV/main \
+PG_CONF_DIR_DEFAULT=/etc/postgresql/$PGV/main \
+PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/$PGV/main
 
 RUN apt-get update && apt-get -y upgrade \
     && apt-get install -y -qq --no-install-recommends locales tzdata openssl netbase apt-utils apt-transport-https unzip supervisor \
@@ -49,7 +50,7 @@ RUN apt-get update && apt-get -y upgrade \
     && mkdir -p $EXPORT_DIR $GALAXY_HOME  \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
     && groupadd -f docker \
-    && usermod -aG docker galaxy \
+    && usermod -aG docker $GALAXY_USER \
     && mkdir -p $GALAXY_ROOT $BUILD_DIR \
     && cd $BUILD_DIR \
     && git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay.git \

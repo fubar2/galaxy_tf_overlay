@@ -6,7 +6,7 @@ import os
 import shutil
 import subprocess
 
-PGV = os.environ.get('PG_VERSION','12')
+PGV = os.environ.get('PG_VERSION','14')
 if len( sys.argv ) == 2:
     PG_DATA_DIR_DEFAULT = sys.argv[1]
 else:
