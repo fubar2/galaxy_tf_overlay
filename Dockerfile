@@ -14,15 +14,17 @@
 
 FROM phusion/baseimage:jammy-1.0.1
 MAINTAINER ross dot lazarus at gmail period com
-ARG PGV=14 REL=release_23.0 GALAXY_ROOT=/galaxy-central GALAXY_USER=galaxy
+
+ARG PGV=14 REL=release_23.0 GALAXY_ROOT=/galaxy-central GALAXY_USER=galaxy EXPORT_DIR=/export
+# use args for things needed to construct ENV strings
 ENV DEBIAN_FRONTEND=noninteractive \
 GALAXY_ROOT=$GALAXY_ROOT \
 BUILD_DIR=/tf_build  \
 GALAXY_USER=$GALAXY_USER \
 GALAXY_HOME=/home/$GALAXY_USER \
-EXPORT_DIR=/export \
+EXPORT_DIR=$EXPORT_DIR \
 GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
-GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$PGV.zip" \
+GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip" \
 GALAXY_CONFIG_BRAND="ToolFactory Docker" \
 GALAXY_CONFIG_TOOL_CONFIG_FILE="tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml" \
 GALAXY_CONFIG_ADMIN_USERS="admin@galaxy.org,toolfactory@galaxy.org" \
@@ -30,7 +32,7 @@ GALAXY_UID=1450 \
 GALAXY_GID=1450 \
 GALAXY_POSTGRES_UID=1550 \
 GALAXY_POSTGRES_GID=1550 \
-GALAXY_LOGS_DIR=$GALAXY_ROOT/database/logs \
+GALAXY_LOGS_DIR=$GALAXY_ROOT/logs \
 PG_VERSION=$PGV \
 PG_DATA_DIR_DEFAULT=/var/lib/postgresql/$PGV/main \
 PG_CONF_DIR_DEFAULT=/etc/postgresql/$PGV/main \
@@ -47,7 +49,7 @@ RUN apt-get update && apt-get -y upgrade \
     && adduser --system --quiet --shell /usr/bin/bash --home /var/lib/postgresql --no-create-home --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres \
     && groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && adduser --system --quiet --home /home/galaxy --uid $GALAXY_UID --gid $GALAXY_GID --shell /usr/bin/bash $GALAXY_USER \
-    && mkdir -p $EXPORT_DIR $GALAXY_HOME  \
+    && mkdir -p $EXPORT_DIR $GALAXY_HOME  $GALAXY_ROOT/logs \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
     && groupadd -f docker \
     && usermod -aG docker $GALAXY_USER \
@@ -74,6 +76,7 @@ RUN apt-get update && apt-get -y upgrade \
    && sudo -u postgres /usr/bin/psql -c "create database galaxydev;" \
    && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;" \
    && sudo -u postgres /lib/postgresql/$PG_VERSION/bin/pg_ctl stop -D /etc/postgresql/$PG_VERSION/main
+
 
 USER $GALAXY_USER
 RUN cd $GALAXY_ROOT \
