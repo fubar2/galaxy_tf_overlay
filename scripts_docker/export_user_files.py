@@ -156,14 +156,12 @@ if __name__ == "__main__":
 
     if not os.path.exists( PG_DATA_DIR_HOST ) or 'PG_VERSION' not in os.listdir( PG_DATA_DIR_HOST ):
         dest_dir = os.path.dirname( PG_DATA_DIR_HOST )
-        print('** postgres cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST))
+        print('** clean /export so: postgres cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST))
         if not os.path.exists( dest_dir ):
             os.makedirs(dest_dir)
         # User given dbpath, usually a directory from the host machine
         # copy the postgresql data folder to the new location
         subprocess.call('cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
-        #os.symlink( os.path.join(os.environ.get('PG_CONF_DIR_DEFAULT'), 'conf.d'), os.path.join(PG_DATA_DIR_HOST, 'conf.d') )
-        #os.symlink( os.environ.get('PG_CONF_DIR_DEFAULT'), os.path.join(PG_DATA_DIR_HOST, 'conf.d') )
         subprocess.call('cp -R %s/*.conf %s/' % (PG_CONF_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
 
         # copytree needs an non-existing dst dir, how annoying :(
