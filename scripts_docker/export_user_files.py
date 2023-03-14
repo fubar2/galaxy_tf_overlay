@@ -160,7 +160,7 @@ if __name__ == "__main__":
         print('** clean /export so: postgres cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST))
         if not os.path.exists( dest_dir ):
             os.makedirs(dest_dir)
-        move_stuff()
+        _move_stuff()
         # User given dbpath, usually a directory from the host machine
         # copy the postgresql data folder to the new location
         subprocess.call('cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)

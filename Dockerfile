@@ -101,7 +101,6 @@ RUN cd $GALAXY_ROOT \
     && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv \
     && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/manage_db.sh init \
     && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/manage_db.sh upgrade \
-    && sudo -u galaxy pip3 install bioblend ephemeris planemo \
     && chown -R galaxy:galaxy $GALAXY_ROOT \
     && chmod a+x /sbin/tini /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup \
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
@@ -125,6 +124,7 @@ ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
     SUPERVISOR_MANAGE_SLURM= \
     HOST_DOCKER_LEGACY= \
     STARTUP_EXPORT_USER_FILES=True
+ADD config_docker/postgresql.conf /etc/postgresql/$PGV/main/postgresql.conf
 
 ENTRYPOINT ["/sbin/tini", "--"]
 
