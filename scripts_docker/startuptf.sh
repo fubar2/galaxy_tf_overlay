@@ -130,5 +130,5 @@ if [ `echo ${GALAXY_LOGGING:-'no'} | tr [:upper:] [:lower:]` = "full" ]
     then
         tail -f /var/log/supervisor/* /var/log/nginx/* $GALAXY_LOGS_DIR/*.log
     else
-        tail -f $GALAXY_LOGS_DIR/*.log
+        galaxyctl follow
 fi

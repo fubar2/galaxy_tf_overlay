@@ -7,6 +7,7 @@ import shutil
 import subprocess
 
 PGV = os.environ.get('PG_VERSION','14')
+PG_CONF_DIR_DEFAULT = os.environ.get('PG_CONF_DIR_DEFAULT', '/etc/postgresql/%s/main' % PGV)
 if len( sys.argv ) == 2:
     PG_DATA_DIR_DEFAULT = sys.argv[1]
 else:
@@ -65,17 +66,8 @@ def _ignore_static(dir, *patterns):
         return set(ignored_names)
     return __ignore_static
 
-if __name__ == "__main__":
-    """
-        If the '/export/' folder exist, meaning docker was started with '-v /home/foo/bar:/export',
-        we will link every file that needs to persist to the host system. Addionaly a file (/.galaxy_save) is
-        created that indicates all linking is already done.
-        If the user re-starts (with docker start) the container the file /.galaxy_save is found and the linking
-        is aborted.
-    """
-
+def _move_stuff():
     galaxy_root_dir = os.environ.get('GALAXY_ROOT', '/galaxy-central/')
-
     galaxy_distrib_paths = {'/galaxy-central/config/': '/export/.distribution_config',
                             '/galaxy-central/lib': '/export/galaxy-central/lib',
                             '/galaxy-central/tools': '/export/galaxy-central/tools'}
@@ -154,11 +146,21 @@ if __name__ == "__main__":
         # In case of unprivileged access this will result in a "Device or resource busy." error.
         pass
 
-    if not os.path.exists( PG_DATA_DIR_HOST ) or 'PG_VERSION' not in os.listdir( PG_DATA_DIR_HOST ):
+if __name__ == "__main__":
+    """
+        If the '/export/' folder exist, meaning docker was started with '-v /home/foo/bar:/export',
+        we will link every file that needs to persist to the host system. Addionaly a file (/.galaxy_save) is
+        created that indicates all linking is already done.
+        If the user re-starts (with docker start) the container the file /.galaxy_save is found and the linking
+        is aborted.
+    """
+
+    if not os.path.exists( PG_DATA_DIR_HOST ) or PGV not in os.listdir( PG_DATA_DIR_HOST ):
         dest_dir = os.path.dirname( PG_DATA_DIR_HOST )
         print('** clean /export so: postgres cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST))
         if not os.path.exists( dest_dir ):
             os.makedirs(dest_dir)
+        move_stuff()
         # User given dbpath, usually a directory from the host machine
         # copy the postgresql data folder to the new location
         subprocess.call('cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
@@ -169,3 +171,4 @@ if __name__ == "__main__":
         subprocess.call('chown -R postgres:postgres /export/postgresql/', shell=True)
         subprocess.call('chmod -R 0755 /export/', shell=True)
         subprocess.call('chmod -R 0700 %s' % PG_DATA_DIR_HOST, shell=True)
+

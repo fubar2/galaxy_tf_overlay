@@ -16,36 +16,38 @@ FROM phusion/baseimage:jammy-1.0.1
 MAINTAINER ross dot lazarus at gmail period com
 
 ARG PGV=14 \
-BUILD_DIR=/tf_build  \
-REL=release_23.0 \
-GALAXY_ROOT=/galaxy-central \
-GALAXY_USER=galaxy \
-EXPORT_DIR=/export
+        BUILD_DIR=/tf_build  \
+        REL=release_23.0 \
+        GALAXY_ROOT=/galaxy-central \
+        GALAXY_USER=galaxy \
+        EXPORT_DIR=/export
 # use args for things needed to construct ENV strings
-ENV DEBIAN_FRONTEND=noninteractive \
-GALAXY_ROOT=$GALAXY_ROOT \
-GALAXY_USER=$GALAXY_USER \
-GALAXY_HOME=/home/$GALAXY_USER \
-EXPORT_DIR=$EXPORT_DIR \
-GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
-GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip" \
-GALAXY_CONFIG_BRAND="ToolFactory Docker" \
-GALAXY_CONFIG_TOOL_CONFIG_FILE="tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml" \
-GALAXY_CONFIG_ADMIN_USERS="admin@galaxy.org,toolfactory@galaxy.org" \
-GALAXY_UID=1450 \
-GALAXY_GID=1450 \
-GALAXY_POSTGRES_UID=1550 \
-GALAXY_POSTGRES_GID=1550 \
-GALAXY_LOGS_DIR=$GALAXY_ROOT/logs \
-PG_VERSION=$PGV \
-PG_DATA_DIR_DEFAULT=/var/lib/postgresql/$PGV/main \
-PG_CONF_DIR_DEFAULT=/etc/postgresql/$PGV/main \
-PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/$PGV/main
 
-RUN apt-get update && apt-get -y upgrade \
+ENV DEBIAN_FRONTEND=noninteractive \
+        GALAXY_ROOT=$GALAXY_ROOT \
+        GALAXY_USER=$GALAXY_USER \
+        GALAXY_HOME=/home/$GALAXY_USER \
+        EXPORT_DIR=$EXPORT_DIR \
+        GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
+        GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip" \
+        GALAXY_CONFIG_BRAND="ToolFactory Docker" \
+        GALAXY_CONFIG_TOOL_CONFIG_FILE="tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml" \
+        GALAXY_CONFIG_ADMIN_USERS="admin@galaxy.org,toolfactory@galaxy.org" \
+        GALAXY_UID=1450 \
+        GALAXY_GID=1450 \
+        GALAXY_POSTGRES_UID=1550 \
+        GALAXY_POSTGRES_GID=1550 \
+        GALAXY_LOGS_DIR=$GALAXY_ROOT/logs \
+        PG_VERSION=$PGV \
+        PG_DATA_DIR_DEFAULT=/var/lib/postgresql/$PGV/main \
+        PG_CONF_DIR_DEFAULT=/etc/postgresql/$PGV/main \
+        PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/$PGV/main
+
+RUN apt-get update \
+    && apt-get -y upgrade \
     && apt-get install -y -qq --no-install-recommends locales tzdata openssl netbase apt-utils apt-transport-https unzip supervisor \
-     software-properties-common ca-certificates curl python3-dev gcc python3-pip build-essential python3-venv \
-     python3-wheel nano wget git python3-setuptools gnupg mercurial lsb-release sudo \
+        software-properties-common ca-certificates curl python3-dev gcc python3-pip build-essential python3-venv \
+        python3-wheel nano wget git python3-setuptools gnupg mercurial lsb-release sudo \
     && locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 \
     && dpkg-reconfigure -f noninteractive tzdata \
@@ -61,20 +63,20 @@ RUN apt-get update && apt-get -y upgrade \
     && mkdir -p $BUILD_DIR \
     && cd $BUILD_DIR \
     && git clone --depth 1 https://github.com/fubar2/galaxy_tf_overlay.git \
-   && wget $GALZIP \
-   && unzip $REL.zip \
-   && mv $BUILD_DIR/galaxy-$REL/* $GALAXY_ROOT/  \
-   && cd $GALAXY_ROOT \
-   && cp -rv $BUILD_DIR/galaxy_tf_overlay/* $GALAXY_ROOT/  \
-   && rm -rf $BUILD_DIR \
+    && wget $GALZIP \
+    && unzip $REL.zip \
+    && mv $BUILD_DIR/galaxy-$REL/* $GALAXY_ROOT/  \
+    && cd $GALAXY_ROOT \
+    && cp -rv $BUILD_DIR/galaxy_tf_overlay/* $GALAXY_ROOT/  \
+    && rm -rf $BUILD_DIR \
     && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-      $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
+        $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
     && apt-get -y update \
-   && apt-get install -y docker-ce-cli docker-ce containerd.io docker-compose-plugin \
+    && apt-get install -y docker-ce-cli docker-ce containerd.io docker-compose-plugin \
     && printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d \
-   && apt-get install -y postgresql-$PG_VERSION \
+    && apt-get install -y postgresql-$PG_VERSION \
     && python3 -m venv $GALAXY_VIRTUAL_ENV \
     && chown -R galaxy:galaxy $GALAXY_ROOT $GALAXY_VIRTUAL_ENV  /home/galaxy
 
@@ -87,23 +89,21 @@ ADD config_docker/galaxy.conf /etc/supervisor/conf.d/galaxy.conf
 ADD config_docker/post-start-actions.sh /export/post-start-actions.sh
 ADD config_docker/job_conf.xml $GALAXY_ROOT/config/job_conf.xml
 ADD config/tool_conf.xml $GALAXY_ROOT/config/tool_conf.xml
-# use https://github.com/krallin/tini/ as tiny but valid init and PID 1
 ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
 
 RUN cd $GALAXY_ROOT \
-  && sudo -u postgres /lib/postgresql/$PG_VERSION/bin/pg_ctl restart -D /etc/postgresql/$PG_VERSION/main \
-   && sudo -u postgres /usr/bin/psql -c "create role galaxy with login createdb;" \
-   && sudo -u postgres /usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;" \
-   && sudo -u postgres /usr/bin/psql -c "create database galaxydev;" \
-   && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;" \
-  && . $GALAXY_VIRTUAL_ENV/bin/activate \
-  && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv
-RUN  sudo -u postgres /lib/postgresql/$PG_VERSION/bin/pg_ctl restart -D /etc/postgresql/$PG_VERSION/main \
-  && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/manage_db.sh upgrade \
-  && sudo -u galaxy pip3 install bioblend ephemeris planemo
-
-RUN chown -R galaxy:galaxy $GALAXY_ROOT \
-    && chmod a+x /sbin/tini /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup /usr/sbin/configure_slurm.py \
+    && sudo -u postgres /lib/postgresql/$PG_VERSION/bin/pg_ctl restart -D /etc/postgresql/$PG_VERSION/main \
+    && sudo -u postgres /usr/bin/psql -c "create role galaxy with login createdb;" \
+    && sudo -u postgres /usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;" \
+    && sudo -u postgres /usr/bin/psql -c "create database galaxydev;" \
+    && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;" \
+    && . $GALAXY_VIRTUAL_ENV/bin/activate \
+    && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv \
+    && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/manage_db.sh init \
+    && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/manage_db.sh upgrade \
+    && sudo -u galaxy pip3 install bioblend ephemeris planemo \
+    && chown -R galaxy:galaxy $GALAXY_ROOT \
+    && chmod a+x /sbin/tini /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup \
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
     && find /var/log/ -name '*.log' -delete | true \
@@ -124,7 +124,6 @@ ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
     SUPERVISOR_MANAGE_CONDOR=False \
     SUPERVISOR_MANAGE_SLURM= \
     HOST_DOCKER_LEGACY= \
-    GALAXY_EXTRAS_CONFIG_POSTGRES=True \
     STARTUP_EXPORT_USER_FILES=True
 
 ENTRYPOINT ["/sbin/tini", "--"]
