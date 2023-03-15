@@ -155,7 +155,7 @@ if __name__ == "__main__":
         is aborted.
     """
 
-    if not os.path.exists( PG_DATA_DIR_HOST ) or PGV not in os.listdir( PG_DATA_DIR_HOST ):
+    if not os.path.exists( PG_DATA_DIR_HOST ) :
         dest_dir = os.path.dirname( PG_DATA_DIR_HOST )
         print('** clean /export so: postgres cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST))
         if not os.path.exists( dest_dir ):

@@ -91,18 +91,25 @@ ADD config_docker/job_conf.xml $GALAXY_ROOT/config/job_conf.xml
 ADD config/tool_conf.xml $GALAXY_ROOT/config/tool_conf.xml
 ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
 
+
 RUN cd $GALAXY_ROOT \
-    && sudo -u postgres /lib/postgresql/$PG_VERSION/bin/pg_ctl restart -D /etc/postgresql/$PG_VERSION/main \
-    && sudo -u postgres /usr/bin/psql -c "create role galaxy with login createdb;" \
-    && sudo -u postgres /usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;" \
-    && sudo -u postgres /usr/bin/psql -c "create database galaxydev;" \
-    && sudo -u postgres /usr/bin/psql -c "grant all privileges on database galaxydev to galaxy;" \
+    && su postgres -c "/lib/postgresql/$PG_VERSION/bin/pg_ctl restart -D /etc/postgresql/$PG_VERSION/main" \
+    && su postgres -c '/usr/bin/psql -c "create role galaxy with login createdb;"' \
+    && su postgres -c '/usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;"' \
+    && su postgres -c '/usr/bin/psql -c "create database galaxydev;"' \
+    && su postgres -c '/usr/bin/psql -c  "grant all privileges on database galaxydev to galaxy;"' \
     && . $GALAXY_VIRTUAL_ENV/bin/activate \
-    && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv \
-    && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/manage_db.sh init \
-    && sudo -u galaxy /usr/bin/bash $GALAXY_ROOT/manage_db.sh upgrade \
-    && chown -R galaxy:galaxy $GALAXY_ROOT \
-    && chmod a+x /sbin/tini /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup \
+    && mv $GALAXY_ROOT/config/plugins/visualizations $GALAXY_ROOT/config/plugins/visualizations_copy \
+    && mkdir $GALAXY_ROOT/config/plugins/visualizations \
+    && su galaxy -c "/usr/bin/bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv" \
+    && su galaxy -c "/usr/bin/bash $GALAXY_ROOT/manage_db.sh init" \
+    && su  galaxy -c "/usr/bin/bash $GALAXY_ROOT/manage_db.sh upgrade" \
+    && su  galaxy -c "$GALAXY_VIRTUAL_ENV/bin/galaxyctl -c $GALAXY_ROOT/config/galaxy.yml update" \
+    && chown -R galaxy:galaxy $GALAXY_ROOT
+
+
+
+RUN chmod a+x /sbin/tini /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup \
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
     && find /var/log/ -name '*.log' -delete | true \

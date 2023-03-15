@@ -90,7 +90,6 @@ if [[ ! -z $SUPERVISOR_POSTGRES_AUTOSTART ]]; then
     fi
 fi
 
-echo "Disable Galaxy Interactive Environments. Start with --privileged to enable IE's."
 export GALAXY_CONFIG_INTERACTIVE_ENVIRONMENT_PLUGINS_DIRECTORY=""
 start_supervisor
 
