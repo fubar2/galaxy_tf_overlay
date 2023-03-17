@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
     if not os.path.exists( PG_DATA_DIR_HOST ) :
         dest_dir = os.path.dirname( PG_DATA_DIR_HOST )
-        print('** clean /export so: postgres cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST))
+        print('** export_user_files.py found a clean /export so: postgres cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST))
         if not os.path.exists( dest_dir ):
             os.makedirs(dest_dir)
         _move_stuff()
@@ -165,6 +165,8 @@ if __name__ == "__main__":
         # copy the postgresql data folder to the new location
         subprocess.call('cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
         subprocess.call('cp -R %s/*.conf %s/' % (PG_CONF_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
+        ANS_STRING = "line='data_directory = \'$PG_DATA_DIR_HOST\'' dest=$PG_CONF_DIR_DEFAULT/postgresql.conf backup=yes state=present regexp='data_directory'"
+        ansible localhost -m lineinfile -a ANS_STRING &> /dev/null
 
         # copytree needs an non-existing dst dir, how annoying :(
         # shutil.copytree(PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST)

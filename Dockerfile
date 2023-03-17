@@ -76,8 +76,12 @@ RUN apt-get update \
     && apt-get -y update \
     && apt-get install -y docker-ce-cli docker-ce containerd.io docker-compose-plugin \
     && printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d \
-    && apt-get install -y postgresql-$PG_VERSION \
+    && apt-get install -y postgresql-$PGV \
     && python3 -m venv $GALAXY_VIRTUAL_ENV \
+    && su postgres -c '/usr/bin/psql -c "create role galaxy with login createdb;"' \
+    && su postgres -c '/usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;"' \
+    && su postgres -c '/usr/bin/psql -c "create database galaxydev;"' \
+    && su postgres -c '/usr/bin/psql -c  "grant all privileges on database galaxydev to galaxy;"' \
     && chown -R galaxy:galaxy $GALAXY_ROOT $GALAXY_VIRTUAL_ENV  /home/galaxy
 
 
@@ -93,20 +97,15 @@ ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
 
 
 RUN cd $GALAXY_ROOT \
-    && su postgres -c "/lib/postgresql/$PG_VERSION/bin/pg_ctl restart -D /etc/postgresql/$PG_VERSION/main" \
-    && su postgres -c '/usr/bin/psql -c "create role galaxy with login createdb;"' \
-    && su postgres -c '/usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;"' \
-    && su postgres -c '/usr/bin/psql -c "create database galaxydev;"' \
-    && su postgres -c '/usr/bin/psql -c  "grant all privileges on database galaxydev to galaxy;"' \
     && . $GALAXY_VIRTUAL_ENV/bin/activate \
     && mv $GALAXY_ROOT/config/plugins/visualizations $GALAXY_ROOT/config/plugins/visualizations_copy \
     && mkdir $GALAXY_ROOT/config/plugins/visualizations \
     && su galaxy -c "/usr/bin/bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv" \
-    && su galaxy -c "/usr/bin/bash $GALAXY_ROOT/manage_db.sh init" \
-    && su  galaxy -c "/usr/bin/bash $GALAXY_ROOT/manage_db.sh upgrade" \
     && su  galaxy -c "$GALAXY_VIRTUAL_ENV/bin/galaxyctl -c $GALAXY_ROOT/config/galaxy.yml update" \
-    && chown -R galaxy:galaxy $GALAXY_ROOT
-
+    && su galaxy -c "/usr/bin/bash $GALAXY_ROOT/manage_db.sh init" \
+    # && su  galaxy -c "/usr/bin/bash $GALAXY_ROOT/manage_db.sh upgrade" \
+    && chown -R galaxy:galaxy $GALAXY_ROOT \
+    && service postgresql stop
 
 
 RUN chmod a+x /sbin/tini /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup \
@@ -131,9 +130,9 @@ ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
     SUPERVISOR_MANAGE_SLURM= \
     HOST_DOCKER_LEGACY= \
     STARTUP_EXPORT_USER_FILES=True
-ADD config_docker/postgresql.conf /etc/postgresql/$PGV/main/postgresql.conf
 
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # Autostart script that is invoked during container start
-CMD ["/usr/bin/startup"]
+#CMD ["/usr/bin/startup"]
+CMD ["/usr/bin/bash"]
