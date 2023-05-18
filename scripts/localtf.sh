@@ -10,7 +10,7 @@ sudo -u postgres psql -c "create role $GAL_USER with login createdb;"
 sudo -u postgres psql -c "drop database galaxydev;"
 sudo -u postgres psql -c "create database galaxydev with owner $GAL_USER;"
 sudo -u postgres psql -c "grant all privileges on database galaxydev to $GAL_USER;"
-OURDIR="../galaxytf"
+OURDIR="~/galaxytf"
 
 REL="release_23.0"
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip"
@@ -40,7 +40,7 @@ find $OURDIR -name '*.pyc' -delete | true \
 find /usr/lib/ -name '*.pyc' -delete | true \
 find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
 sudo rm -rf /tmp/* /root/.cache/ /var/cache/* $OURDIR/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/$USER/.cache/ /home/$USER/.npm
-echo "Your dev server is ready to run. \
+echo "Your dev server is ready to run in a new directory - $OURDIR. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
 Local web browser url is http://localhost:8080. Admin already exists.\
 Admin login is toolfactory@galaxy.org with ChangeMe! as the temporary password. \

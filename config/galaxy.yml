@@ -182,7 +182,7 @@ gravity:
 
 galaxy:
   watch_tools: true
-  tool_config_file: "tool_conf.xml,local_tool_conf.xml"
+  tool_config_file: "tool_conf.xml,local_tool_config/local_tool_conf.xml"
   database_connection: "postgresql:///galaxydev?host=/var/run/postgresql" #  sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE
   brand: ToolFactoryDevGalaxy
   admin_users: toolfactory@galaxy.org,admin@galaxy.org
