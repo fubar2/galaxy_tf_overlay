@@ -40,7 +40,7 @@ def run_wait_gal(url, galdir, venvdir):
             ok = True
         except URLError:
             print('no galaxy yet at',url)
-            sleep(3)
+            sleep(5)
     return ALREADY
 
 

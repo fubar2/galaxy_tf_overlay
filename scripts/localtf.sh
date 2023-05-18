@@ -5,7 +5,7 @@
 
 echo "First run takes a while. Go for a walk, read the manual, or do something else more useful than watching"
 USER="ubuntu" # or whatever..this for my play server
-USEDBURL="postgresql:///$USER?host=/var/run/postgresql"
+USEDBURL="postgresql:///galaxydev"
 sudo -u postgres psql -c "create role $USER with login createdb;"
 sudo -u postgres psql -c "drop database galaxydev;"
 sudo -u postgres psql -c "create database galaxydev;"
@@ -29,14 +29,14 @@ mv  galaxy-$REL $OURDIR
 cd $OURDIR
 cp -rvu ../galaxy_tf_overlay/* ./
 cp ../galaxy_tf_overlay/local_tools/local_tool_config.xml ./config
-sed -i "s#.*  database_connection:.*#  database_connection:  $USEDBURL#g" $OURDIR/config/galaxy.yml
+sed -i "s#.*  database_connection:.*#  database_connection:  '$USEDBURL'#g" $OURDIR/config/galaxy.yml
 GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 export GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
 . $GALAXY_VIRTUAL_ENV/bin/activate
 pip3 install -U bioblend ephemeris planemo watchdog
-python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV
+python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --force
 find $OURDIR -name '*.pyc' -delete | true \
 find /usr/lib/ -name '*.pyc' -delete | true \
 find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
