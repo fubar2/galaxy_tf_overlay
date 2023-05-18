@@ -92,7 +92,7 @@ class Tool_Factory:
         self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
         self.tool_id = self.tool_name
         self.local_tools = os.path.join(args.galaxy_root, "local_tools")
-        self.local_tool_conf = os.path.join(self.local_tools, "local_tool_conf.xml")
+        self.local_tool_conf = os.path.join(args.galaxy_root, "config","local_tool_config", "local_tool_conf.xml")
         self.ourcwd = os.getcwd()
         self.collections = []
 
@@ -953,9 +953,12 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.writeShedyml()
     time.sleep(1)
     # update now only returns after the tool installed but extra pauses seems needed for the workflow to run even in serial mode
-    tf.install_deps()
-    time.sleep(1)
+    if args.packages :
+        tf.install_deps()
+        time.sleep(2)
+        logger.debug("Toolfactory installed deps. Calling fast test")
     testret = tf.fast_local_test()
+    logger.debug("Toolfactory finished test")
     if int(testret) > 0:
         logger.error("ToolFactory tool build and test failed. :(")
         logger.info(
