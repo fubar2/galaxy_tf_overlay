@@ -20,7 +20,10 @@ ARG PGV=14 \
         REL=release_23.0 \
         GALAXY_ROOT=/galaxy-central \
         GALAXY_USER=galaxy \
-        EXPORT_DIR=/export
+        EXPORT_DIR=/export \
+        GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
+        GALAXY_CONDA_PREFIX=$GALAXY_ROOT/_conda
+
 # use args for things needed to construct ENV strings
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -28,7 +31,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
         GALAXY_USER=$GALAXY_USER \
         GALAXY_HOME=/home/$GALAXY_USER \
         EXPORT_DIR=$EXPORT_DIR \
-        GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
+        GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
         GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip" \
         GALAXY_CONFIG_BRAND="ToolFactory Docker" \
         GALAXY_CONFIG_TOOL_CONFIG_FILE="tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml" \
@@ -82,8 +85,27 @@ RUN apt-get update \
     && su postgres -c '/usr/bin/psql -c "DROP DATABASE IF EXISTS galaxydev;"' \
     && su postgres -c '/usr/bin/psql -c "create database galaxydev;"' \
     && su postgres -c '/usr/bin/psql -c  "grant all privileges on database galaxydev to galaxy;"' \
-    && chown -R galaxy:galaxy $GALAXY_ROOT $GALAXY_VIRTUAL_ENV  /home/galaxy
+    && chown -R galaxy:galaxy $GALAXY_ROOT $GALAXY_VIRTUAL_ENV  /home/galaxy \
+    && service postgresql stop
 
+RUN curl -s -L https://repo.anaconda.com/miniconda/Miniconda3-4.7.10-Linux-x86_64.sh > ~/miniconda.sh \
+    && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX/ \
+    && rm ~/miniconda.sh \
+    && ln -s $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
+    && echo ". $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc \
+    && echo "conda activate base" >> $GALAXY_HOME/.bashrc \
+    && export PATH=$GALAXY_CONDA_PREFIX/bin/:$PATH \
+    && conda config --add channels defaults \
+    && conda config --add channels bioconda \
+    && conda config --add channels conda-forge \
+    && conda install virtualenv pip ephemeris \
+    && chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh \
+    && conda clean --packages -t -i \
+    # cleanup dance
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 ADD config_docker/galaxy.yml $GALAXY_ROOT/config/galaxy.yml
 ADD scripts_docker/check_database.py /usr/local/bin/check_database.py
@@ -104,8 +126,7 @@ RUN cd $GALAXY_ROOT \
     && su  galaxy -c "$GALAXY_VIRTUAL_ENV/bin/galaxyctl -c $GALAXY_ROOT/config/galaxy.yml update" \
     && su galaxy -c "/usr/bin/bash $GALAXY_ROOT/manage_db.sh init" \
     # && su  galaxy -c "/usr/bin/bash $GALAXY_ROOT/manage_db.sh upgrade" \
-    && chown -R galaxy:galaxy $GALAXY_ROOT \
-    && service postgresql stop
+    && chown -R galaxy:galaxy $GALAXY_ROOT
 
 
 RUN chmod a+x /sbin/tini /usr/local/bin/*.py  /export/post-start-actions.sh /usr/bin/startup \

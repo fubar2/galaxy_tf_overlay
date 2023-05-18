@@ -88,8 +88,7 @@ if [[ ! -z $SUPERVISOR_POSTGRES_AUTOSTART ]]; then
         # Change the data_directory of postgresql in the main config file
         #ansible localhost -m lineinfile -a "line='data_directory = \'$PG_DATA_DIR_HOST\'' dest=$PG_CONF_DIR_DEFAULT/postgresql.conf backup=yes state=present regexp='data_directory'" &> /dev/null
         rm -f $PG_DATA_DIR_HOST/postmaster.pid $PG_DATA_DIR_DEFAULT/postmaster.pid
-        /usr/bin/sed -i  "s#.*data_directory.*#data_directory = '$PG_DATA_DIR_HOST'#g" $PG_DATA_DIR_HOST
-        # /usr/bin/sed -i  "s#.*data_directory.*#data_directory = /export/postgresql/14/main#g" /export/postgresql/14/main/postgresql.conf
+        /usr/bin/sed -i  "s#.*data_directory.*#data_directory = '$PG_DATA_DIR_HOST'#g" $PG_DATA_DIR_HOST/postgresql.conf
     fi
 fi
 

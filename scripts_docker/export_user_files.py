@@ -165,8 +165,8 @@ if __name__ == "__main__":
         # copy the postgresql data folder to the new location
         subprocess.call('cp -R %s/ %s/' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
         subprocess.call('cp -R %s/*.conf %s/' % (PG_CONF_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
-        ANS_STRING = "line='data_directory = \'$PG_DATA_DIR_HOST\'' dest=$PG_CONF_DIR_DEFAULT/postgresql.conf backup=yes state=present regexp='data_directory'"
-        ansible localhost -m lineinfile -a ANS_STRING &> /dev/null
+        #ANS_STRING = "line='data_directory = \'$PG_DATA_DIR_HOST\'' dest=$PG_CONF_DIR_DEFAULT/postgresql.conf backup=yes state=present regexp='data_directory'"
+        #ansible localhost -m lineinfile -a ANS_STRING &> /dev/null
 
         # copytree needs an non-existing dst dir, how annoying :(
         # shutil.copytree(PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST)

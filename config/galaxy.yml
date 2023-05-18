@@ -61,7 +61,7 @@ gravity:
     # Gunicorn workers silent for more than this many seconds are killed and restarted.
     # Value is a positive number or 0. Setting it to 0 has the effect of infinite timeouts by disabling timeouts for all workers entirely.
     # If you disable the ``preload`` option workers need to have finished booting within the timeout.
-    # timeout: 600
+    timeout: 600
 
     # Extra arguments to pass to Gunicorn command line.
     # extra_args:
@@ -182,7 +182,7 @@ gravity:
 
 galaxy:
   watch_tools: true
-  tool_config_file: "tool_conf.xml,/galaxy-central/local_tools/local_tool_conf.xml"
+  tool_config_file: "tool_conf.xml,local_tool_conf.xml"
   database_connection: "postgresql:///galaxydev" #  sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE
   brand: ToolFactoryDevGalaxy
   admin_users: toolfactory@galaxy.org,admin@galaxy.org

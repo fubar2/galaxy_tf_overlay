@@ -28,14 +28,15 @@ unzip $REL.zip
 mv  galaxy-$REL $OURDIR
 cd $OURDIR
 cp -rvu ../galaxy_tf_overlay/* ./
+cp ../galaxy_tf_overlay/local_tools/local_tool_config.xml ./config
 sed -i "s#.*  database_connection:.*#  database_connection:  $USEDBURL#g" $OURDIR/config/galaxy.yml
-GALAXY_VIRTUAL_ENV=$OURDIR/venv
+GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 echo $GALAXY_VIRTUAL_ENV
 python3 -m venv $GALAXY_VIRTUAL_ENV
-GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV && sh scripts/common_startup.sh --no-create-venv
-. venv/bin/activate
+export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV && sh scripts/common_startup.sh --no-create-venv
+. $GALAXY_VIRTUAL_ENV/bin/activate
 pip3 install -U bioblend ephemeris planemo watchdog
-GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV && python3 scripts/tfsetup.py --galaxy_root $OURDIR
+python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV
 find $OURDIR -name '*.pyc' -delete | true \
 find /usr/lib/ -name '*.pyc' -delete | true \
 find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
