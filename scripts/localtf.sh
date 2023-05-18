@@ -22,7 +22,7 @@ else
 fi
 if [ -d "$OURDIR" ]; then
   echo "Deleting existing $OURDIR"
-  rm -rf $OURDIR
+  sudo rm -rf $OURDIR
 fi
 unzip $REL.zip
 mv  galaxy-$REL $OURDIR
@@ -31,9 +31,9 @@ cp -rvu ../galaxy_tf_overlay/* ./
 cp ../galaxy_tf_overlay/local_tools/local_tool_config.xml ./config
 sed -i "s#.*  database_connection:.*#  database_connection:  $USEDBURL#g" $OURDIR/config/galaxy.yml
 GALAXY_VIRTUAL_ENV=$OURDIR/.venv
-echo $GALAXY_VIRTUAL_ENV
+export GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 python3 -m venv $GALAXY_VIRTUAL_ENV
-export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV && sh scripts/common_startup.sh --no-create-venv
+sh scripts/common_startup.sh --no-create-venv
 . $GALAXY_VIRTUAL_ENV/bin/activate
 pip3 install -U bioblend ephemeris planemo watchdog
 python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV
