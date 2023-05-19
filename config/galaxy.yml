@@ -183,8 +183,10 @@ gravity:
 galaxy:
   watch_tools: true
   tool_config_file: "tool_conf.xml,local_tool_config/local_tool_conf.xml"
-  database_connection: "postgresql:///galaxydev?host=/var/run/postgresql" #  sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE
-  brand: ToolFactoryDevGalaxy
+  # database_connection: "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
+  # overwritten by sed during install
+  database_connection: "postgresql:///galaxydev?host=/var/run/postgresql"
+  brand: ToolFactoryDevsqlite
   admin_users: toolfactory@galaxy.org,admin@galaxy.org
   # Display the "Galaxy" text in the masthead.
   display_galaxy_brand: false

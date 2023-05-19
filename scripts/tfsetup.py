@@ -149,7 +149,7 @@ if __name__ == "__main__":
     db_url = options.db_url
     # or perhaps "postgresql:///ubuntu?host=/var/run/postgresql"
     # this is harder to please get_config(sys.argv, use_argparse=False)["db_url"]
-    print('### Using db_url', cdb_url)
+    print('### Using db_url', db_url, 'not the configured on', cdb_url)
     mapping = init("/tmp/", cdb_url)
     sa_session = mapping.context
     security_agent = mapping.security_agent

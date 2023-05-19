@@ -953,7 +953,7 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf.writeShedyml()
     time.sleep(1)
     # update now only returns after the tool installed but extra pauses seems needed for the workflow to run even in serial mode
-    if args.packages :
+    if tf.condaenv and len(tf.condaenv) > 0 :
         tf.install_deps()
         time.sleep(2)
         logger.debug("Toolfactory installed deps. Calling fast test")

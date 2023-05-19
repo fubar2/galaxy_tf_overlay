@@ -1,5 +1,5 @@
 <tool id="toolfactory" name="toolfactory" version="3.0" profile="16.04" >
-  <description>Scripts into tools v2.0</description>
+  <description>Scripts into tools v3.0</description>
   <macros>
       <xml name="singleText">
             <param name="param_value" type="text" value="" label="Enter this parameter's default text value">

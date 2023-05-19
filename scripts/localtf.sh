@@ -4,16 +4,24 @@
 # wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo tee /etc/apt/trusted.gpg.d/pgdg.asc &>/dev/null
 
 echo "First run takes a while. Go for a walk, read the manual, or do something else more useful than watching"
-GAL_USER="ubuntu" # or whatever..this for my play server
-USE_DB_URL="postgresql:///galaxydev?host=/var/run/postgresql"
-sudo -u postgres psql -c "create role $GAL_USER with login createdb;"
-sudo -u postgres psql -c "drop database galaxydev;"
-sudo -u postgres psql -c "create database galaxydev with owner $GAL_USER;"
-sudo -u postgres psql -c "grant all privileges on database galaxydev to $GAL_USER;"
-OURDIR="~/galaxytf"
-
+OURD="../galaxytf"
+THISD=`pwd`
+THISDIR=`echo "$(cd "$(dirname "$THISD")" && pwd)/$(basename "$THISD")"`
+OURDIR=`echo "$(cd "$(dirname "$OURD")" && pwd)/$(basename "$OURD")"`
+echo "Using thisdir = $THISDIR and ourdir = $OURDIR"
+echo "Using thisdir = $THISDIR"
 REL="release_23.0"
-GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip"
+#GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/$REL.zip"
+GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/tags/v23.0.zip"
+GAL_USER="ubuntu" # or whatever..this for my play server
+#USE_DB_URL="postgresql:///galaxydev?host=/var/run/postgresql"
+#database_connection: "postgresql:///galaxydev?host=/var/run/postgresql"
+USE_DB_URL="sqlite:///$OURDIR/database/universe.sqlite?isolation_level=IMMEDIATE"
+#sudo -u postgres psql -c "create role $GAL_USER with login createdb;"
+#sudo -u postgres psql -c "drop database galaxydev;"
+#sudo -u postgres psql -c "create database galaxydev with owner $GAL_USER;"
+#sudo -u postgres psql -c "grant all privileges on database galaxydev to $GAL_USER;"
+
 if [ -f "$REL.zip" ]; then
   echo "$REL.zip exists"
 else
@@ -25,10 +33,10 @@ if [ -d "$OURDIR" ]; then
   sudo rm -rf $OURDIR
 fi
 unzip $REL.zip
+cp -rvu $THISDIR/* galaxy-$REL/
 mv  galaxy-$REL $OURDIR
 cd $OURDIR
-cp -rvu ../galaxy_tf_overlay/* ./
-# sed -i "s#.*  database_connection:.*#  database_connection:  '$USE_DB_URL'#g" $OURDIR/config/galaxy.yml
+sed -i "s#.*  database_connection:.*#  database_connection:  '$USE_DB_URL'#g" $OURDIR/config/galaxy.yml
 GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 export GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 python3 -m venv $GALAXY_VIRTUAL_ENV
