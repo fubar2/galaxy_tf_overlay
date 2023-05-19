@@ -99,7 +99,7 @@ def run_sed(options):
     fixme.append(('GALAXY_URL = ' , 'GALAXY_URL = "%s"' % options.galaxy_url, fixfile ))
     fixfile = "%s/local_tools/toolfactory/install_tf_deps.sh" % options.galaxy_root
     fixme.append(('APIK=', 'APIK="%s"' % options.key, fixfile ))
-    fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(os.path.abspath(options.galaxy_root), "local_tools"),  fixfile))
+    fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(os.path.abspath(options.galaxy_root), "local_tools"),  fixfile ))
     fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
     fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % options.galaxy_venv, fixfile))
