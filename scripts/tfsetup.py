@@ -102,7 +102,7 @@ def run_sed(options):
     fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(os.path.abspath(options.galaxy_root), "local_tools"),  fixfile))
     fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
-    fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % os.path.join(options.galaxy_root, '.venv'), fixfile))
+    fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % os.path.join(options.galaxy_venv, fixfile))
     fixme.append(('API_KEY_USER=', 'API_KEY_USER="%s"' % options.botkey, fixfile))
     fixme.append(('API_KEY=', 'API_KEY="%s"' % options.key, fixfile))
     for line_start, line_replacement, file_to_edit in fixme:
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create Galaxy Admin User.")
     parser.add_argument("--galaxy_url", help="Galaxy server URL", default="http://localhost:8080")
     parser.add_argument("--galaxy_root", required=True, help="Galaxy root directory path", default="./")
-    parser.add_argument("--galaxy_venv", required=True, help="Galaxy venv path", default="/galaxytf/.venv")
+    parser.add_argument("--galaxy_venv", required=True, help="Galaxy venv path")
     parser.add_argument("--user", help="Username - an email address.", default="toolfactory@galaxy.org")
     parser.add_argument("--password", help="Password", default="ChangeMe!")
     parser.add_argument("--password2", help="Password", default=apikey2)

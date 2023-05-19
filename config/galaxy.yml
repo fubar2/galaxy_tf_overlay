@@ -190,7 +190,7 @@ galaxy:
   admin_users: toolfactory@galaxy.org,admin@galaxy.org
   # Display the "Galaxy" text in the masthead.
   display_galaxy_brand: false
-  conda_auto_install: true
+  # conda_auto_install: true
 
 
 
