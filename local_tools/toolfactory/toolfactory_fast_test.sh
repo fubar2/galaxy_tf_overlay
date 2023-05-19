@@ -1,5 +1,5 @@
 GALAXY_URL=http://localhost:8080
-GALAXY_VENV=/home/ross/rossgit/galaxytf/venv
+GALAXY_VENV=/home/ross/rossgit/galaxytf/.venv
 API_KEY="2068606201556084992"
 API_KEY_USER="1286305042595563520"
 # for test@bx.psu.edu user
