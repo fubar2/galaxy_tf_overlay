@@ -191,7 +191,11 @@ galaxy:
   # Display the "Galaxy" text in the masthead.
   display_galaxy_brand: false
   # conda_auto_install: true
-
+  # Force everyone to log in (disable anonymous access).
+  require_login: true
+  # Show the site's welcome page (see welcome_url) alongside the login
+  # page (even if require_login is true).
+  show_welcome_with_login: true
 
 
   # The directory that will be prepended to relative paths in options
