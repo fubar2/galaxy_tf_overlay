@@ -16,10 +16,10 @@ GAL_USER="ubuntu" # or whatever..this for my play server postgresql
 #USE_DB_URL="postgresql:///galaxydev?host=/var/run/postgresql"
 #database_connection: "postgresql:///galaxydev?host=/var/run/postgresql"
 USE_DB_URL="sqlite:///$OURDIR/database/universe.sqlite?isolation_level=IMMEDIATE"
-sudo -u postgres psql -c "create role $GAL_USER with login createdb;"
-sudo -u postgres psql -c "drop database galaxydev;"
-sudo -u postgres psql -c "create database galaxydev with owner $GAL_USER;"
-sudo -u postgres psql -c "grant all privileges on database galaxydev to $GAL_USER;"
+#sudo -u postgres psql -c "create role $GAL_USER with login createdb;"
+#sudo -u postgres psql -c "drop database galaxydev;"
+#sudo -u postgres psql -c "create database galaxydev with owner $GAL_USER;"
+#sudo -u postgres psql -c "grant all privileges on database galaxydev to $GAL_USER;"
 
 if [ -f "$REL.zip" ]; then
   echo "$REL.zip exists"
@@ -32,7 +32,8 @@ if [ -d "$OURDIR" ]; then
   sudo rm -rf $OURDIR
 fi
 unzip $REL.zip
-mv $RELDIR/client/src/viz/* /tmp/viz
+mv $RELDIR/config/plugins/visualizations/* /tmp
+# save building them while testing
 cp -rvu $THISDIR/config/* $RELDIR/config/
 cp -rvu $THISDIR/local $RELDIR/
 cp -rvu $THISDIR/local_tools $RELDIR/
@@ -48,7 +49,6 @@ sh scripts/common_startup.sh --no-create-venv
 . $GALAXY_VIRTUAL_ENV/bin/activate
 pip3 install -U bioblend ephemeris planemo watchdog
 python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
-pip3 install -U bioblend
 find $OURDIR -name '*.pyc' -delete | true \
 find /usr/lib/ -name '*.pyc' -delete | true \
 find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
