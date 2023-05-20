@@ -27,8 +27,8 @@ RUN mkdir -p /work  \
   && wget $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip /tmp/overlay.zip -d /tmp \
   && mv $ORELDIR $OVERLAY_HOME \
-  && chown -R galaxy:galaxy /work \
-  && rm -rf /tmp/* /root/.cache/ /var/cache/*
+  && chown -R $GALAXY_USER:$GALAXY_USER /work \
+  && rm -rf /tmp/* /root/.cache/* /var/cache/*
 
 USER galaxy
 RUN cd $OVERLAY_HOME \

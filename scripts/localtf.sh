@@ -29,7 +29,7 @@ else
 fi
 if [ -d "$OURDIR" ]; then
   echo "Deleting existing $OURDIR"
-  sudo rm -rf $OURDIR
+  rm -rf $OURDIR
 fi
 unzip $REL.zip
 mv $RELDIR/config/plugins/visualizations/* /tmp
