@@ -17,7 +17,8 @@ RUN mkdir -p /work  \
   && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
   && apt-get -qq update && apt-get install --no-install-recommends -y locales \
-  && locale-gen en_US.UTF-8 && dpkg-reconfigure locales \
+  && locale-gen en_US.UTF-8  \
+  && dpkg-reconfigure --frontend=noninteractive locales \
   && apt-get install -y python3 python3-venv python3-pip python3-wheel wget unzip nano git nodeenv \
   && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
   && rm -rf /tmp/* /root/.cache/ /var/cache/* \

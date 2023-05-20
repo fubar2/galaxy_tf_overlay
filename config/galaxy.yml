@@ -50,7 +50,7 @@ gravity:
     # enable: true
 
     # The socket to bind. A string of the form: ``HOST``, ``HOST:PORT``, ``unix:PATH``, ``fd://FD``. An IP is a valid HOST.
-    # bind: localhost:8080
+    bind: 0.0.0.0:8080
 
     # Controls the number of Galaxy application processes Gunicorn will spawn.
     # Increased web performance can be attained by increasing this value.
