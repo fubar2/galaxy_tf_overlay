@@ -186,8 +186,9 @@ galaxy:
   # database_connection: "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
   # overwritten by sed during install
   database_connection: "postgresql:///galaxydev?host=/var/run/postgresql"
-  brand: ToolFactoryDevsqlite
+  brand: ToolFactoryDev
   admin_users: toolfactory@galaxy.org,admin@galaxy.org
+  # NO spaces after commas in the admin_users list!!
   # Display the "Galaxy" text in the masthead.
   display_galaxy_brand: false
   # conda_auto_install: true
@@ -196,7 +197,7 @@ galaxy:
   # Show the site's welcome page (see welcome_url) alongside the login
   # page (even if require_login is true).
   show_welcome_with_login: true
-
+  allow_user_creation: false
 
   # The directory that will be prepended to relative paths in options
   # specifying other Galaxy config files (e.g. datatypes_config_file).

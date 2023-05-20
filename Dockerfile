@@ -1,9 +1,9 @@
 # ToolFactory dev server in docker
 # No persistence!
 # Export and save histories or tools before shutting down
+
 FROM ubuntu:latest
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
-USER root
 ARG GALAXY_USER="galaxy" \
   ORELDIR="/tmp/galaxy_tf_overlay-main" \
   USE_DB_URL="sqlite:///$OURDIR/database/universe.sqlite?isolation_level=IMMEDIATE" \
