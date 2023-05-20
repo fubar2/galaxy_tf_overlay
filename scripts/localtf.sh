@@ -32,6 +32,7 @@ if [ -d "$OURDIR" ]; then
   sudo rm -rf $OURDIR
 fi
 unzip $REL.zip
+mv $RELDIR/client/src/viz/* /tmp/viz
 cp -rvu $THISDIR/config/* $RELDIR/config/
 cp -rvu $THISDIR/local $RELDIR/
 cp -rvu $THISDIR/local_tools $RELDIR/
