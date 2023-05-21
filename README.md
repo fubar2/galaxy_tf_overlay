@@ -11,8 +11,9 @@ Scientists who would like to use their own code in Galaxy workflows, but do not 
 
 ### Docker image - without persistence
 
-The docker image is the quickest and easiest way to get the ToolFactory working.
-All work is lost when the container is stopped - nothing is persistent so all useful artifacts such as histories and tool tarballs must be exported and saved before shutting down.
+The docker image created from the Dockerfile in this repository is the quickest and easiest way to get the ToolFactory working.
+Be warned that all work is lost when the container is stopped - nothing is persistent.
+Any useful artifacts such as work done in a new history or new tool tarballs must be exported and saved before shutting down.
 
 ```
 docker pull quay.io/fubar2/galaxy_toolfactory:latest
@@ -23,6 +24,14 @@ After starting the new image, watch the docker container logs until gunicorn is 
 about 20-30 seconds, then browse to (http://localhost:8080)[http://localhost:8080]
 If a Galaxy server appears, proceed with the login instructions above and you should see a history containing all the example tools. 
  
+
+
+## Local installation and admin login
+
+Only an administrator can execute the ToolFactory. Any new administrator email must be added to
+*galaxytf/config/galaxy.yml* in the *admin_users* setting. Do not allow
+any spaces between addresses, and restart the server for them to become active.
+Do not remove the default admin *toolfactory@galaxy.org* or the ToolFactory will always fail because it depends on that API key in scripts.
 
 ## Basic idea
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.
@@ -247,6 +256,8 @@ Once local desktop installation is complete:
 
 
 ## Local installation and admin login
+The default login is *toolfactory@galaxy.org* with password *ChangeMe!*
+Please change it after logging in to the desktop version. Changes in the Docker version will be lost after shutting it down.
 
 Only an administrator can execute the ToolFactory. Any new administrator email must be added to
 *galaxytf/config/galaxy.yml* in the *admin_users* setting. Do not allow
