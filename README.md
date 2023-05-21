@@ -21,7 +21,7 @@ docker run -d -p 8080:8080 quay.io/fubar2/galaxy_toolfactory:latest
 ```
 
 After starting the new image, watch the docker container logs until gunicorn is ready to serve, or wait 
-about 20-30 seconds, then browse to (http://localhost:8080)[http://localhost:8080]
+about 20-30 seconds, then browse to [http://localhost:8080](http://localhost:8080)
 If a Galaxy server appears, proceed with the login instructions above and you should see a history containing all the example tools. 
  
 
