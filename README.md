@@ -7,21 +7,24 @@ Clone the latest Galaxy server code and install a configuration overlay, allowin
 
 Scientists who would like to use their own code in Galaxy workflows, but do not yet have the skills required to create new tools.
 
-## Installation and very quick start instructions
+## Installation and very quick start instructions (see below for a local persistent non-docker installation instructions)
 
-Clone this github repository in a convenient directory, and use *localtf.sh*  to bootstrap, configure and build a new development server, with
-the following shell commands. It will install galaxy in a new and disposable directory, *galaxytf*.:
+### Docker image - without persistence
+
+The docker image is the quickest and easiest way to get the ToolFactory working.
+All work is lost when the container is stopped - nothing is persistent so all useful artifacts such as histories and tool tarballs must be exported and saved before shutting down.
 
 ```
-git clone https://github.com/fubar2/galaxy_tf_overlay.git
-cd galaxy_tf_overlay
-sh ./localtf.sh
+docker pull quay.io/fubar2/galaxy_toolfactory:latest
+docker run -d -p 8080:8080 quay.io/fubar2/galaxy_toolfactory:latest
 ```
 
-Take a break for the 20+ minutes it will take to build and complete. A good time to read the rest of this documentation.
-See the end of this document for more details about installing, starting, logging in as admin, using and stopping the server.
+After starting the new image, watch the docker container logs until gunicorn is ready to serve, or wait 
+about 20-30 seconds, then browse to (http://localhost:8080)[http://localhost:8080]
+If a Galaxy server appears, proceed with the login instructions above and you should see a history containing all the example tools. 
+ 
 
-
+## Basic idea
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.
 
  * Tools created by the ToolFactory are ordinary, secure, shareable Galaxy tools.
@@ -43,8 +46,6 @@ for a developer lacking the necessary additional Galaxy tool building skills.
 For a quick overview, look at how the "Hello" tool was generated, by clicking the circular arrow redo button ⭮ on the archive in the default history.
 That's a trivial example, but essentially shows how to run your own simple bash script using a single string obtained from the user.
 This can be easily extended to do more useful things, by adding more complex scripts with more user input parameters.
-
-## Basic idea
 
 The ToolFactory generates tool XML based on settings on a Galaxy tool form, installs it and tests it using the supplied test data, and returns a Toolshed ready archive,
 with the test built in.
@@ -202,39 +203,19 @@ Sqlite works fine. Postgres seems faster but sqlite out of the box seems stable 
 If multiple Conda jobs run at the same time, processes can spin endlessly or dependencies may become corrupted, so job_conf.yml specifies a queue for the ToolFactory
 that only runs jobs serially. All other tools run normally on the local runner.
 
-## Local installation and admin login
 
-Only an administrator can execute the ToolFactory. Any new administrator email must be added to
-*galaxytf/config/galaxy.yml* in the *admin_users* setting. Do not allow
-any spaces between addresses, and restart the server for them to become active.
-Do not remove the default admin *toolfactory@galaxy.org* or the ToolFactory will always fail because it depends on that API key in scripts.
+## Local workstation installation for persistence - alternative to Docker non-persistent installation.
 
-### Do not expose this Galaxy server on the public internet. It is not secured.
-
-All the usual layers of isolation required to make a server secure for public exposure, are missing as installed.
-It's easy and safe to run locally, so installation on any public server is strongly discouraged.
-
-The ToolFactory code *relies* on the default server's *lack of isolation*.
-In any properly secured server, a running tool is unable to install, configure and test newly generated tools, but
-that's exactly what the ToolFactory tool does. This is convenient and safe in a local disposable development server, but unsafe if exposed to hostile miscreants.
-There is an important protection - *the ToolFactory will only work for administrative users*.
-Ordinary and anonymous users can fill in the form, but it will be a waste of time, because tool execution exit with an error before a tool is generated.
-
-Generated tools are ordinary Galaxy tools.
-Code should always be inspected before installation from an untrusted source.
-
-### ToolFactory development server installation
-
-The recommended installation involves cloning a bootstrap github repository, and using the *localtf.sh* script to build a new development server.
-
-From a convenient directory, download the overlay configuration code needed to turn a Galaxy server repository clone into a ToolFactory development server, then
-run the *localtf.sh* setup script from that cloned repository root directory:
+Clone this github repository in a convenient directory, and use *localtf.sh*  to bootstrap, configure and build a new development server, with
+the following shell commands. It will install galaxy in a new and disposable directory, *galaxytf*.:
 
 ```
 git clone https://github.com/fubar2/galaxy_tf_overlay.git
 cd galaxy_tf_overlay
 sh ./localtf.sh
 ```
+
+Take a break for the 20+ minutes it will take to build and complete. A good time to read the rest of this documentation.
 Running *localtf.sh* will create a new directory, *galaxytf*, in the parent directory of the *galaxy_tf_overlay* clone.
 The script will download and configure a development server with the ToolFactory installed, into and below that new directory.
 The steps include:
@@ -258,13 +239,30 @@ Remove the *galaxytf* directory to remove the entire development server when it 
 because the jobs in a history can be used to update a tool easily, and a history can be imported into a fresh development instance
 when needed.
 
-### Starting, using and stopping the server after installation
-
-Once installation is complete:
+Once local desktop installation is complete:
  * start the server from the *galaxytf* directory with *sh run.sh*. The logs will be displayed.
  * ^c (control+c) will stop it from the console.
  * In routine use, add the *--daemon* and *--stop-daemon* flags to run.sh, to start and stop the server in the background respectively.
  * In 23.0 that is equivalent to *venv/bin/galaxyctl start* and *venv/bin/galaxyctl stop*.
 
-The server should be ready in 30 seconds or less, at *http://localhost:8080*.
-Initial login (it already exists) as admin using *toolfactory@galaxy.org* with password *ChangeMe!* which of course you should change.
+
+## Local installation and admin login
+
+Only an administrator can execute the ToolFactory. Any new administrator email must be added to
+*galaxytf/config/galaxy.yml* in the *admin_users* setting. Do not allow
+any spaces between addresses, and restart the server for them to become active.
+Do not remove the default admin *toolfactory@galaxy.org* or the ToolFactory will always fail because it depends on that API key in scripts.
+
+### Do not expose this Galaxy server on the public internet. It is not secured.
+
+All the usual layers of isolation required to make a server secure for public exposure, are missing as installed.
+It's easy and safe to run locally, so installation on any public server is strongly discouraged.
+
+The ToolFactory code *relies* on the default server's *lack of isolation*.
+In any properly secured server, a running tool is unable to install, configure and test newly generated tools, but
+that's exactly what the ToolFactory tool does. This is convenient and safe in a local disposable development server, but unsafe if exposed to hostile miscreants.
+There is an important protection - *the ToolFactory will only work for administrative users*.
+Ordinary and anonymous users can fill in the form, but it will be a waste of time, because tool execution exit with an error before a tool is generated.
+
+Generated tools are ordinary Galaxy tools.
+Code should always be inspected before installation from an untrusted source.
