@@ -28,9 +28,9 @@ If a Galaxy server appears, proceed with the login instructions above and you sh
 
 ## Local installation and admin login
 
-Only an administrator can execute the ToolFactory. Any new administrator email must be added to
-*galaxytf/config/galaxy.yml* in the *admin_users* setting. Do not allow
-any spaces between addresses, and restart the server for them to become active.
+Only an administrator can execute the ToolFactory. The default is *toolfactory@galaxy.org* with password *ChangeMe!*
+Any new administrator email must be added to *galaxytf/config/galaxy.yml* in the desktop's *admin_users* setting. Do not allow
+any spaces between addresses, and restart the server for them to become active. 
 Do not remove the default admin *toolfactory@galaxy.org* or the ToolFactory will always fail because it depends on that API key in scripts.
 
 ## Basic idea
