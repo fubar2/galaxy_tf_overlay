@@ -7,7 +7,7 @@ Clone the latest Galaxy server code and install a configuration overlay, allowin
 
 Scientists who would like to use their own code in Galaxy workflows, but do not yet have the skills required to create new tools.
 
-## Installation and very quick start instructions (see below for a local persistent non-docker installation instructions)
+## Installation and very quick start instructions (see below for a local *persistent* non-docker installation)
 
 ### Docker image - without persistence
 
@@ -19,10 +19,10 @@ docker pull quay.io/fubar2/galaxy_toolfactory:latest
 docker run -d -p 8080:8080 quay.io/fubar2/galaxy_toolfactory:latest
 ```
 
-After starting the new image, watch the docker container logs until gunicorn is ready to serve, or wait 
+After starting the new image, watch the docker container logs until gunicorn is ready to serve, or wait
 about 20-30 seconds, then browse to (http://localhost:8080)[http://localhost:8080]
-If a Galaxy server appears, proceed with the login instructions above and you should see a history containing all the example tools. 
- 
+If a Galaxy server appears, proceed with the login instructions above and you should see a history containing all the example tools.
+
 
 ## Basic idea
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.
