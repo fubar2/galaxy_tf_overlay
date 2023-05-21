@@ -22,16 +22,9 @@ docker run -d -p 8080:8080 quay.io/fubar2/galaxy_toolfactory:latest
 
 After starting the new image, watch the docker container logs until gunicorn is ready to serve, or wait 
 about 20-30 seconds, then browse to [http://localhost:8080](http://localhost:8080)
-If a Galaxy server appears, proceed with the login instructions above and you should see a history containing all the example tools. 
- 
-
-
-## Local installation and admin login
+If a Galaxy server appears, proceed with the login instructions above and you should see a history containing all the example tools.
 
 Only an administrator can execute the ToolFactory. The default is *toolfactory@galaxy.org* with password *ChangeMe!*
-Any new administrator email must be added to *galaxytf/config/galaxy.yml* in the desktop's *admin_users* setting. Do not allow
-any spaces between addresses, and restart the server for them to become active. 
-Do not remove the default admin *toolfactory@galaxy.org* or the ToolFactory will always fail because it depends on that API key in scripts.
 
 ## Basic idea
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.
