@@ -222,13 +222,13 @@ Running *localtf.sh* will create a new directory, *galaxytf*, in the parent dire
 The script will download and configure a development server with the ToolFactory installed, into and below that new directory.
 The steps include:
 
- * Download and unpack a zip of (default) 23.0 working well as at February 2023, or a stable 22.05 release - edit *localtf.sh* to suit.
- * Install the ToolFactory configuration overlay already cloned
- * Build the client (slow!)
+ * Download and unpack the current 23.0 release as at May 2023. Edit *localtf.sh* to suit your needs.
+ * Install the ToolFactory configuration overlay from the local clone.
+ * Build the client (very slow - visualisations are not built - edit *localtf.sh* to remove their removal) and setup Conda for dependencies (slow)
  * Create the default admin user and insert the API keys in various ToolFactory scripts.
  * Upload the default history and a workflow to build the examples.
 
-This takes 20 minutes or more to complete.
+This takes 20 minutes or more to complete - an extra ~10 for the visualisations.
 
 A functioning development server will occupy ~9GB of disk space, so be sure your machine has plenty of room.
 It will be based in a single directory, *galaxytf* in the same directory as the galaxy_tf_overlay repository was cloned into.
