@@ -245,7 +245,7 @@ Once local desktop installation is complete:
  * start the server from the *galaxytf* directory with *sh run.sh*. The logs will be displayed.
  * ^c (control+c) will stop it from the console.
  * In routine use, add the *--daemon* and *--stop-daemon* flags to run.sh, to start and stop the server in the background respectively.
- * In 23.0 that is equivalent to *venv/bin/galaxyctl start* and *venv/bin/galaxyctl stop*.
+ * In 23.0 that is equivalent to *.venv/bin/galaxyctl start* and *.venv/bin/galaxyctl stop*.
 
 
 ## Local installation and admin login
