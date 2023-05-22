@@ -18,7 +18,7 @@ python scripts/tfsetup.py --galaxy_root /evol/galaxytf  db_url "postgresql:///ub
 
 designed for simple sqlite default installation.
 Workflow runs fine...
-This will start and stop new Galaxy instance if there is not one already running.
+This will try to start and stop a Galaxy instance if there is not one already running.
 Requires --force to rerun if admin user already exists
 
 """

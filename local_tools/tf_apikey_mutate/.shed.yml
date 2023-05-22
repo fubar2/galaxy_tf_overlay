@@ -1,0 +1,6 @@
+category: ToolFactory generated Tools
+description: 'Rotates all API keys in a ToolFactory instance '
+name: tf_apikey_mutate
+owner: toolfactory
+synopsis: 'Rotates all API keys in a ToolFactory instance '
+type: unrestricted

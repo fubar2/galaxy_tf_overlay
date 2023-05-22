@@ -13,11 +13,11 @@ ARG GALAXY_USER="galaxy" \
   OVERLAY_HOME="/work/galaxy_tf_overlay" \
   OVERLAY_ZIP="https://github.com/fubar2/galaxy_tf_overlay/archive/refs/heads/main.zip"
 
-RUN mkdir -p /work  \
+RUN mkdir -p /work \
   && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
   && apt-get -qq update && apt-get install --no-install-recommends -y locales \
-  && locale-gen en_US.UTF-8  \
+  && locale-gen en_US.UTF-8 \
   && dpkg-reconfigure --frontend=noninteractive locales \
   && apt-get install --no-install-recommends -y python3 python3-venv python3-pip python3-wheel wget unzip nano git nodeenv \
   && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
@@ -34,7 +34,8 @@ USER galaxy
 RUN cd $OVERLAY_HOME \
 && sh localtf.sh \
 && rm -rf $GALAXY_HOME/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/ $OVERLAY_HOME
-
+# localtf.sh clones the 23.0 release, then overlays galaxy_tf_overlay files, to add all the ToolFactory features and code
+# tfsetup.sh configures those additions by generating API keys and adding them to the relevant code and installs the sample history/wf
 EXPOSE 8080
 WORKDIR $GALAXY_HOME
 CMD ["/usr/bin/sh", "/work/galaxytf/run.sh"]
