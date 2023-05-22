@@ -24,7 +24,7 @@ After starting the new image, watch the docker container logs until gunicorn is 
 about 20-30 seconds, then browse to [http://localhost:8080](http://localhost:8080)
 If a Galaxy server appears, proceed with the login instructions above and you should see a history containing all the example tools.
 
-Only an administrator can execute the ToolFactory. The default is *toolfactory@galaxy.org* with password *ChangeMe!*
+Only an administrator can execute the ToolFactory. The default email is "toolfactory@galaxy.org" and the password is "ChangeMe!"
 
 ## Basic idea
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.
