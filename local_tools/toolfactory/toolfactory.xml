@@ -295,10 +295,10 @@ ${help_text}
   </configfiles>
   <inputs>
    <param name="tool_name" type="text" value="my_tool"   label="New tool ID and title for outputs"
-         help="Toolshed repository name. Choose thoughtfully to avoid namespace clashes with other tool writers. Lower case, digits and underscores only">
+         help="Toolshed repository name so lower case, digits and underscores only. Choose thoughtfully to avoid namespace clashes with other tool writers.">
         <sanitizer invalid_char="">
             <valid initial="string.ascii_lowercase,string.digits">
-                <add value="_"/>
+                <add value="X"/>
             </valid>
         </sanitizer>
     </param>

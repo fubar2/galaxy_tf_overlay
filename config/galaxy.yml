@@ -190,7 +190,7 @@ galaxy:
   admin_users: toolfactory@galaxy.org,admin@galaxy.org
   # NO spaces after commas in the admin_users list!!
   # Display the "Galaxy" text in the masthead.
-  display_galaxy_brand: false
+  # display_galaxy_brand: false DEPRECATED!
   # conda_auto_install: true
   # Force everyone to log in (disable anonymous access).
   require_login: true
@@ -198,7 +198,8 @@ galaxy:
   # page (even if require_login is true).
   show_welcome_with_login: true
   allow_user_creation: false
-
+  logo_src: /static/toolfactorylogo.png
+  #logo_src_secondary: null
   # The directory that will be prepended to relative paths in options
   # specifying other Galaxy config files (e.g. datatypes_config_file).
   # Defaults to the directory in which galaxy.yml is located.

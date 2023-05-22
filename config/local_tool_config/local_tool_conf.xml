@@ -2,5 +2,6 @@
   <section id="localtools" name="Local tools">
     <tool file="tacrev/tacrev.xml"/>
     <tool file="toolfactory/toolfactory.xml"/>
+    <tool file="tf_apikey_mutate/tf_apikey_mutate.xml"/>
   </section>
 </toolbox>
