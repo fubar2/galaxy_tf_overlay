@@ -177,16 +177,14 @@ in that image makes sure that while it is running, it is not using the distribut
 local disk installation but has already been run once at first boot. No real harm running it again to recycle all your keys
 if you like.
 
-Quite likely break the ToolFactory if it breaks.
+Will break the ToolFactory if it breaks.
+Safe in Docker since it's not persistent :)
 Use at your own peril.
 This is a crazy tool to run.
-
-Safe in Docker since it's not persistent :)
 
 This script consistently fails tool test, but actually works fine on a ToolFactory docker or local installation.
 It reuses code from the initial configuration to create new, random API keys for the admin logins.
 
-------
 
 ]]></help>
   <citations>
