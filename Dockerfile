@@ -15,8 +15,8 @@ ARG GALAXY_USER="galaxy" \
 
 RUN mkdir -p /work \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
-  && apt-get -qq update && apt-get install --no-install-recommends -y locales \
   && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
+  && apt-get -qq update && apt-get install --no-install-recommends -y locales \
   && locale-gen en_US.UTF-8 \
   && dpkg-reconfigure --frontend=noninteractive locales \
   && apt-get install --no-install-recommends -y python3 python3-venv python3-pip python3-wheel wget unzip nano git nodeenv \
