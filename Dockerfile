@@ -10,7 +10,7 @@ ARG GALAXY_USER="galaxy" \
   GALAXY_UID=1450 \
   GALAXY_GID=1450 \
   GALAXY_HOME="/work/galaxytf" \
-  OVERLAY_HOME="/work/galaxy_tf_overlay" \
+  OVERLAY_HOME="/work/galaxy_tf_overlay-main" \
   OVERLAY_ZIP="https://github.com/fubar2/galaxy_tf_overlay/archive/refs/heads/main.zip"
 
 RUN mkdir -p /work \
