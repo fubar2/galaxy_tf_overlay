@@ -82,8 +82,6 @@ class Tool_Factory:
 
     """
 
-    logger = logging.getLogger(__name__)
-
     def __init__(self, args=None):  # noqa
         """
         prepare command line cl for running the tool here
@@ -939,13 +937,13 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
             % (args.bad_user, args.bad_user)
         )
     assert args.tool_name, "## This ToolFactory cannot build a tool without a tool name. Please supply one."
-
     logfilename = os.path.join(REP_DIR, 'ToolFactory_make_%s_log.txt' % args.tool_name)
     if not os.path.exists(REP_DIR):
             os.mkdir(REP_DIR)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     fh = logging.FileHandler(logfilename, mode='w')
-    fh.setLevel(logging.DEBUG)
+    fformatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    fh.setFormatter(fformatter)
     logger.addHandler(fh)
     tf = Tool_Factory(args)
     tf.makeTool()
