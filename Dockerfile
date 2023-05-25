@@ -30,8 +30,7 @@ RUN mkdir -p /work \
 
 USER galaxy
 RUN wget $OVERLAY_ZIP -O /tmp/overlay.zip \
-  && unzip /tmp/overlay.zip -d /work \
-  && cd $OVERLAY_HOME \
+  && unzip /tmp/overlay.zip -d /work && cd $OVERLAY_HOME \
   && sh $OVERLAY_HOME/localtf.sh \
   && rm -rf $GALAXY_HOME/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/ $OVERLAY_HOME
 # localtf.sh clones the 23.0 release, then overlays galaxy_tf_overlay files, to add all the ToolFactory features and code
