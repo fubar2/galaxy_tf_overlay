@@ -1,7 +1,8 @@
 <toolbox tool_path="./local_tools">
   <section id="localtools" name="Local tools">
-    <tool file="tacrev/tacrev.xml"/>
     <tool file="toolfactory/toolfactory.xml"/>
+    <tool file="tacrev/tacrev.xml"/>
     <tool file="tf_apikey_mutate/tf_apikey_mutate.xml"/>
+    <tool file="planemotest/planemotest.xml"/>
   </section>
 </toolbox>

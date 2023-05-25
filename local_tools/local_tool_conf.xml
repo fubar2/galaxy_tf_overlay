@@ -1,6 +1,0 @@
-<toolbox tool_path="local_tools">
-  <section id="localtools" name="Local tools">
-    <tool file="tacrev/tacrev.xml"/>
-    <tool file="toolfactory/toolfactory.xml"/>
-  </section>
-</toolbox>
