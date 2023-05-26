@@ -15,11 +15,11 @@ unzip "main.zip"
 # mv $GALAXY_ROOT/config/plugins/visualizations/* $GALAXY_ROOT/config/plugins/notinusenowvisualizations/
 # save building them while testing
 
-cp -rvu $OVERLAY/config/ $GALAXY_ROOT/config/
+cp -rvu $OVERLAY/config $GALAXY_ROOT/config
 cp -rvu $OVERLAY/local $GALAXY_ROOT/
 cp -rvu $OVERLAY/local_tools $GALAXY_ROOT/
-cp -rvu $OVERLAY/static/ $GALAXY_ROOT/static/
-cp -rvu $OVERLAY/scripts/ $GALAXY_ROOT/scripts/
+cp -rvu $OVERLAY/static $GALAXY_ROOT/static
+cp -rvu $OVERLAY/scripts $GALAXY_ROOT/scripts
 
 sed -i "s#.*  database_connection:.*#  database_connection: $USE_DB_URL#g" $GALAXY_ROOT/config/galaxy.yml
 GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
