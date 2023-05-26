@@ -4,8 +4,7 @@
 
 FROM ubuntu:latest
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
-ARG GALAXY_USER="galaxy" \
-  ORELDIR="/tmp/galaxy_tf_overlay-main" \
+ARG GALAXY_USER="galaxy" ORELDIR="/tmp/galaxy_tf_overlay-main" \
   USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
   GALAXY_UID=1450 \
   GALAXY_GID=1450 \
