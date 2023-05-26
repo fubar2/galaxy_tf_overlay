@@ -7,7 +7,7 @@ echo "Using galaxy_root = $GALAXY_ROOT"
 
 OVERZIP="https://github.com/fubar2/galaxy_tf_overlay/archive/refs/heads/main.zip"
 GAL_USER="galaxy" # or whatever..this for my play server postgresql
-USE_DB_URL="sqlite:///$OURDIR/database/universe.sqlite?isolation_level=IMMEDIATE"
+USE_DB_URL="sqlite:///$GALAXY_ROOT/database/universe.sqlite?isolation_level=IMMEDIATE"
 cd $GALAXY_ROOT
 wget $OVERZIP
 unzip "main.zip"
