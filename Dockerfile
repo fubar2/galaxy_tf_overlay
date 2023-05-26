@@ -56,8 +56,8 @@ RUN wget $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip /tmp/overlay.zip -d /work \
   && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT \
   && rm -rf $OVERLAY_HOME /home/galaxy/.cache
-  # localtf.sh clones the 23.0 release, then overlays galaxy_tf_overlay files, to add all the ToolFactory features and code
-  # tfsetup.sh configures those additions by generating API keys and adding them to the relevant code and installs the sample history/wf
+  # overlays galaxy_tf_overlay files, to add all the ToolFactory features and code
+  # Calls tfsetup.sh to configure those overlays by generating API keys and adding them to the relevant code, then installs the sample history/wf
 EXPOSE 8080
 WORKDIR $GALAXY_ROOT
 CMD ["/usr/bin/sh", "/work/galaxytf/run.sh"]
