@@ -30,7 +30,7 @@ def run_wait_gal(url, galdir, venvdir):
         return ALREADY
     except URLError:
         print('no galaxy yet at',url)
-    cmd = "cd %s && GALAXY_VIRTUAL_ENV=%s && /bin/bash run.sh --no-create-venv --daemon" % (galdir, venvdir)
+    cmd = "cd %s && GALAXY_VIRTUAL_ENV=%s && /usr/bin/bash run.sh --no-create-venv --daemon" % (galdir, venvdir)
     print('executing', cmd)
     subprocess.run(cmd, shell=True)
     ok = False
@@ -45,7 +45,7 @@ def run_wait_gal(url, galdir, venvdir):
 
 
 def stop_gal(url, galdir):
-    cmd = "cd %s && GALAXY_VIRTUAL_ENV=%s/.venv && /bin/bash run.sh --stop-daemon" % (galdir, galdir)
+    cmd = "cd %s && GALAXY_VIRTUAL_ENV=%s/.venv && /usr/bin/bash run.sh --stop-daemon" % (galdir, galdir)
     print("executing", cmd)
     subprocess.run(cmd, shell=True)
 
@@ -181,7 +181,7 @@ if __name__ == "__main__":
         sleep(2)
         j = gi.jobs.get_jobs()
         nj = len([x for x in j if x["state"] in ("waiting", "running", "queued")])
-    cmd = ["/bin/bash", os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"), "toolfactory"]
+    cmd = ["/usr/bin/bash", os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"), "toolfactory"]
     print("executing", cmd)
     subprocess.run(cmd)
     if not ALREADY:

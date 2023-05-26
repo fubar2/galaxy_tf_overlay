@@ -46,8 +46,7 @@ RUN mkdir -p /work \
   && chown -R $GALAXY_USER:$GALAXY_USER /work \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
-  && rm -rf /tmp/* /root/.cache/ /var/cache/* \
-  && rm -rf /tmp/* /root/.cache/* /var/cache/* \
+  && rm -rf /root/.cache/ /var/cache/* \
   && rm -rf $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
 # is this a good idea - must test: RUN find /galaxytf -name '*.pyc' -delete | true \
 USER galaxy
