@@ -42,7 +42,7 @@ RUN mkdir -p /work \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && export GALAXY_ROOT=$GALAXY_ROOT && export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && export VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && cd $GALAXY_ROOT && sh $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv" > /tmp/runme.sh \
-  && su $GALAXY_USER sh /tmp/runme.sh \
+  && su $GALAXY_USER /tmp/runme.sh \
   && chown -R $GALAXY_USER:$GALAXY_USER /work \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
