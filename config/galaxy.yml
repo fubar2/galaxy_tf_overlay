@@ -182,8 +182,7 @@ gravity:
 
 galaxy:
   sanitize_all_html: false
-  # serve_xss_vulnerable_mimetypes: true
-  # ? bug - this makes xml display as an unformatted text string in the history. Go figure.
+  serve_xss_vulnerable_mimetypes: false
   watch_tools: true
   tool_config_file: "tool_conf.xml,local_tool_config/local_tool_conf.xml"
   # database_connection: "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"

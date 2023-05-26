@@ -21,13 +21,9 @@ mkdir testout
 tar -xvf $1
 TOOLNAME=`find . -name "*.xml"`
 FIXED=$(basename "$TOOLNAME" | cut -d. -f1)
-LOG=testout/"$FIXED"_planemo_test_log.txt
 REP=testout/"$FIXED"_planemo_test_report.html
-echo "using $LOG and $REP"
-echo "## Found toolname = $TOOLNAME" > $LOG
-planemo test --update_test_data  --test_output $REP $TOOLNAME >> $LOG
+planemo test --update_test_data  --test_output $REP $TOOLNAME > STDOUT
 cp $REP $2
-
 
 #end raw]]></configfile>
   </configfiles>
@@ -51,13 +47,10 @@ Tests a tool archive with Planemo
 
 Runs planemo test and returns a toolshed archive updated with test outputs and a Planemo test result.
 
-Dogfood demonstration - this tool was generated with the ToolFactory and is included as a sample of what's possible
+NOTE: First run takes 5+ minutes as Planemo is installed by Conda.
+The second and subsequent runs don't have that startup time.
 
-
-
- 
-
- 
+Dogfood demonstration - this tool was generated with the ToolFactory and is included as a sample of what's possible and potentially useful.
 
 ------
 
@@ -74,7 +67,7 @@ Script::
     echo "using $LOG and $REP"
     echo "## Found toolname = $TOOLNAME" > $LOG
     planemo test --update_test_data  --test_output $REP $TOOLNAME >> $LOG
-    cat $REP > $2
+    cp $REP $2
 
 ]]></help>
   <citations>
