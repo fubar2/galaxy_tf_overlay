@@ -55,8 +55,8 @@ USER galaxy
 # client is built so now can install the overlay
 # change this section to force quay.io to not use the cached copy of the git repository
 RUN wget $OVERLAY_ZIP -O /tmp/overlay.zip \
-  && unzip /tmp/overlay.zip -d /work && cd $OVERLAY_HOME \
-  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT
+  && unzip /tmp/overlay.zip -d /work \
+  && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT
   # localtf.sh clones the 23.0 release, then overlays galaxy_tf_overlay files, to add all the ToolFactory features and code
   # tfsetup.sh configures those additions by generating API keys and adding them to the relevant code and installs the sample history/wf
 EXPOSE 8080

@@ -11,8 +11,8 @@ USE_DB_URL="sqlite:///$OURDIR/database/universe.sqlite?isolation_level=IMMEDIATE
 cd $GALAXY_ROOT
 wget $OVERZIP
 unzip "main.zip"
-mkdir -p $GALAXY_ROOT/config/plugins/notinusenowvisualizations/
-mv $GALAXY_ROOT/config/plugins/visualizations/* $GALAXY_ROOT/config/plugins/notinusenowvisualizations/
+# mkdir -p $GALAXY_ROOT/config/plugins/notinusenowvisualizations/
+# mv $GALAXY_ROOT/config/plugins/visualizations/* $GALAXY_ROOT/config/plugins/notinusenowvisualizations/
 # save building them while testing
 
 cp -rvu $OVERLAY/config/* $GALAXY_ROOT/config/
