@@ -4,7 +4,8 @@
 
 FROM ubuntu:latest
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
-ARG GALAXY_USER="galaxy" ORELDIR="/tmp/galaxy_tf_overlay-main" \
+ARG GALAXY_USER="galaxy" \
+  ORELDIR="/tmp/galaxy_tf_overlay-main" \
   USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
   GALAXY_UID=1450 \
   GALAXY_GID=1450 \
@@ -41,20 +42,21 @@ RUN mkdir -p /work \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && export GALAXY_ROOT=$GALAXY_ROOT && export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && export VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && cd $GALAXY_ROOT && sh $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv" > /tmp/runme.sh \
-  && sudo -i su $GALAXY_USER /tmp/runme.sh \
+  && su $GALAXY_USER sh /tmp/runme.sh \
   && chown -R $GALAXY_USER:$GALAXY_USER /work \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
   && rm -rf /tmp/* /root/.cache/ /var/cache/* \
   && rm -rf /tmp/* /root/.cache/* /var/cache/* \
-  && rm -rf $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/ $OVERLAY_HOME
-
+  && rm -rf $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
+# is this a good idea - must test: RUN find /galaxytf -name '*.pyc' -delete | true \
 USER galaxy
 # client is built so now can install the overlay
 # change this section to force quay.io to not use the cached copy of the git repository
 RUN wget $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip /tmp/overlay.zip -d /work \
-  && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT
+  && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT \
+  && rm -rf $OVERLAY_HOME /home/galaxy/.cache
   # localtf.sh clones the 23.0 release, then overlays galaxy_tf_overlay files, to add all the ToolFactory features and code
   # tfsetup.sh configures those additions by generating API keys and adding them to the relevant code and installs the sample history/wf
 EXPOSE 8080
