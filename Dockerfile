@@ -35,9 +35,8 @@ RUN mkdir -p /work \
   && wget $GALZIP \
   && unzip $REL.zip \
   && mv $RELDIR $GALAXY_ROOT \
-  && chown -R $GALAXY_USER:$GALAXY_USER /work
-
-RUN python3 -m venv $GALAXY_VIRTUAL_ENV \
+  && chown -R $GALAXY_USER:$GALAXY_USER /work \
+  &&  python3 -m venv $GALAXY_VIRTUAL_ENV \
   && cd $GALAXY_ROOT \
   && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && export GALAXY_ROOT=$GALAXY_ROOT && export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
