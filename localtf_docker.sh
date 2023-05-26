@@ -29,5 +29,4 @@ pip3 install -U bioblend
 python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 find $GALAXY_ROOT -name '*.pyc' -delete | true
 find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true
-sudo rm -rf /tmp/* /root/.cache/ /var/cache/* $OURDIR/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/$USER/.cache/ /home/$USER/.npm
-sudo find /usr/lib/ -name '*.pyc' -delete | true
+
