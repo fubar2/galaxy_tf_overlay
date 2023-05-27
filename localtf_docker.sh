@@ -2,7 +2,7 @@
 # Docker version - galaxy has already been installed - so galaxy_root is the first parameter
 # assume run from the git galaxy_tf_overlay clone directory
 GALAXY_ROOT=$1
-OVERLAY=$1/galaxy_tf_overlay-main
+OVERLAY="/work/galaxy_tf_overlay-main"
 echo "Using galaxy_root = $GALAXY_ROOT"
 GAL_USER="galaxy" # or whatever..this for my play server postgresql
 USE_DB_URL="sqlite:///$GALAXY_ROOT/database/universe.sqlite?isolation_level=IMMEDIATE"
