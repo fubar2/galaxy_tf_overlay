@@ -55,7 +55,7 @@ USER galaxy
 RUN wget $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip /tmp/overlay.zip -d /work \
   && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT \
-  && rm -rf $OVERLAY_HOME /home/galaxy/.cache
+  && rm -rf /home/galaxy/.cache
   # overlays galaxy_tf_overlay files, to add all the ToolFactory features and code
   # Calls tfsetup.sh to configure those overlays by generating API keys and adding them to the relevant code, then installs the sample history/wf
 EXPOSE 8080
