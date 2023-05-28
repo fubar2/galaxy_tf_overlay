@@ -186,6 +186,7 @@ galaxy:
   watch_tools: true
   tool_config_file: "tool_conf.xml,local_tool_config/local_tool_conf.xml"
   # database_connection: "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
+  database_connection: "sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE"
   # overwritten by sed during install
   database_connection: "postgresql:///galaxydev?host=/var/run/postgresql"
   brand: ToolFactoryDev

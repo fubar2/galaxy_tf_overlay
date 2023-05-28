@@ -1,6 +1,11 @@
-# ToolFactory dev server in docker
+# Dev server in docker
+# as first layer, then the ToolFactory overlay configuration is installed and set up
+# with default admin, history, workflow and ToolFactory dependencies installed
+# This has none of the features of Bjoern's docker-galaxy-stable - uses sqlite for example, but
+# has the latest release 23.0 in the latest ubuntu image FWIW.
 # No persistence!
 # Export and save histories or tools before shutting down
+
 
 FROM ubuntu:latest
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
@@ -16,7 +21,7 @@ ARG GALAXY_USER="galaxy" \
   RELDIR="galaxy-release_23.0" \
   GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.0.zip" \
   GAL_USER="galaxy" \
-  USE_DB_URL="sqlite:///$OURDIR/database/universe.sqlite?isolation_level=IMMEDIATE" \
+  USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
   GALAXY_VIRTUAL_ENV="/work/galaxytf/.venv"
 
 RUN mkdir -p /work \
@@ -46,13 +51,12 @@ RUN mkdir -p /work \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
   && rm -rf /root/.cache/ /var/cache/* \
   && rm -rf $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
-# is this a good idea - must test: RUN find /galaxytf -name '*.pyc' -delete | true \
 USER galaxy
-# Galaxy client is built. Can install the overlay to setup all the ToolFactory requirements
-# edit this section to force quay.io to not use the cached copy of the git repository
+# Galaxy client is built. Now overlay configuration and code, and setup ToolFactory requirements like logins and API keys.
+# edit this section to force quay.io to not use the cached copy of the git repository if it gets updated.
 RUN wget $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip /tmp/overlay.zip -d /work \
-  && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT \
+  && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME \
   && rm -rf /home/galaxy/.cache
 EXPOSE 8080
 WORKDIR $GALAXY_ROOT
