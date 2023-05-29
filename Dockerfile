@@ -1,5 +1,4 @@
-# Dev server in docker
-# as first layer, then the ToolFactory overlay configuration is installed and set up
+# Dev server in docker as first layer, then the ToolFactory overlay configuration is installed and set up
 # with default admin, history, workflow and ToolFactory dependencies installed
 # This has none of the features of Bjoern's docker-galaxy-stable - uses sqlite for example, but
 # has the latest release 23.0 in the latest ubuntu image FWIW.
@@ -20,7 +19,6 @@ ARG GALAXY_USER="galaxy" \
   REL="release_23.0" \
   RELDIR="galaxy-release_23.0" \
   GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.0.zip" \
-  GAL_USER="galaxy" \
   USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
   GALAXY_VIRTUAL_ENV="/work/galaxytf/.venv"
 
@@ -28,7 +26,7 @@ RUN mkdir -p /work \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
   && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
   && apt-get -qq update \
-  && apt-get install --no-install-recommends -y locales \
+  && apt-get install --no-install-recommends -y locales apt-utils \
   && locale-gen en_US.UTF-8 \
   && dpkg-reconfigure --frontend=noninteractive locales \
   && apt-get install --no-install-recommends -y python3 python3-venv python3-pip python3-wheel wget unzip nano git nodeenv sudo \
@@ -41,16 +39,16 @@ RUN mkdir -p /work \
   && chown -R $GALAXY_USER:$GALAXY_USER /work \
   &&  python3 -m venv $GALAXY_VIRTUAL_ENV \
   && cd $GALAXY_ROOT \
-  && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT \
+  && chown -R $GALAXY_USER:$GALAXY_USER /work \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && export GALAXY_ROOT=$GALAXY_ROOT && export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && export VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && cd $GALAXY_ROOT && sh $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv" > /tmp/runme.sh \
   && su $GALAXY_USER /tmp/runme.sh \
-  && chown -R $GALAXY_USER:$GALAXY_USER /work \
+  # probably not needed && chown -R $GALAXY_USER:$GALAXY_USER /work \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
   && rm -rf /root/.cache/ /var/cache/* \
-  && rm -rf $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
+  && rm -rf $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/$GALAXY_USER/.npm/
 USER galaxy
 # Galaxy client is built. Now overlay configuration and code, and setup ToolFactory requirements like logins and API keys.
 # edit this section to force quay.io to not use the cached copy of the git repository if it gets updated.

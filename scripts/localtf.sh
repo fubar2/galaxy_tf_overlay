@@ -34,11 +34,11 @@ fi
 unzip $REL.zip
 mv $RELDIR/config/plugins/visualizations/* /tmp
 # save building them while testing
-cp -rvu $THISDIR/config/* $RELDIR/config/
-cp -rvu $THISDIR/local $RELDIR/
-cp -rvu $THISDIR/local_tools $RELDIR/
-cp -rvu $THISDIR/static/* $RELDIR/static/
-cp -rvu $THISDIR/scripts/* $RELDIR/scripts/
+cp -rv $THISDIR/config/* $RELDIR/config/
+cp -rv $THISDIR/local $RELDIR/
+cp -rv $THISDIR/local_tools $RELDIR/
+cp -rv $THISDIR/static/* $RELDIR/static/
+cp -rv $THISDIR/scripts/* $RELDIR/scripts/
 mv  $RELDIR $OURDIR
 cd $OURDIR
 sed -i "s#.*  database_connection:.*#  database_connection: $USE_DB_URL#g" $OURDIR/config/galaxy.yml
@@ -50,9 +50,10 @@ sh scripts/common_startup.sh --no-create-venv
 pip3 install -U bioblend ephemeris planemo watchdog
 python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 find $OURDIR -name '*.pyc' -delete | true \
-find /usr/lib/ -name '*.pyc' -delete | true \
 find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
-sudo rm -rf /tmp/* /root/.cache/ /var/cache/* $OURDIR/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/$USER/.cache/ /home/$USER/.npm
+sudo rm -rf $OURDIR/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/
+# optionally - may not be wanted on a workstation :)
+# sudo rm -rf /tmp/* /root/.cache/ /var/cache/* /home/$USER/.cache/ /home/$USER/.npm
 echo "Your dev server is ready to run in a new directory - $OURDIR. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
 Local web browser url is http://localhost:8080. Admin already exists. \
