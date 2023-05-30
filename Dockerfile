@@ -2,9 +2,8 @@
 # with default admin, history, workflow and ToolFactory dependencies installed
 # This has none of the features of Bjoern's docker-galaxy-stable - uses sqlite for example, but
 # has the latest release 23.0 in the latest ubuntu image FWIW.
-# No persistence!
-# Export and save histories or tools before shutting down
-
+# No persistence so export and save histories or tools before shutting down
+#  and NO visualisations - the config/plugins/visualizations take 3GB of disk
 
 FROM ubuntu:latest
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
@@ -36,6 +35,8 @@ RUN mkdir -p /work \
   && wget $GALZIP \
   && unzip $REL.zip \
   && mv $RELDIR $GALAXY_ROOT \
+  # save 3GB of disk space but not available
+  && rm -rf $GALAXY_ROOT/config/plugins/visualizations/* \
   && chown -R $GALAXY_USER:$GALAXY_USER /work \
   &&  python3 -m venv $GALAXY_VIRTUAL_ENV \
   && cd $GALAXY_ROOT \
@@ -44,11 +45,10 @@ RUN mkdir -p /work \
      && export VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && cd $GALAXY_ROOT && sh $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv" > /tmp/runme.sh \
   && su $GALAXY_USER /tmp/runme.sh \
-  # probably not needed && chown -R $GALAXY_USER:$GALAXY_USER /work \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
   && rm -rf /root/.cache/ /var/cache/* \
-  && rm -rf $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/$GALAXY_USER/.npm/
+  && rm -rf $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins
 USER galaxy
 # Galaxy client is built. Now overlay configuration and code, and setup ToolFactory requirements like logins and API keys.
 # edit this section to force quay.io to not use the cached copy of the git repository if it gets updated.
