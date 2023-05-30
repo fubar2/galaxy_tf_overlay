@@ -28,6 +28,6 @@ export GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
 . $GALAXY_VIRTUAL_ENV/bin/activate
 pip3 install ephemeris
 python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
-find $GALAXY_ROOT -name '*.pyc' -delete | true
-find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true
+# bad idea for conda: find $GALAXY_ROOT -name '*.pyc' -delete | true
+# find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true
 # rm -rf $OVERLAY
