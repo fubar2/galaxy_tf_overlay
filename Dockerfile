@@ -35,10 +35,10 @@ RUN mkdir -p /work \
   && wget $GALZIP \
   && unzip $REL.zip \
   && mv $RELDIR $GALAXY_ROOT \
-  # save 3GB of disk space but not available
+  # save 3GB of disk space but plugin visualisations will not work
   && rm -rf $GALAXY_ROOT/config/plugins/visualizations/* \
   && chown -R $GALAXY_USER:$GALAXY_USER /work \
-  &&  python3 -m venv $GALAXY_VIRTUAL_ENV \
+  && python3 -m venv $GALAXY_VIRTUAL_ENV \
   && cd $GALAXY_ROOT \
   && chown -R $GALAXY_USER:$GALAXY_USER /work \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && export GALAXY_ROOT=$GALAXY_ROOT && export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
@@ -57,7 +57,8 @@ USER galaxy
 RUN wget $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip /tmp/overlay.zip -d /work \
   && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME \
-  && rm -rf /home/galaxy/.cache
+  && rm -rf /home/galaxy/.cache \
+  && ls -l # force rebuild of this layer
 EXPOSE 8080
 WORKDIR $GALAXY_ROOT
 CMD ["/usr/bin/sh", "/work/galaxytf/run.sh"]
