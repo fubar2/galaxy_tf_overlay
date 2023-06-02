@@ -30,12 +30,13 @@ RUN mkdir -p /work \
   && apt-get install --no-install-recommends -y locales apt-utils \
   && locale-gen en_US.UTF-8 \
   && dpkg-reconfigure --frontend=noninteractive locales \
-  && apt-get install --no-install-recommends -y python3 python3-venv python3-pip python3-wheel wget unzip nano git nodeenv sudo \
+  && apt-get install --no-install-recommends -y python3 python3-venv python3-pip python3-wheel wget unzip git nodeenv sudo \
   && groupadd -r $GALAXY_USER -g $GALAXY_GID \
   && adduser --system --quiet --home /home/galaxy --uid $GALAXY_UID --gid $GALAXY_GID --shell /usr/bin/bash $GALAXY_USER \
   && cd /work \
   && wget $GALZIP \
-  && unzip $REL.zip \
+  && unzip -q $REL.zip \
+  && rm -rf $REL.zip \
   && mv $RELDIR $GALAXY_ROOT \
   # save 3GB of disk space but plugin visualisations will not work
   && rm -rf $GALAXY_ROOT/config/plugins/visualizations/* \
@@ -54,7 +55,7 @@ RUN mkdir -p /work \
    $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ \
     /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins \
   && find / -name '*.pyc' -delete && find / -name '*.log' -delete && find / -name '.cache' -delete \
-  && truncate -s 0 /var/log/*log || true && truncate -s 0 /var/log/**/*log || true \
+  && truncate -s 0 /var/log/*log || true && truncate -s 0 /var/log/*/*/*log || true \
   && rm -rf /var/cache/* /root/.cache/* .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
              contrib doc lib/galaxy_test test test-data \
@@ -66,10 +67,9 @@ USER galaxy
 # Galaxy client is built. Now overlay configuration and code, and setup ToolFactory requirements like logins and API keys.
 # edit this section to force quay.io to not use the cached copy of the git repository if it gets updated.
 RUN wget $OVERLAY_ZIP -O /tmp/overlay.zip \
-  && unzip /tmp/overlay.zip -d /work \
+  && unzip -q /tmp/overlay.zip -d /work \
   && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME \
-  && rm -rf /home/galaxy/.cache \
-  && ls -l # force rebuild of this layer
+  && rm -rf /home/galaxy/.cache $OVERLAY_HOME
 EXPOSE 8080
 WORKDIR $GALAXY_ROOT
 CMD ["/usr/bin/sh", "/work/galaxytf/run.sh"]
