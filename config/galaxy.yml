@@ -22,8 +22,10 @@ gravity:
 
   # Specify Galaxy's root directory.
   # Gravity will attempt to find the root directory, but you can set the directory explicitly with this option.
-  # galaxy_root:
-
+  process_manager: systemd
+  galaxy_user: galaxy
+  # virtualenv: /work/galaxytf/.venv
+  # galaxy_root: /work/galaxytf
   # Set to a directory that should contain log files for the processes controlled by Gravity.
   # If not specified defaults to ``<state_dir>/log``.
   # log_dir:

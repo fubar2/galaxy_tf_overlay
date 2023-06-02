@@ -7,19 +7,21 @@
 
 FROM ubuntu:latest
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
-ARG GALAXY_USER="galaxy" \
-  USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
+ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
   ORELDIR="/tmp/galaxy_tf_overlay-main" \
-  GALAXY_UID=1450 \
-  GALAXY_GID=1450 \
-  GALAXY_ROOT="/work/galaxytf" \
   OVERLAY_HOME="/work/galaxy_tf_overlay-main" \
   OVERLAY_ZIP="https://github.com/fubar2/galaxy_tf_overlay/archive/refs/heads/main.zip" \
   REL="release_23.0" \
   RELDIR="galaxy-release_23.0" \
   GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.0.zip" \
-  USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
+  USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE"
+
+ENV GALAXY_USER="galaxy" \
+  GALAXY_UID=1450 \
+  GALAXY_GID=1450 \
+  GALAXY_ROOT="/work/galaxytf"  \
   GALAXY_VIRTUAL_ENV="/work/galaxytf/.venv"
+
 
 RUN mkdir -p /work \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
@@ -37,7 +39,6 @@ RUN mkdir -p /work \
   && mv $RELDIR $GALAXY_ROOT \
   # save 3GB of disk space but plugin visualisations will not work
   && rm -rf $GALAXY_ROOT/config/plugins/visualizations/* \
-  && chown -R $GALAXY_USER:$GALAXY_USER /work \
   && python3 -m venv $GALAXY_VIRTUAL_ENV \
   && cd $GALAXY_ROOT \
   && chown -R $GALAXY_USER:$GALAXY_USER /work \
@@ -46,21 +47,21 @@ RUN mkdir -p /work \
      && cd $GALAXY_ROOT && sh $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv \
      && . $GALAXY_ROOT/scripts/common_startup_functions.sh \
      && setup_python" > /tmp/runme.sh \
+  && cat /tmp/runme.sh \
   && su $GALAXY_USER /tmp/runme.sh \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/  /root/.cache/ /var/cache/*  \
-    $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ \
+   $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ \
     /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins \
   && find / -name '*.pyc' -delete && find / -name '*.log' -delete && find / -name '.cache' -delete \
   && truncate -s 0 /var/log/*log || true && truncate -s 0 /var/log/**/*log || true \
   && rm -rf /var/cache/* /root/.cache/* .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
-              client contrib doc config/plugins lib/galaxy_test test test-data \
-              .venv/lib/node_modules .venv/src/node-v10.15.3-linux-x64 \
-              .venv/include/node .venv/bin/node .venv/bin/nodeenv \
-             /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/   \
-             $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ \
-             /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins \
+             contrib doc lib/galaxy_test test test-data \
+             # .venv/src/node-v10.15.3-linux-x64 $GALAXY_ROOT/client/node_modules/\
+             /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/  \
+              $GALAXY_VIRTUAL_ENV/src/ \
+             /home/$GALAXY_USER/.npm/
 USER galaxy
 # Galaxy client is built. Now overlay configuration and code, and setup ToolFactory requirements like logins and API keys.
 # edit this section to force quay.io to not use the cached copy of the git repository if it gets updated.
