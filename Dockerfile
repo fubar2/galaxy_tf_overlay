@@ -48,9 +48,19 @@ RUN mkdir -p /work \
      && setup_python" > /tmp/runme.sh \
   && su $GALAXY_USER /tmp/runme.sh \
   && apt-get autoremove -y && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
-  && rm -rf /root/.cache/ /var/cache/* \
-  && rm -rf $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/  /root/.cache/ /var/cache/*  \
+    $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ \
+    /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins \
+  && find / -name '*.pyc' -delete && find / -name '*.log' -delete && find / -name '.cache' -delete \
+  && truncate -s 0 /var/log/*log || true && truncate -s 0 /var/log/**/*log || true \
+  && rm -rf /var/cache/* /root/.cache/* .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
+              LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
+              client contrib doc config/plugins lib/galaxy_test test test-data \
+              .venv/lib/node_modules .venv/src/node-v10.15.3-linux-x64 \
+              .venv/include/node .venv/bin/node .venv/bin/nodeenv \
+             /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/   \
+             $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ \
+             /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins \
 USER galaxy
 # Galaxy client is built. Now overlay configuration and code, and setup ToolFactory requirements like logins and API keys.
 # edit this section to force quay.io to not use the cached copy of the git repository if it gets updated.
