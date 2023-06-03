@@ -182,6 +182,16 @@ gravity:
   # handlers: {}
 
 galaxy:
+
+  # Set to true to instruct Galaxy to look for and install missing tool
+  # dependencies before each job runs.
+  conda_auto_install: true
+
+  # Set to true to instruct Galaxy to install Conda from the web
+  # automatically if it cannot find a local copy and conda_exec is not
+  # configured.
+  conda_auto_init: true
+  #log_level: DEBUG
   sanitize_all_html: false
   serve_xss_vulnerable_mimetypes: false
   watch_tools: true
@@ -195,7 +205,6 @@ galaxy:
   # NO spaces after commas in the admin_users list!!
   # Display the "Galaxy" text in the masthead.
   # display_galaxy_brand: false DEPRECATED!
-  # conda_auto_install: true
   # Force everyone to log in (disable anonymous access).
   require_login: true
   # Show the site's welcome page (see welcome_url) alongside the login

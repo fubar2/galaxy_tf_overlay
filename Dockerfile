@@ -15,7 +15,6 @@ ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_leve
   RELDIR="galaxy-release_23.0" \
   GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.0.zip" \
   USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
-  && MINICONDA_VERSION=py38_4.9.2 \
   && GALAXY_HOME="/home/galaxy"
 
 ENV GALAXY_USER="galaxy" \
@@ -26,7 +25,7 @@ ENV GALAXY_USER="galaxy" \
   GALAXY_CONDA_PREFIX="/work/galaxytf/database/dependencies/_conda"
 
 
-RUN mkdir -p /work \
+RUN mkdir -p /work \ # && echo "do not cache me" \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
   && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
   && apt-get -qq update \
@@ -37,7 +36,7 @@ RUN mkdir -p /work \
   && groupadd -r $GALAXY_USER -g $GALAXY_GID \
   && adduser --system --quiet --home /home/galaxy --uid $GALAXY_UID --gid $GALAXY_GID --shell /usr/bin/bash $GALAXY_USER \
   && cd /work \
-  && wget $GALZIP \
+  && wget -q $GALZIP \
   && unzip -qq $REL.zip \
   && rm -rf $REL.zip \
   && mv $RELDIR $GALAXY_ROOT \
@@ -53,21 +52,18 @@ RUN mkdir -p /work \
   && cat /tmp/runme.sh \
   && su $GALAXY_USER /tmp/runme.sh \
   && apt-get autoremove -y && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/  /root/.cache/ /var/cache/*  \
-   $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ \
-    /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/ /var/cache/*  \
+        $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ \
+        /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins \
   && find / -name '*.pyc' -delete && find / -name '*.log' -delete && find / -name '.cache' -delete \
   && truncate -s 0 /var/log/*log || true && truncate -s 0 /var/log/*/*log || true \
-  && rm -rf /var/cache/* /root/.cache/* .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
+  && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
-             contrib doc lib/galaxy_test test test-data \
-             /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/  \
-              $GALAXY_VIRTUAL_ENV/src/ \
-             /home/$GALAXY_USER/.npm/
+             contrib doc lib/galaxy_test test test-data
 USER galaxy
 # Galaxy client is built. Now overlay configuration and code, and setup ToolFactory requirements like logins and API keys.
 # edit this section to force quay.io to not use the cached copy of the git repository if it gets updated.
-RUN wget $OVERLAY_ZIP -O /tmp/overlay.zip \
+RUN wget -q $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip -qq /tmp/overlay.zip -d /work \
   && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME \
   && rm -rf /home/galaxy/.cache $OVERLAY_HOME
