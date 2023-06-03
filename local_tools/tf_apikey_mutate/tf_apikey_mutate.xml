@@ -10,7 +10,7 @@
   </stdio>
   <version_command><![CDATA[echo "0.001"]]></version_command>
   <command><![CDATA[python
-$runme
+$runme --galaxy_root "$__root_dir__" --galaxy_venv "$__root_dir__/.venv"
 >
 $APIK_mutate_log]]></command>
   <configfiles>
@@ -126,7 +126,6 @@ if __name__ == "__main__":
     parser.add_argument("args", nargs=argparse.REMAINDER)
     # python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
     options = parser.parse_args()
-    options.galaxy_root = os.path.abspath(options.galaxy_root)
     sys.path.insert(1, options.galaxy_root)
     sys.path.insert(1, os.path.join(options.galaxy_root, "lib"))
 
