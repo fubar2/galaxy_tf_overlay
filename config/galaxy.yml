@@ -185,8 +185,7 @@ galaxy:
 
   # Set to true to instruct Galaxy to look for and install missing tool
   # dependencies before each job runs.
-  conda_auto_install: true
-
+  conda_auto_install: false
   # Set to true to instruct Galaxy to install Conda from the web
   # automatically if it cannot find a local copy and conda_exec is not
   # configured.
