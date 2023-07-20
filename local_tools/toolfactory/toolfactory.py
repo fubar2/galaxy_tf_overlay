@@ -635,6 +635,12 @@ class Tool_Factory:
         Uses galaxyhtml
         Hmmm. How to get the command line into correct order...
         """
+        iXCL = self.xmlcl.insert
+        if self.args.cl_user_preffix:  # DIY CL start
+            clp = shlex.split(self.args.cl_user_preffix)
+            clp.reverse()
+            for cmd in clp:
+                iXCL(0,cmd)
         if self.command_override:
             self.newtool.command_override = self.command_override  # config file
         else:
@@ -913,6 +919,7 @@ def main():
     a("--script_path", default=None)
     a("--history_test", default=None)
     a("--cl_user_suffix", default=None)
+    a("--cl_user_preffix", default=None)
     a("--sysexe", default=None)
     a("--packages", default=None)
     a("--tool_name", default="newtool")

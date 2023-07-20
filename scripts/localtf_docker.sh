@@ -11,18 +11,17 @@ else
 fi
 GALAXY_ROOT=$1
 OVERLAY=$2
-USE_DB_URL="sqlite:///$GALAXY_ROOT/database/universe.sqlite?isolation_level=IMMEDIATE"
+USE_DB_URL="sqlite:///$1/database/universe.sqlite?isolation_level=IMMEDIATE"
 cd $GALAXY_ROOT
 cp -rv $OVERLAY/config/* $GALAXY_ROOT/config/
 cp -rv $OVERLAY/local $GALAXY_ROOT/
 cp -rv $OVERLAY/local_tools $GALAXY_ROOT/
 cp -rv $OVERLAY/static/* $GALAXY_ROOT/static/
 cp -rv $OVERLAY/scripts/* $GALAXY_ROOT/scripts/
-sed -i "s#.*  database_connection:.*#  database_connection: $USE_DB_URL#g" $GALAXY_ROOT/config/galaxy.yml
-GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
-export GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
+sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $1/config/galaxy.yml
+export GALAXY_VIRTUAL_ENV=$1/.venv
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
-. $GALAXY_VIRTUAL_ENV/bin/activate
-pip3 install ephemeris
+. $1/.venv/bin/activate
+pip install -U ephemeris bioblend planemo
 python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 

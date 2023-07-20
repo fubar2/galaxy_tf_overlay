@@ -9,9 +9,10 @@ THISDIR=`echo "$(cd "$(dirname "$THISD")" && pwd)/$(basename "$THISD")"`
 OURDIR=`echo "$(cd "$(dirname "$OURD")" && pwd)/$(basename "$OURD")"`
 echo "Using thisdir = $THISDIR and ourdir = $OURDIR"
 echo "Using thisdir = $THISDIR"
-REL="v23.0"
-RELDIR="galaxy-23.0"
-GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/tags/$REL.zip"
+VER="23.0"
+REL="release_$VER"
+RELDIR="galaxy-release_$VER"
+GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_$VER.zip"
 GAL_USER="ubuntu" # or whatever..this for my play server postgresql
 #USE_DB_URL="postgresql:///galaxydev?host=/var/run/postgresql"
 #database_connection: "postgresql:///galaxydev?host=/var/run/postgresql"
@@ -32,7 +33,7 @@ if [ -d "$OURDIR" ]; then
   rm -rf $OURDIR
 fi
 unzip $REL.zip
-mv $RELDIR/config/plugins/visualizations/* /tmp
+# mv $RELDIR/config/plugins/visualizations/* /tmp
 # save building them while testing
 cp -rv $THISDIR/config/* $RELDIR/config/
 cp -rv $THISDIR/local $RELDIR/
@@ -45,10 +46,11 @@ sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $OURDI
 GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 export GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
+GALAXY_INSTALL_PREBUILT_CLIENT=1
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
 . $GALAXY_VIRTUAL_ENV/bin/activate
-pip3 install -U bioblend ephemeris planemo watchdog
+pip3 install -U bioblend ephemeris planemo
 python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 find $OURDIR -name '*.pyc' -delete | true \
 find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \

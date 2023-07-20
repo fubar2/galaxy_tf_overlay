@@ -11,9 +11,10 @@ ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_leve
   ORELDIR="/tmp/galaxy_tf_overlay-main" \
   OVERLAY_HOME="/work/galaxy_tf_overlay-main" \
   OVERLAY_ZIP="https://github.com/fubar2/galaxy_tf_overlay/archive/refs/heads/main.zip" \
-  REL="release_23.0" \
-  RELDIR="galaxy-release_23.0" \
-  GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.0.zip" \
+  VER="23.0"
+  REL="release_$VER" \
+  RELDIR="galaxy-release_$VER" \
+  GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_VER.zip" \
   USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
   && GALAXY_HOME="/home/galaxy"
 
