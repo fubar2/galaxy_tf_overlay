@@ -14,7 +14,7 @@ ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_leve
   VER="23.0"
   REL="release_$VER" \
   RELDIR="galaxy-release_$VER" \
-  GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_VER.zip" \
+  GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_$VER.zip" \
   USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
   && GALAXY_HOME="/home/galaxy"
 
