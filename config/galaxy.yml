@@ -182,7 +182,7 @@ gravity:
   # handlers: {}
 
 galaxy:
-
+  data_dir: "database"
   # Set to true to instruct Galaxy to look for and install missing tool
   # dependencies before each job runs.
   conda_auto_install: false
@@ -195,10 +195,7 @@ galaxy:
   serve_xss_vulnerable_mimetypes: false
   watch_tools: true
   tool_config_file: "tool_conf.xml,local_tool_config/local_tool_conf.xml"
-  # database_connection: "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
-  database_connection: "sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE"
-  # overwritten by sed during install
-  database_connection: "postgresql:///galaxydev?host=/var/run/postgresql"
+  database_connection: "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
   brand: ToolFactoryDev
   admin_users: toolfactory@galaxy.org,admin@galaxy.org
   # NO spaces after commas in the admin_users list!!

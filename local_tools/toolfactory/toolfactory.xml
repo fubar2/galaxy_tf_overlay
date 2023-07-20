@@ -248,7 +248,7 @@ python3 $__tool_directory__/toolfactory.py
        #end if
      #end for
    #end if
-     #for $intab in $io_param.ppass.io.history_inputs:
+   #for $intab in $io_param.ppass.io.history_inputs:
 --input_files '{"name": "$intab.input_files", "CL": "$intab.input_CL", "format": "$intab.input_formats", "label": "$intab.input_label", "help": "$intab.input_help", "repeat": "$intab.input_repeat"}'
      #end for
      #for $otab in $io_param.ppass.io.history_outputs:
@@ -260,7 +260,13 @@ python3 $__tool_directory__/toolfactory.py
 --tested_tool_out "$untested_tool"
 --galaxy_root "$__root_dir__"
 --tool_dir "$__tool_directory__"
- #end if
+#if $xtracond.needxtra == "yes":
+#for $x in $xtracond.xtra_files:
+--xtra_file '{"fpath":"$x", "fname":"$x.element_identifier"}'
+#end for
+#end if
+
+#end if
 ]]></command>
  <configfiles>
   <configfile name="runme">
@@ -373,6 +379,20 @@ ${help_text}
          <mapping initial="none"/>
       </sanitizer>
     </param>
+    <conditional name="xtracond">
+        <param name="needxtra" type="select" display="radio" label="Specific files from the history must be available in the tool directory"
+        help = "If you need a java .jar file or special data file for your script to be able to access, upload it to the history and select it here">
+            <option value="no" selected="true">No special files need to be available in the tool directory for the script to use</option>
+            <option value="yes">Yes - some special files must be copied into the tool directory</option>
+        </param>
+        <when value="no">
+                <param name="xtra_files" type="hidden" value="" />
+        </when>
+        <when value="yes">
+            <param name="xtra_files" type="data" format="data" label="Select all files from your history to add to tool directory for the script to use" multiple="true"
+               help="If your script needs access to a .jar or other strange resource, upload it so you can select it here.  All those selected history items will be added to the tool directory. That path is available at execution as $__tool_directory__, for use in the command section. These need to be expanded and used as parameters for the script where needed: $__tool_directory__/BlastTools.jar for example"/>
+        </when>
+    </conditional>
     <expand macro="tool_metadata" />
     <param name="useremail"  type="hidden" value="" />
     <param name="script_path"  type="hidden" value="" />

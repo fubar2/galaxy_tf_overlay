@@ -21,6 +21,7 @@ cp -rv $OVERLAY/scripts/* $GALAXY_ROOT/scripts/
 sed -i "s#.*  database_connection:.*#  database_connection: $USE_DB_URL#g" $GALAXY_ROOT/config/galaxy.yml
 GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
 export GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
+export GALAXY_INSTALL_PREBUILT_CLIENT=1
 . $GALAXY_VIRTUAL_ENV/bin/activate
 pip3 install ephemeris
 python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force

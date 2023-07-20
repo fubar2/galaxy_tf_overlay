@@ -41,9 +41,10 @@ cp -rv $THISDIR/static/* $RELDIR/static/
 cp -rv $THISDIR/scripts/* $RELDIR/scripts/
 mv  $RELDIR $OURDIR
 cd $OURDIR
-sed -i "s#.*  database_connection:.*#  database_connection: $USE_DB_URL#g" $OURDIR/config/galaxy.yml
+sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $OURDIR/config/galaxy.yml
 GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 export GALAXY_VIRTUAL_ENV=$OURDIR/.venv
+export GALAXY_INSTALL_PREBUILT_CLIENT=1
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
 . $GALAXY_VIRTUAL_ENV/bin/activate

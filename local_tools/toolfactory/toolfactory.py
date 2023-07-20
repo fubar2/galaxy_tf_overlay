@@ -103,6 +103,12 @@ class Tool_Factory:
             self.infiles = [json.loads(x) for x in args.input_files if len(x.strip()) > 1]
         except Exception:
             logger.error(f"--input_files parameter {str(args.input_files)} is malformed - should be a dictionary")
+        self.extra_files = []
+        if len(args.xtra_files) > 0:
+            try:
+                self.extra_files = [json.loads(x) for x in args.xtra_files if len(x.strip()) > 1]
+            except Exception:
+                logger.error(f"--xtra_files parameter {str(args.xtra_files)} is malformed - should be a dictionary")
         try:
             self.outfiles = [json.loads(x) for x in args.output_files if len(x.strip()) > 1]
         except Exception:
@@ -760,6 +766,12 @@ class Tool_Factory:
             dest = os.path.join(self.repdir, "%s_sample.%s" % (p["infilename"], p["format"]))
             shutil.copyfile(pth, dest)
             logger.info("Copied %s to %s" % (pth, dest))
+        if self.extra_files and len(self.extra_files) > 0:
+            for xtra in self.extra_files:
+                fpath = xtra["fpath"]
+                dest = os.path.join(self.toold, xtra["fname"])
+                shutil.copyfile(fpath,dest)
+                logger.info("Copied xtra file %s to %s" % (fpath, dest))
 
     def makeToolTar(self, test_retcode=0):
         """move outputs into test-data and prepare the tarball"""
@@ -929,6 +941,7 @@ def main():
     a("--tested_tool_out", default=None)
     a("--local_tools", default="tools")  # relative to $__root_dir__
     a("--tool_conf_path", default="config/tool_conf.xml")  # relative to $__root_dir__
+    a("--xtra_files", default=[], action="append",) # history data items to add to the tool base directory
     args = parser.parse_args()
     if args.admin_only:
         assert not args.bad_user, (
