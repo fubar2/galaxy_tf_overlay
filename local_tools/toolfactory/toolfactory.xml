@@ -209,17 +209,17 @@
 python3 $__tool_directory__/toolfactory.py --bad_user $__user_email__
  #else:
 python3 $__tool_directory__/toolfactory.py
-    #if len(str($cl_suffix)) > 0:
---cl_user_suffix "$cl_suffix"
+    #if len(str($cl_options.cl_suffix)) > 0:
+--cl_user_suffix "$cl_options.cl_suffix"
     #end if
-    #if len(str($cl_prefix)) > 0:
---cl_user_preffix "$cl_prefix"
+    #if len(str($cl_options.cl_prefix)) > 0:
+--cl_user_preffix "$cl_options.cl_prefix"
     #end if
-   #if len(str($cl_override)) > 0:
---cl_override "$cl_override"
+   #if len(str($cl_options.cl_override)) > 0:
+--cl_override "$cl_options.cl_override"
    #end if
-   #if len(str($test_override)) > 0:
---test_override "$test_override"
+   #if len(str($cl_options.test_override)) > 0:
+--test_override "$cl_options.test_override"
    #end if
    #if $deps.packages > "":
         --packages "$deps.packages"
@@ -275,8 +275,8 @@ python3 $__tool_directory__/toolfactory.py
 --tested_tool_out "$untested_tool"
 --galaxy_root "$__root_dir__"
 --tool_dir "$__tool_directory__"
-#if $xtracond.needxtra == "yes":
-#for $x in $xtracond.xtra_files:
+#if $cl_options.xtracond.needxtra == "yes":
+#for $x in $cl_options.xtracond.xtra_files:
 --xtra_file '{"fpath":"$x", "fname":"$x.element_identifier"}'
 #end for
 #end if
@@ -288,13 +288,13 @@ python3 $__tool_directory__/toolfactory.py
 $deps.usescript.dynScript
  </configfile>
  <configfile name="commandoverride">
-#if len(str($cl_override).strip()) > 1:
-$cl_override
+#if len(str($cl_options.cl_override).strip()) > 1:
+$cl_options.cl_override
 #end if
  </configfile>
  <configfile name="testoverride">
-#if len(str($test_override).strip()) > 1:
-$test_override
+#if len(str($cl_options.test_override).strip()) > 1:
+$cl_options.test_override
 #end if
  </configfile>
  <configfile name="helpme">
