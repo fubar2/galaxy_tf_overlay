@@ -65,10 +65,9 @@ RUN mkdir -p /work \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
               contrib doc lib/galaxy_test test test-data
 USER galaxy
-# Galaxy client is built. Now overlay latest configuration and code, and setup ToolFactory requirements like logins and API keys.
-# trivial change to this section to force quay.io to not use the cached copy of the git repository if it gets updated.
-#  && rm -rf $REL.zip \
-RUN echo `ls -lt /work` && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME \
+
+RUN cd $OVERLAY_HOME \
+  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME \
   && rm -rf /home/galaxy/.cache
 EXPOSE 8080
 WORKDIR $GALAXY_ROOT
