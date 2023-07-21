@@ -66,7 +66,8 @@
      <xml name="io">
      <section name="io" title="Input and output files" expanded="true">
         <repeat name="history_inputs" title="Inputs" min="0"
-             help="Input data files to pass on the command line to the executable. USE SMALL SAMPLES for the new tool's test. Prompts will form a history item selector as input for users of this new tool">
+             help="Input data files to pass on the command line to the executable. USE SMALL SAMPLES for the new tool's test.
+             Prompts will form a history item selector as input for users of this new tool">
             <param name="input_files" type="data" format="data" label="Select an input file from your history" multiple="false"
                help=""/>
             <param name="input_formats" type="select" multiple="true" label="Select the datatype(s) that your tool/script accepts as input"
@@ -80,12 +81,15 @@
             <param name="input_help" type="text" value="" label="This will become help text on the form." >
             </param>
             <param name="input_CL" type="text" label="Positional: ordinal integer. Argparse: argument name. STDIN if the executable/script expects it"
-              help="If you will pass positional parameters, enter the integer ordinal for this parameter. If Argparse style, '--' will be prepended or '-' if single character" value="">
+              help="If you will pass positional parameters, enter the integer ordinal for this parameter. If Argparse style, '--' will be prepended or '-' if
+              single character" value="">
             </param>
-            <param name="input_repeat" type="boolean" checked="False" truevalue="1"  falsevalue="0" label="Allow user to repeat this input as many times as wanted - script/executable must parse these."/>
+            <param name="input_repeat" type="boolean" checked="False" truevalue="1"  falsevalue="0" label="Allow user to repeat this input as
+            many times as wanted - script/executable must parse these."/>
         </repeat>
         <repeat name="history_outputs" min="0" title="Outputs"
-             help="New history items output by the executable to appear in the user history after the tool runs. The name will become a history item for users of the new tool you are making containing one of it's outputs">
+             help="New history items output by the executable to appear in the user history after the tool runs. The name will become a history item for
+             users of the new tool you are making containing one of it's outputs">
             <param name="history_name" type="text" label="Output Name" optional="false"
               help="Name used for this output in history. No spaces. Argparse will also use this name as --[name]">
               <sanitizer invalid_char=" ">
@@ -101,14 +105,18 @@
                </options>
             </param>
             <param name="history_CL" type="text"  label="Position"
-              help="Positional: ordinal integer or 'STDOUT' if '>' required. Otherwise ignored if argparse because name is used. If positional parameters, enter the integer ordinal expected for this parameter. If argparse, ignore unless STDOUT needed" value=""/>
+              help="Positional: ordinal integer or 'STDOUT' if '>' required. Otherwise ignored if argparse because name is used.
+              If positional parameters, enter the integer ordinal expected for this parameter. If argparse, ignore unless STDOUT needed" value=""/>
             <param name="history_test" type="text"  label="Output test criteria"
-              help="Pass/fail decision criterion for this output compared to test generation. Available options are diff:[lines], sim_size:[delta (integer) or delta_frac (float)" value="diff:0"/>
+              help="Pass/fail decision criterion for this output compared to test generation. Available options are diff:[lines], sim_size:[delta (integer) or delta_frac (float)"
+              value="diff:0"/>
         </repeat>
         <repeat name="collection_outputs" title="Output Collections" min="0"
-             help="New history collections to appear in the user history after the tool runs. Hides outputs not needed for downstream tools such as images and intermediate reports." default="0">
+             help="New history collections to appear in the user history after the tool runs. Hides outputs not needed for downstream tools such as
+              images and intermediate reports." default="0">
             <param name="name" type="text" label="Name"
-              help="for new collection with all outputs not individually passed to history outputs. No spaces! Script MUST create and fill a directory with the same name and the tool test MUST be overwritten - see the plotter example for hints">
+              help="for new collection with all outputs not individually passed to history outputs. No spaces! Script MUST create and fill a directory
+              with the same name and the tool test MUST be overwritten - see the plotter example for hints">
               <sanitizer invalid_char="_">
                 <valid initial="string.ascii_letters,string.digits" >
                    <add value="_" />
@@ -122,7 +130,8 @@
                 <option value="list:paired">List of paired</option>
             </param>
             <param name="label" type="text"  label="Label for this collection" help="" value=""/>
-            <param name="discover" type="text"  label="Discover datasets expression" help="__name_and_ext__ should catch all filenames with extensions" value="__name_and_ext__"/>
+            <param name="discover" type="text"  label="Discover datasets expression" help="__name_and_ext__ should catch all filenames with extensions"
+            value="__name_and_ext__"/>
         </repeat>
 
         </section>
@@ -171,10 +180,12 @@
           <param name="param_help" type="text" value="" label="Help for this parameter">
           </param>
           <param name="param_CL" type="text" label="Positional ordinal | argparse argument name"
-              help="Using positional parameters, enter the integer ordinal for this parameter on the command line. Using Argparse style, '--' will be prepended on the CL" value="" />
+              help="Using positional parameters, enter the integer ordinal for this parameter on the command line. Using Argparse style,
+              '--' will be prepended on the CL" value="" />
           <param name="param_CLprefixed" type="text" label="Override the generated default argparse name prefix if not empty - eg ----foo if needed"
               help="Some targets like Planemo expect an unadorned action like 'test' before --galaxy_root." value="" />
-          <param name="param_repeat" type="boolean" checked="False" truevalue="1"  falsevalue="0" label="Allow user to repeat this as many times as needed." />
+          <param name="param_repeat" type="boolean" checked="False" truevalue="1"  falsevalue="0"
+          label="Allow user to repeat this as many times as needed." />
         </repeat>
         </section>
      </xml>
@@ -204,8 +215,8 @@ python3 $__tool_directory__/toolfactory.py
     #if len(str($cl_prefix)) > 0:
 --cl_user_preffix "$cl_prefix"
     #end if
-   #if len(str($command_override)) > 0:
---command_override "$command_override"
+   #if len(str($cl_override)) > 0:
+--cl_override "$cl_override"
    #end if
    #if len(str($test_override)) > 0:
 --test_override "$test_override"
@@ -252,7 +263,8 @@ python3 $__tool_directory__/toolfactory.py
      #end for
    #end if
    #for $intab in $io_param.ppass.io.history_inputs:
---input_files '{"name": "$intab.input_files", "CL": "$intab.input_CL", "format": "$intab.input_formats", "label": "$intab.input_label", "help": "$intab.input_help", "repeat": "$intab.input_repeat"}'
+--input_files '{"name": "$intab.input_files", "CL": "$intab.input_CL", "format": "$intab.input_formats", "label": "$intab.input_label",
+"help": "$intab.input_help", "repeat": "$intab.input_repeat"}'
      #end for
      #for $otab in $io_param.ppass.io.history_outputs:
 --output_files '{"name": "$otab.history_name", "format": "$otab.history_format", "CL": "$otab.history_CL", "test": "$otab.history_test"}'
@@ -276,13 +288,13 @@ python3 $__tool_directory__/toolfactory.py
 $deps.usescript.dynScript
  </configfile>
  <configfile name="commandoverride">
-#if len(str($command_override).strip()) > 1:
-"$command_override"
+#if len(str($cl_override).strip()) > 1:
+$cl_override
 #end if
  </configfile>
  <configfile name="testoverride">
 #if len(str($test_override).strip()) > 1:
-"$test_override"
+$test_override
 #end if
  </configfile>
  <configfile name="helpme">
@@ -314,12 +326,14 @@ ${help_text}
 
     <section name="deps" title="Dependencies, optional script and script interpreter" expanded="true">
 
-    <param name="packages" type="text" value="" label="Conda dependencies as package name[:version, name:version...]. These will always be available when this tool executes"
-     help="Use =[ver] or :[ver] for specific version - 'bwa=0.17.0'. Default is latest. Will be used every time the tool is (re)run. Only Conda is currently supported"  />
+    <param name="packages" type="text" value="" label="Conda dependencies as package name[:version, name:version...].
+    These will always be available when this tool executes" help="Use =[ver] or :[ver] for specific version - 'bwa=0.17.0'.
+    Default is latest. Will be used every time the tool is (re)run. Only Conda is currently supported"  />
 
     <conditional name="usescript">
         <param name="choosescript" type="select" display="radio" label="Supply a script for a dependency (e.g. python/R/bash) or a system executable such as Bash"
-        help = "For script interpreters like Python or bash, parameters and i/o specified below must match script's expectations - if you pass parameters, the script must deal with them">
+        help = "For script interpreters like Python or bash, parameters and i/o specified below must match script's expectations - i
+        f you pass parameters, the script must deal with them">
             <option value="no">No script required for this tool - just pass parameters on the command line to the first dependency listed above</option>
             <option value="yes" selected="true">Yes, a script is ready to be pasted below</option>
         </param>
@@ -328,10 +342,11 @@ ${help_text}
             <param name="scriptrunner" type="hidden"  value="" />
         </when>
         <when value="yes">
-            <param name="scriptrunner" type="text" value=""   label="Interpreter for the script - eg bash or python. Can be one of the dependencies named above or a system executable"
-              help="Scripts are interpreted by the executable named here. For conda r-base, 'Rscript --vanilla' or for conda planemo, 'planemo test' for example">
+            <param name="scriptrunner" type="text" value=""   label="Interpreter for the script - eg bash or python. Can be one of the dependencies named
+            above or a system executable" help="Scripts are interpreted by the executable named here. For conda r-base, 'Rscript --vanilla' or for
+            conda planemo, 'planemo test' for example">
             </param>
-            <param name="dynScript" type="text" area="True" value="" label="Script for executable above to interpret. It can be one of the Conda dependency names "
+            <param name="dynScript" type="text" area="True" value="" label="Script for executable above to interpret. It can be one of the Conda dependency names"
              help="Script must handle all i/o and parameters as specified below using the parameters and passing method chosen below">
               <sanitizer>
                  <valid initial="string.printable"/>
@@ -361,22 +376,25 @@ ${help_text}
         </when>
     </conditional>
     </section>
-    <section name="cl_options" title="ADVANCED MANUAL REPLACEMENT OPTIONS: DIY test; command line prefix, suffix or DIY command line" expanded="false">
-    <param name="cl_prefix" type="text"  area="True" value="" label="Prefix for generated command line. Useful for bash pre processing. Use override below to replace completely"
-            help="';' separated bash commands can be used here for pre processing like renaming or copying datasets for the script - added at start of autogenerated command line">
+    <section name="cl_options" title="ADVANCED DIY MANUAL REPLACEMENT OPTIONS: Test or command line prefix, suffix or DIY command line" expanded="false" >
+    <param name="cl_prefix" type="text"  area="True" value="" label="Prefix for generated command line. Useful for bash pre processing.
+    Use override below to replace completely"
+            help="';' separated bash commands can be used here for pre processing like renaming or copying datasets for the script -
+            added at start of autogenerated command line">
             <sanitizer>
                  <valid initial="string.printable" />
                  <mapping initial="none"/>
             </sanitizer>
     </param>
-    <param name="cl_suffix" type="text" area="True" value="" label="Suffix for generated command line. Useful for bash post processing. Use override below to replace completely"
+    <param name="cl_suffix" type="text" area="True" value="" label="Suffix for generated command line. Useful for bash post processing.
+    Use override below to replace completely"
             help="';' separated bash commands can be used here for post processing - added at end of autogenerated command line" >
             <sanitizer>
                  <valid initial="string.printable" />
                  <mapping initial="none"/>
             </sanitizer>
     </param>
-    <param name="command_override" type="text" area="True" label="Optional. Human wrought command element override XML/template - e.g. for bwa"
+    <param name="cl_override" type="text" area="True" label="Optional. Human wrought command element override XML/template - e.g. for bwa"
      help="For arbitrary and artfull command lines. All i/o and parameters must be passed. Leave blank unless needed. Not for the faint of heart" value="">
       <sanitizer>
          <valid initial="string.printable"/>
@@ -401,7 +419,9 @@ ${help_text}
         </when>
         <when value="yes">
             <param name="xtra_files" type="data" format="data" label="Select all files from your history to add to tool directory for the script to use" multiple="true"
-               help="If your script needs access to a .jar or other strange resource, upload it so you can select it here.  All those selected history items will be added to the tool directory. That path is available at execution as $__tool_directory__, for use in the command section. These need to be expanded and used as parameters for the script where needed: $__tool_directory__/BlastTools.jar for example"/>
+               help="If your script needs access to a .jar or other strange resource, upload it so you can select it here.
+               All those selected history items will be added to the tool directory. That path is available at execution as $__tool_directory__, for use in the command section.
+               These need to be expanded and used as parameters for the script where needed: $__tool_directory__/BlastTools.jar for example"/>
         </when>
     </conditional>
     </section>
@@ -432,7 +452,8 @@ ${help_text}
             <param name="history_name" value="output2" />
             <param name="history_format" value="txt" />
             <param name="history_CL" value="2" />
-            <param name="dynScript" value="import sys; inp = sys.argv[1]; outp = sys.argv[2]; inlist = open(inp,'r').readlines(); o = open(outp,'w'); rs = [''.join(list(reversed(x.rstrip()))) for x in inlist]; o.write('\n'.join(rs)); o.close()" />
+            <param name="dynScript" value="import sys; inp = sys.argv[1]; outp = sys.argv[2]; inlist = open(inp,'r').readlines();
+            o = open(outp,'w'); rs = [''.join(list(reversed(x.rstrip()))) for x in inlist]; o.write('\n'.join(rs)); o.close()" />
             <param name="choosescript" value="yes" />
             <param name="script_path" value="$runme" />
             <output name="untested_tool" file="pyrevpos_not_tested.toolshed_sample"  ftype="tgz" compare="sim_size" delta_frac="0.1" />
@@ -474,7 +495,8 @@ Admin_users will have the power to do anything they want as the Galaxy user if y
 
 **Use on public servers**  is STRONGLY discouraged for obvious reasons
 
-The tools generated by this tool will run just as securely as any other normal installed Galaxy tool but like any other new tools, should always be checked carefully before installation.
+The tools generated by this tool will run just as securely as any other normal installed Galaxy tool but like any other new tools,
+should always be checked carefully before installation.
 We recommend that you follow the good code hygiene practices associated with safe toolshed practices.
 
 

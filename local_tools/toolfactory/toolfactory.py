@@ -173,8 +173,8 @@ class Tool_Factory:
         self.testparam = []
         if self.args.script_path:
             self.prepScript()
-        if self.args.command_override:
-            scos = open(self.args.command_override, "r").readlines()
+        if self.args.cl_override:
+            scos = open(self.args.cl_override, "r").readlines()
             self.command_override = [x.rstrip() for x in scos]
         else:
             self.command_override = None
@@ -932,7 +932,7 @@ def main():
     a("--tool_dir", default=None)
     a("--tool_version", default="0.01")
     a("--citations", default=None)
-    a("--command_override", default=None)
+    a("--cl_override", default=None)
     a("--test_override", default=None)
     a("--additional_parameters", action="append", default=[])
     a("--selecttext_parameters", action="append", default=[])

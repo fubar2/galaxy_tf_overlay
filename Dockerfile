@@ -46,13 +46,13 @@ RUN mkdir -p /work \ # && echo "do not cache me" \
   && rm -rf $GALAXY_ROOT/config/plugins/visualizations/* \
   && python3 -m venv $GALAXY_VIRTUAL_ENV \
   && cd $GALAXY_ROOT \
-  && chown -R $GALAXY_USER:$GALAXY_USER /work \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && export GALAXY_ROOT=$GALAXY_ROOT && export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && export VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && cd $GALAXY_ROOT && sh $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv \
      && . $GALAXY_ROOT/scripts/common_startup_functions.sh" > /tmp/runme.sh \
   && cat /tmp/runme.sh \
   && su $GALAXY_USER /tmp/runme.sh \
+  && chown -R $GALAXY_USER:$GALAXY_USER /work \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/ /var/cache/*  \
         $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ \
@@ -68,7 +68,7 @@ USER galaxy
 RUN wget -q $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip -qq /tmp/overlay.zip -d /work \
   && cd $OVERLAY_HOME  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME \
-  && rm -rf /home/galaxy/.cache $OVERLAY_HOME
+  && rm -rf /home/galaxy/.cache
 EXPOSE 8080
 WORKDIR $GALAXY_ROOT
 CMD ["/usr/bin/sh", "/work/galaxytf/run.sh"]
