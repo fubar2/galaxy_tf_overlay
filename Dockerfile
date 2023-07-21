@@ -17,6 +17,17 @@ ENV GALAXY_USER="galaxy" \
   GALAXY_INSTALL_PREBUILT_CLIENT=1 \
   GALAXY_CONDA_PREFIX="/work/galaxytf/database/dependencies/_conda"
 
+ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
+  ORELDIR="/tmp/galaxy_tf_overlay-main" \
+  OVERLAY_HOME="/work/galaxy_tf_overlay-main" \
+  OVERLAY_ZIP="https://github.com/fubar2/galaxy_tf_overlay/archive/refs/heads/main.zip" \
+  VER="23.0" \
+  REL="release_$VER" \
+  RELDIR="galaxy-release_$VER" \
+  GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_$VER.zip" \
+  USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
+  GALAXY_HOME="/home/galaxy"
+
 RUN mkdir -p /work \
 # && echo "do not cache me" \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
