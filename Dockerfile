@@ -1,4 +1,4 @@
- Dev server in docker as first layer, then the ToolFactory overlay configuration is installed and set up
+# Dev server in docker as first layer, then the ToolFactory overlay configuration is installed and set up
 # with default admin, history, workflow and ToolFactory dependencies installed
 # This has none of the features of Bjoern's docker-galaxy-stable - uses sqlite for example, but
 # has the latest release 23.0 in the latest ubuntu image FWIW.
