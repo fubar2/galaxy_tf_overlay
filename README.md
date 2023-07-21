@@ -1,5 +1,7 @@
 # Build a local, disposable ToolFactory development server.
 
+## Introductory tutorial at https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-generators/tutorial.html
+
 Clone the latest Galaxy server code and install a configuration overlay, allowing your new development server to
 *turn scripts into shareable Galaxy tools*.
 
