@@ -8,5 +8,5 @@ API_KEY_USER="1286305042595563520"
 . $GALAXY_VENV/bin/activate
 # shows api keys do uncomment for debugging if you must
 # echo "toolfactory_fast_test.sh: galaxy-tool-test -u $GALAXY_URL -a $API_KEY -k $API_KEY_USER -t  $1 -o  $2 --test-data $3"
-galaxy-tool-test -u $GALAXY_URL -a $API_KEY -k $API_KEY_USER -t  $1 -o  $2 --test-data $3
+galaxy-tool-test -u $GALAXY_URL -a $API_KEY -k $API_KEY_USER -t  $1 -o  $2 --test-data $3 --publish-history
 

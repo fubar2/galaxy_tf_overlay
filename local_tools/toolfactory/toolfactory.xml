@@ -210,16 +210,16 @@ python3 $__tool_directory__/toolfactory.py --bad_user $__user_email__
  #else:
 python3 $__tool_directory__/toolfactory.py
     #if len(str($cl_options.cl_suffix)) > 0:
---cl_user_suffix "$cl_options.cl_suffix"
+--cl_suffix "$clsuffix"
     #end if
     #if len(str($cl_options.cl_prefix)) > 0:
---cl_user_preffix "$cl_options.cl_prefix"
+--cl_prefix "$clprefix"
     #end if
    #if len(str($cl_options.cl_override)) > 0:
---cl_override "$cl_options.cl_override"
+--cl_override "$commandoverride"
    #end if
    #if len(str($cl_options.test_override)) > 0:
---test_override "$cl_options.test_override"
+--test_override "$testoverride"
    #end if
    #if $deps.packages > "":
         --packages "$deps.packages"
@@ -285,16 +285,26 @@ python3 $__tool_directory__/toolfactory.py
 ]]></command>
  <configfiles>
   <configfile name="runme">
-$deps.usescript.dynScript
+${deps.usescript.dynScript}
  </configfile>
  <configfile name="commandoverride">
 #if len(str($cl_options.cl_override).strip()) > 1:
-$cl_options.cl_override
+${cl_options.cl_override}
 #end if
  </configfile>
  <configfile name="testoverride">
 #if len(str($cl_options.test_override).strip()) > 1:
-$cl_options.test_override
+${cl_options.test_override}
+#end if
+ </configfile>
+<configfile name="clprefix">
+#if len(str($cl_options.cl_prefix).strip()) > 1:
+${cl_options.cl_prefix}
+#end if
+ </configfile>
+ <configfile name="clsuffix">
+#if len(str($cl_options.cl_suffix).strip()) > 1:
+${cl_options.cl_suffix}
 #end if
  </configfile>
  <configfile name="helpme">

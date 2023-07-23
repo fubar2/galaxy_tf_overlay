@@ -173,16 +173,27 @@ class Tool_Factory:
         self.testparam = []
         if self.args.script_path:
             self.prepScript()
-        if self.args.cl_override:
+        if self.args.cl_override != None:
             scos = open(self.args.cl_override, "r").readlines()
-            self.command_override = [x.rstrip() for x in scos]
+            self.cl_override = [x.rstrip() for x in scos]
         else:
-            self.command_override = None
-        if self.args.test_override:
+            self.cl_override = None
+        if self.args.test_override != None:
             stos = open(self.args.test_override, "r").readlines()
             self.test_override = [x.rstrip() for x in stos]
         else:
             self.test_override = None
+        if self.args.cl_prefix != None:
+            scos = open(self.args.cl_prefix, "r").readlines()
+            self.cl_prefix = [x.rstrip() for x in scos]
+        else:
+            self.cl_prefix = None
+        if self.args.cl_suffix != None:
+            stos = open(self.args.cl_suffix, "r").readlines()
+            self.cl_suffix = [x.rstrip() for x in stos]
+        else:
+            self.cl_suffix = None
+
         if self.args.script_path:
             for ex in self.executeme:
                 aXCL(ex)
@@ -210,10 +221,7 @@ class Tool_Factory:
         if len(self.outfiles) > 0:
             aXCL(">")
             aXCL('$%s' % self.outfiles[0]["name"])
-        if self.args.cl_user_suffix:  # DIY CL end
-            clp = shlex.split(self.args.cl_user_suffix)
-            for c in clp:
-                aXCL(c)
+
 
     def prepargp(self):
         xclsuffix = []
@@ -288,7 +296,7 @@ class Tool_Factory:
         tscript = open(self.sfile, "w")
         tscript.write(self.script)
         tscript.close()
-        self.spacedScript = [f"    {x}" for x in rx if x.strip() > ""]
+        self.spacedScript = [f"    {x.replace('${','$ {')}" for x in rx if x.strip() > ""]
         rx.insert(0, "#raw")
         rx.append("#end raw")
         self.escapedScript = rx
@@ -344,10 +352,7 @@ class Tool_Factory:
         if self.lastxclredirect:
             for cl in self.lastxclredirect:
                 aXCL(cl)
-        if self.args.cl_user_suffix:  # DIY CL end
-            clp = shlex.split(self.args.cl_user_suffix)
-            for c in clp:
-                aXCL(c)
+
 
     def clargparse(self):
         """argparse style"""
@@ -368,10 +373,6 @@ class Tool_Factory:
         if self.lastxclredirect:
             for cl in self.lastxclredirect:
                 aXCL(cl)
-        if self.args.cl_user_suffix:  # DIY CL end
-            clp = shlex.split(self.args.cl_user_suffix)
-            for c in clp:
-                aXCL(c)
 
     def getNdash(self, newname):
         if self.is_positional:
@@ -636,13 +637,13 @@ class Tool_Factory:
         Hmmm. How to get the command line into correct order...
         """
         iXCL = self.xmlcl.insert
-        if self.args.cl_user_preffix:  # DIY CL start
-            clp = shlex.split(self.args.cl_user_preffix)
-            clp.reverse()
-            for cmd in clp:
-                iXCL(0,cmd)
-        if self.command_override:
-            self.newtool.command_override = self.command_override  # config file
+        aXCL = self.xmlcl.append
+        if self.args.cl_prefix:  # DIY CL start
+           self.xmlcl = self.cl_prefix + self.xmlcl
+        if self.args.cl_suffix:  # DIY CL end
+            self.xmlcl  += self.cl_suffix
+        if self.cl_override:
+            self.newtool.command_override = self.cl_override  # config file
         else:
             self.newtool.command_override = self.xmlcl
         cite = gxtp.Citations()
@@ -918,8 +919,6 @@ def main():
     a = parser.add_argument
     a("--script_path", default=None)
     a("--history_test", default=None)
-    a("--cl_user_suffix", default=None)
-    a("--cl_user_preffix", default=None)
     a("--sysexe", default=None)
     a("--packages", default=None)
     a("--tool_name", default="newtool")
@@ -932,6 +931,8 @@ def main():
     a("--tool_dir", default=None)
     a("--tool_version", default="0.01")
     a("--citations", default=None)
+    a("--cl_suffix", default=None)
+    a("--cl_prefix", default=None)
     a("--cl_override", default=None)
     a("--test_override", default=None)
     a("--additional_parameters", action="append", default=[])

@@ -182,7 +182,7 @@ gravity:
   # handlers: {}
 
 galaxy:
-  data_dir: "database"
+  cleanup_job: never
   # Set to true to instruct Galaxy to look for and install missing tool
   # dependencies before each job runs.
   conda_auto_install: false
