@@ -40,8 +40,8 @@ RUN mkdir -p /work \
   && groupadd -r $GALAXY_USER -g $GALAXY_GID \
   && adduser --system --quiet --home /home/galaxy --uid $GALAXY_UID --gid $GALAXY_GID --shell /usr/bin/bash $GALAXY_USER \
   && cd /work \
-  && wget $GALZIP \
-  && unzip  $REL.zip \
+  && wget -q $GALZIP \
+  && unzip $REL.zip \
   && mv $RELDIR $GALAXY_ROOT \
   && python3 -m venv $GALAXY_VIRTUAL_ENV \
   && cd $GALAXY_ROOT \
@@ -55,10 +55,12 @@ RUN mkdir -p /work \
   && wget -q $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip -qq /tmp/overlay.zip -d /work \
   && chown -R galaxy:galaxy /work \
-  && echo `ls -la /work` \
+  && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && cd $OVERLAY_HOME && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME" > /tmp/runme2.sh \
+  && su $GALAXY_USER /tmp/runme2.sh \
+  && rm -rf /home/galaxy/.cache \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/ /var/cache/*  \
-        $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ \
+        $GALAXY_VIRTUAL_ENV/src/ \
         /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins \
   && find / -name '*.pyc' -delete && find / -name '*.log' -delete && find / -name '.cache' -delete \
   && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
@@ -66,9 +68,6 @@ RUN mkdir -p /work \
               contrib doc lib/galaxy_test test test-data
 USER galaxy
 
-RUN cd $OVERLAY_HOME \
-  && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME \
-  && rm -rf /home/galaxy/.cache
 EXPOSE 8080
 WORKDIR $GALAXY_ROOT
 CMD ["/usr/bin/sh", "/work/galaxytf/run.sh"]
