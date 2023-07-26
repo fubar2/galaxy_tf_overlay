@@ -47,7 +47,7 @@ GALAXY_URL = "http://localhost:8080"
 myversion = "V3.0 February 2023"
 verbose = True
 debug = True
-toolFactoryURL = "https://github.com/fubar2/galaxy"
+toolFactoryURL = "https://github.com/fubar2/galaxy_tf_overlay"
 REP_DIR = "toolgen"
 logger = logging.getLogger(__name__)
 
@@ -244,7 +244,7 @@ class Tool_Factory:
             if p["origCL"].strip().upper() == "STDOUT":
                 self.lastxclredirect = [">", "$%s" % p["name"]]
             else:
-                xclsuffix.append([p["name"], "$%s" % p["name"], ""])
+                xclsuffix.append([p["name"], "$%s" % p["name"], p.get("label","")])
         for p in self.addpar:
             nam = p["name"]
             rep = p["repeat"] == "1"
@@ -273,7 +273,7 @@ class Tool_Factory:
             if p["origCL"].strip().upper() == "STDOUT":
                 self.lastxclredirect = [">", "$%s" % p["name"]]
             else:
-                xclsuffix.append([p["CL"], "$%s" % p["name"], ""])
+                xclsuffix.append([p["CL"], "$%s" % p["name"], p.get("label","")])
         for p in self.addpar:
             nam = p["name"]
             rep = p["repeat"] == "1"  # repeats make NO sense
@@ -338,6 +338,8 @@ class Tool_Factory:
         for i, p in enumerate(self.outfiles):
             outfp = copy.copy(p)
             outfp["origCL"] = outfp["CL"]  # keep copy
+            if outfp.get('label',None) == None:
+                outfp['label'] = ''
             self.outfiles[i] = outfp
         for i, p in enumerate(self.addpar):
             addp = copy.copy(p)
@@ -392,8 +394,11 @@ class Tool_Factory:
             test = p["test"]
             oldcl = p["origCL"]
             test = test.strip()
+            lab = p.get('label',"")
+            if len(lab.strip()) == 0:
+                lab = newname
             ndash = self.getNdash(newcl)
-            aparm = gxtp.OutputData(name=newname, format=newfmt, num_dashes=ndash, label=newname)
+            aparm = gxtp.OutputData(name=newname, format=newfmt, num_dashes=ndash, label=lab)
             aparm.positional = self.is_positional
             if self.is_positional:
                 if oldcl.upper() == "STDOUT":
