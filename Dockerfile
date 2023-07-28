@@ -9,7 +9,7 @@ FROM ubuntu:latest
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
 
 ENV GALAXY_USER="galaxy" \
-  FOO="do not cacheme" \
+  # FOO="do not cacheme" \
   VER="23.0" \
   GALAXY_UID=1450 \
   GALAXY_GID=1450 \
