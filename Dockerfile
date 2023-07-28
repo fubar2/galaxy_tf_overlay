@@ -9,7 +9,7 @@ FROM ubuntu:latest
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
 
 ENV GALAXY_USER="galaxy" \
-  # FOO="do not cacheme" \
+  FOO="do not cacheme" \
   VER="23.0" \
   GALAXY_UID=1450 \
   GALAXY_GID=1450 \
@@ -30,6 +30,7 @@ ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_leve
   GALAXY_HOME="/home/galaxy"
 
 RUN mkdir -p /work \
+  && echo "do not cache me" \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
   && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
   && apt-get -qq update \
@@ -62,7 +63,7 @@ RUN mkdir -p /work \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/ /var/cache/*  \
         $GALAXY_VIRTUAL_ENV/src/ \
         /home/$GALAXY_USER/.npm/ $GALAXY_ROOT/config/plugins \
-  && find / -name '*.pyc' -delete && find / -name '*.log' -delete && find / -name '.cache' -delete \
+  && find / -name '*.log' -delete && find / -name '.cache' -delete \
   && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
               contrib doc lib/galaxy_test test test-data
