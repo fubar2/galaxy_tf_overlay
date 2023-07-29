@@ -112,6 +112,22 @@ def run_sed(options):
         if not res.returncode == 0:
             print('### Non zero %d return code from %s ' % (res.returncode, ''.join(cmd)))
 
+def waitnojobs(gi):
+    """
+    sqlite problem? Race condition? Whatever.
+    """
+    j = gi.jobs.get_jobs()
+    cjobs = [x for x in j if x["state"] in ("waiting", "running", "queued")]
+    nj = len(cjobs)
+    while nj > 0:
+        print(cjobs)
+        print(nj, "running. Waiting for zero")
+        sleep(2)
+        cjobs = [x for x in j if x["state"] in ("waiting", "running", "queued")]
+        nj = len(cjobs)
+
+
+
 '''
 get_config(argv=['-c','galaxy', "--config-section","database_connection",],cwd='.')
 {'db_url': 'sqlite:////home/ross/rossgit/galaxytf/config/data/universe.sqlite?isolation_level=IMMEDIATE',
@@ -167,26 +183,30 @@ if __name__ == "__main__":
         sa_session, security_agent, 'test@bx.psu.edu',   options.password2, key=options.botkey, username='bot'
     )
     run_sed(options)
-    WF_FILE = os.path.join(options.galaxy_root, "local", "Galaxy-Workflow-TF_sample_workflow.ga")
-    HIST_FILE = os.path.join(options.galaxy_root, "local", "Galaxy-History-TF-samples-data.tar.gz")
-    gi = galaxy.GalaxyInstance(url=options.galaxy_url, key=options.key)
-    wf = gi.workflows.import_workflow_from_local_path(os.path.join(options.galaxy_root, "local", "Galaxy-Workflow-TF_sample_workflow.ga"), publish=True)
-    print(f"installed {WF_FILE} Returned = {wf}\n")
-    wf = gi.workflows.import_workflow_from_local_path(os.path.join(options.galaxy_root, "local", "Galaxy-Workflow_Advanced_ToolFactory_examplesJuly2023.ga"), publish=True)
-    print(f"installed {WF_FILE} Returned = {wf}\n")
-    hist = gi.histories.import_history(file_path=os.path.join(options.galaxy_root, "local", "Galaxy-History-TF-samples-data.tar.gz"))
-    print("hist=", hist)
-    hist = gi.histories.import_history(file_path=os.path.join(options.galaxy_root, "local", "ToolFactory-advanced_examples_jul2023.tar.gz"))
-    print("hist=", hist)
-    j = gi.jobs.get_jobs()
-    nj = len([x for x in j if x["state"] in ("waiting", "running", "queued")])
-    while nj:
-        print(nj, "running. Waiting for zero")
-        sleep(2)
-        j = gi.jobs.get_jobs()
-        nj = len([x for x in j if x["state"] in ("waiting", "running", "queued")])
     cmd = ["/usr/bin/bash", os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"), "toolfactory"]
     print("executing", cmd)
     subprocess.run(cmd)
+    gi = galaxy.GalaxyInstance(url=options.galaxy_url, key=options.key)
+    WF = os.path.join(options.galaxy_root, "local", "Galaxy-Workflow-TF_sample_workflow.ga")
+    wfr = gi.workflows.import_workflow_from_local_path(WF, publish=True)
+    print(f"{WF} Returned = {wfr}\n")
+    WF = os.path.join(options.galaxy_root, "local", "Galaxy-Workflow_Advanced_ToolFactory_examplesJuly2023.ga")
+    wfr = gi.workflows.import_workflow_from_local_path(WF, publish=True)
+    print(f"{WF} Returned = {wfr}\n")
+    HF = os.path.join(options.galaxy_root, "local", "Galaxy-History-TF-samples-data.tar.gz")
+    hist = gi.histories.import_history(file_path=HF)
+    print('hist=', str(hist))
+    HF = os.path.join(options.galaxy_root, "local", "ToolFactory-advanced_examples_jul2023.tar.gz")
+    hist = gi.histories.import_history(file_path=HF)
+    print('hist=', str(hist))
+    done = False
+    while not done:
+        try:
+            stat = gi.histories.get_status(hist['id'])['state']
+            if stat == 'ok':
+                done = True
+        except:
+            sleep(1)
+            print(hist['id'], 'not ready')
     if not ALREADY:
         stop_gal(url=options.galaxy_url, galdir=options.galaxy_root)
