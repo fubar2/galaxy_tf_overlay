@@ -52,9 +52,6 @@ sh scripts/common_startup.sh --no-create-venv
 . $GALAXY_VIRTUAL_ENV/bin/activate
 pip3 install -U bioblend ephemeris planemo
 python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
-find $OURDIR -name '*.pyc' -delete | true \
-find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
-sudo rm -rf $OURDIR/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/
 # optionally - may not be wanted on a workstation :)
 # sudo rm -rf /tmp/* /root/.cache/ /var/cache/* /home/$USER/.cache/ /home/$USER/.npm
 echo "Your dev server is ready to run in a new directory - $OURDIR. \
