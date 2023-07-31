@@ -819,7 +819,7 @@ class Tool_Factory:
         """
         x = "%s.xml" % self.tool_name
         xout = os.path.join(self.toold, x)
-        cl = ["planemo", "test", "--galaxy_api_key", GALAXY_ADMIN_KEY, "--engine", "external_galaxy" , "--update_test_data",
+        cl = ["planemo", "test", "--galaxy_admin_key", GALAXY_ADMIN_KEY, "--engine", "external_galaxy" , "--update_test_data",
             "--galaxy_url", GALAXY_URL, xout]
         logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
         p = subprocess.run(
@@ -833,7 +833,7 @@ class Tool_Factory:
         for errline in p.stderr.splitlines():
             logger.info(errline)
         dest = self.repdir
-        src = self.test_outs
+        src = self.tooltestd
         shutil.copytree(src, dest, dirs_exist_ok=True)
         return p.returncode
 
@@ -1003,7 +1003,8 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
         tf.install_deps()
         logger.debug("Toolfactory installed deps. Calling fast test")
     time.sleep(2)
-    testret = tf.fast_local_test()
+    # testret = tf.fast_local_test()
+    testret = tf.planemo_local_test()
     logger.debug("Toolfactory finished test")
     if int(testret) > 0:
         logger.error("ToolFactory tool build and test failed. :(")
