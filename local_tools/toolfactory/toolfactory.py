@@ -813,6 +813,29 @@ class Tool_Factory:
         shutil.copy(self.newtarpath, os.path.join(self.tooloutdir, f"{self.tool_name}_toolshed.gz"))
         tf.close()
 
+    def planemo_local_test(self):
+        """
+        weird legacyversion error popping up again from package version upgrade in conda_util.py in the venv. Sigh.
+        """
+        x = "%s.xml" % self.tool_name
+        xout = os.path.join(self.toold, x)
+        cl = ["planemo", "test", "--galaxy_api_key", GALAXY_ADMIN_KEY, "--engine", "external_galaxy" , "--update_test_data",
+            "--galaxy_url", GALAXY_URL, xout]
+        logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
+        p = subprocess.run(
+            " ".join(cl),
+            shell=True,
+            cwd=self.toold,
+            capture_output=True,
+            check=True,
+            text=True
+        )
+        for errline in p.stderr.splitlines():
+            logger.info(errline)
+        dest = self.repdir
+        src = self.test_outs
+        shutil.copytree(src, dest, dirs_exist_ok=True)
+        return p.returncode
 
     def fast_local_test(self):
         """

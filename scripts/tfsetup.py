@@ -127,6 +127,31 @@ def waitnojobs(gi):
         nj = len(cjobs)
 
 
+def runatest(toolname='tacrev',options=[]):
+    """
+    legacyversion problem until someone upgrades galaxy-util and galaxy-tool-util I guess.
+    """
+    x = "%s.xml" % toolname
+    xout = os.path.join(options.galaxy_root,'local_tools',toolname, x)
+    cl = ["planemo", "test", "--galaxy_api_key", options.key, "--engine", "external_galaxy" , "--update_test_data",
+        "--galaxy_url", options.galaxy_url, xout]
+    logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
+    p = subprocess.run(
+        " ".join(cl),
+        shell=True,
+        cwd=self.toold,
+        capture_output=True,
+        check=True,
+        text=True
+    )
+    for errline in p.stderr.splitlines():
+        logger.info(errline)
+    dest = self.repdir
+    src = self.test_outs
+    shutil.copytree(src, dest, dirs_exist_ok=True)
+    return p.returncode
+
+
 
 '''
 get_config(argv=['-c','galaxy', "--config-section","database_connection",],cwd='.')
