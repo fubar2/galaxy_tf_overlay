@@ -50,7 +50,7 @@ GALAXY_INSTALL_PREBUILT_CLIENT=1
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
 . $GALAXY_VIRTUAL_ENV/bin/activate
-pip3 install -U bioblend ephemeris planemo
+pip3 install -U bioblend planemo
 python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 # optionally - may not be wanted on a workstation :)
 # sudo rm -rf /tmp/* /root/.cache/ /var/cache/* /home/$USER/.cache/ /home/$USER/.npm

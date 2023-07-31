@@ -100,6 +100,9 @@ def run_sed(options):
     fixfile = "%s/local_tools/toolfactory/install_tf_deps.sh" % options.galaxy_root
     fixme.append(('APIK=', 'APIK="%s"' % options.key, fixfile ))
     fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(os.path.abspath(options.galaxy_root), "local_tools"),  fixfile ))
+    fixfile = "%s/local_tools/toolfactory/localplanemotest.sh" % options.galaxy_root
+    fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
+    fixme.append(('API_KEY=', 'GALAXY_VENV=%s' % options.key, fixfile))
     fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
     fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % options.galaxy_venv, fixfile))
@@ -126,6 +129,47 @@ def waitnojobs(gi):
         cjobs = [x for x in j if x["state"] in ("waiting", "running", "queued")]
         nj = len(cjobs)
 
+def runatest(toolname='tacrev',options=[]):
+    """
+    test something. Seems first job fails always.
+    galaxy-tool-test -u $GALAXY_URL -a $APIK  -k $UAPIK -t  $1 -o  $2 --publish-history  --no-history-cleanup --test-data $3
+    """
+    x = "%s.xml" % toolname
+    xout = os.path.join(options.galaxy_root,'local_tools',toolname, x)
+    cl = ["planemo", "test", "--galaxy_api_key", options.key, "--engine", "external_galaxy" , "--update_test_data",
+        "--galaxy_url", options.galaxy_url, xout]
+    logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
+    p = subprocess.run(
+        " ".join(cl),
+        shell=True,
+        cwd=self.toold,
+        capture_output=True,
+        check=True,
+        text=True
+    )
+    for errline in p.stderr.splitlines():
+        logger.info(errline)
+    dest = self.repdir
+    src = self.test_outs
+    shutil.copytree(src, dest, dirs_exist_ok=True)
+    return p.returncode
+
+
+
+    # fasttest = os.path.join(options.galaxy_root,"local_tools","toolfactory","toolfactory_fast_test.sh" )
+    # tooldir = os.path.join(options.galaxy_root,"local_tools", toolname)
+    # cll = ["/usr/bin/bash", fasttest, toolname, tooldir, os.path.join(tooldir,'test-data')]
+    # print("***runatest running %s\n" % " ".join(cll))
+    # p = subprocess.run(
+        # cll,
+        # shell=False,
+        # capture_output=True,
+        # check=True,
+        # text=True
+    # )
+    # for errline in p.stderr.splitlines():
+        # print(errline)
+    # return p.returncode
 
 
 '''
@@ -206,7 +250,8 @@ if __name__ == "__main__":
             if stat == 'ok':
                 done = True
         except:
-            sleep(1)
-            print(hist['id'], 'not ready')
+            sleep(2)
+            print('New history', hist['id'], 'not ready yet')
+    #retcode = runatest('tacrev', options)
     if not ALREADY:
         stop_gal(url=options.galaxy_url, galdir=options.galaxy_root)

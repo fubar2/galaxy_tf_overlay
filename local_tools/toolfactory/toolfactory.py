@@ -814,7 +814,7 @@ class Tool_Factory:
         tf.close()
 
 
-    def fast_local_test(self):
+    def oldfast_local_test(self):
         """
         galaxy-tool-test -u http://localhost:8080 -a 1613612977827175424 -t tacrev -o local --publish-history
         Seems to have a race condition when multiple jobs running. Works well - 15 secs or so if only onejob at a time! so job_conf fixed.
@@ -824,6 +824,32 @@ class Tool_Factory:
         scrpt = os.path.join(self.args.tool_dir, "toolfactory_fast_test.sh")
         extrapaths = self.tooltestd
         cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
+        logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
+        p = subprocess.run(
+            " ".join(cl),
+            shell=True,
+            cwd=self.toold,
+            capture_output=True,
+            check=True,
+            text=True
+        )
+        for errline in p.stderr.splitlines():
+            logger.info(errline)
+        dest = self.repdir
+        src = self.test_outs
+        shutil.copytree(src, dest, dirs_exist_ok=True)
+        return p.returncode
+
+    def fast_local_test(self):
+        """
+        galaxy-tool-test -u http://localhost:8080 -a 1613612977827175424 -t tacrev -o local --publish-history
+        Seems to have a race condition when multiple jobs running. Works well - 15 secs or so if only onejob at a time! so job_conf fixed.
+        Failure will eventually get stuck. Might need a timeout in the script
+        """
+        x = "%s.xml" % self.tool_name
+        xout = os.path.join(self.toold, x)
+        cl = ["planemo", "test", "--galaxy_api_key", GALAXY_ADMIN_KEY, "--engine", "external_galaxy" , "--update_test_data",
+            "--galaxy_url", GALAXY_URL, xout]
         logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
         p = subprocess.run(
             " ".join(cl),
