@@ -30,7 +30,7 @@ ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_leve
   GALAXY_HOME="/home/galaxy"
 
 RUN mkdir -p /work \
-  #&& echo "do not cache me" \
+  # && echo "do not cache me" \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
   && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
   && apt-get -qq update \
