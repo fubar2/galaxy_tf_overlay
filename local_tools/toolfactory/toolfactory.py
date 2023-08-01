@@ -815,7 +815,8 @@ class Tool_Factory:
 
     def planemo_local_test(self):
         """
-        weird legacyversion error popping up again from package version upgrade in conda_util.py in the venv. Sigh.
+        weird legacyversion error popping up again from package version upgrade in conda_util.py in the venv.
+        Seems ok if run as a shell script using the Galaxy installed planemo august 1st 2023
         """
         x = "%s.xml" % self.tool_name
         xout = os.path.join(self.toold, x)
