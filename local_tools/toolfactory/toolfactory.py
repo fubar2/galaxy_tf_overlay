@@ -822,7 +822,8 @@ class Tool_Factory:
         xout = os.path.join(self.toold, x)
         cl = ["planemo", "test", "--galaxy_admin_key", GALAXY_ADMIN_KEY, "--engine", "external_galaxy" , "--update_test_data",
             "--galaxy_url", GALAXY_URL, xout]
-        logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
+        clx= ["planemo", "test", "--galaxy_admin_key", "[GALAXY_ADMIN_KEY]", "--engine", "external_galaxy" , "--update_test_data",
+            "--galaxy_url", GALAXY_URL, xout]
         p = subprocess.run(
             " ".join(cl),
             shell=True,

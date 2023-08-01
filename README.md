@@ -5,6 +5,11 @@
 Clone the latest Galaxy server code and install a configuration overlay, allowing your new development server to
 *turn scripts into shareable Galaxy tools*.
 
+Two recent examples of useful ToolFactory generated tools are described at https://lazarus.name/demo/ and can be found in the Galaxy Toolshed. 
+![plotly_tabular_tool](https://github.com/fubar2/plotly_tabular_tool), a generic and interactive html plot generator suitable for <5k rows of data,
+and 
+![plotly_blast_tool](https://github.com/fubar2/plotly_blast_tool), a customised version for blast search 25 column Galaxy tabular outputs.
+
 ##  Intended users
 
 Scientists who would like to use and share their own code in Galaxy workflows as simple tools, without having to learn to use the specialised developer tools.
@@ -37,7 +42,7 @@ The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that c
  * The generated tool has a typical form with the supplied help text, prompts, input parameters and history input data selector elements.
  * The new tool is immediately installed in the development server, ready to use.
  * It will work exactly as the user will see it wherever it is installed.
- * The XML wrapper document is generated from the form settings, using a [specialised XML parser](https://github.com/hexylena/galaxyxml).
+ * The XML wrapper document is generated from the form settings, using a [specialised XML parser](https://github.com/hexylena/galaxyxml).https://lazarus.name/demo/
  * Test inputs and settings supplied at tool generation are used as the built-in tool test.
  * Tools need to be installed in a well managed Galaxy server to be useful for research, but they are ready to share.
 
