@@ -1,11 +1,13 @@
 # Build a local, disposable ToolFactory development server.
 
-## Introductory tutorial at https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-generators/tutorial.html
+## See the introductory tutorial at https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-generators/tutorial.html
 
 Clone the latest Galaxy server code and install a configuration overlay, allowing your new development server to
 *turn scripts into shareable Galaxy tools*.
 
-Two recent examples of useful ToolFactory generated tools are described at https://lazarus.name/demo/ and can be found in the Galaxy Toolshed. 
+## Update August 2023: 
+Two recent examples of useful ToolFactory generated tool generation jobs are included in an uploaded administrator history ready to re-run and adjust as needed. They wrap plotly.express and are described at https://lazarus.name/demo/. They are available for server installation from the Galaxy Toolshed:
+
 ![plotly_tabular_tool](https://github.com/fubar2/plotly_tabular_tool), a generic and interactive html plot generator suitable for <5k rows of data,
 and 
 ![plotly_blast_tool](https://github.com/fubar2/plotly_blast_tool), a customised version for blast search 25 column Galaxy tabular outputs.

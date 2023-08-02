@@ -94,6 +94,11 @@ def run_sed(options):
     line_start = 'APIK='
     """
     fixme = []
+    tool_config_file: "tool_conf.xml,../local_tools/local_tool_conf.xml"
+    # database_connection: "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
+    tfc = 'tool_conf.xml,%s/local_tools/local_tool_conf.xml' % options.galaxy_root
+    fixfile = "%s/config/galaxy.yml" % options.galaxy_root
+    fixme.append(('tool_config_file: ', '  tool_config_file: "%s"' % tfc, fixfile))
     fixfile = "%s/local_tools/toolfactory/toolfactory.py" % options.galaxy_root
     fixme.append(('GALAXY_ADMIN_KEY = ', 'GALAXY_ADMIN_KEY = "%s"' % options.key, fixfile ))
     fixme.append(('GALAXY_URL = ' , 'GALAXY_URL = "%s"' % options.galaxy_url, fixfile ))
@@ -105,6 +110,9 @@ def run_sed(options):
     fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % options.galaxy_venv, fixfile))
     fixme.append(('API_KEY_USER=', 'API_KEY_USER="%s"' % options.botkey, fixfile))
     fixme.append(('API_KEY=', 'API_KEY="%s"' % options.key, fixfile))
+    fixfile = "%s/local_tools/toolfactory/localplanemotest.sh" % options.galaxy_root
+    fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
+    fixme.append(('API_KEY=', 'API_KEY=%s' % options.key, fixfile))
     for line_start, line_replacement, file_to_edit in fixme:
         cmd = ["sed", "-i", "s#.*%s.*#%s#g" % (line_start, line_replacement), file_to_edit]
         print("## executing", ' '.join(cmd))

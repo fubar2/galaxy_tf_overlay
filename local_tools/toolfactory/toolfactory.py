@@ -90,7 +90,7 @@ class Tool_Factory:
         self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
         self.tool_id = self.tool_name
         self.local_tools = os.path.join(args.galaxy_root, "local_tools")
-        self.local_tool_conf = os.path.join(args.galaxy_root, "config","local_tool_config", "local_tool_conf.xml")
+        self.local_tool_conf = os.path.join(self.local_tools, "local_tool_conf.xml")
         self.ourcwd = os.getcwd()
         self.collections = []
 
@@ -911,8 +911,8 @@ class Tool_Factory:
                 logger.info("Tool %s ready after %f seconds - %s\n" % (self.tool_name, time.time() - now, res))
             except ConnectionError:
                 nloop -= 1
-                time.sleep(1)
-                logger.info("Connection error - waiting a second.\n")
+                time.sleep(2)
+                logger.info("Connection error - waiting 2 seconds.\n")
         if nloop < 1:
             logger.error(
                 "Tool %s still not ready after %f seconds - please check the form and the generated xml for errors? \n"
@@ -971,13 +971,11 @@ def main():
     a("--parampass", default="positional")
     a("--tfout", default="./tfout")
     a("--galaxy_root", default="/galaxy-central")
-    a("--galaxy_venv", default="/galaxy_venv")
     a("--collection", action="append", default=[])
     a("--include_tests", default=False, action="store_true")
     a("--install_flag", action="store_true", default=False)
     a("--admin_only", default=True, action="store_true")
     a("--tested_tool_out", default=None)
-    a("--local_tools", default="tools")  # relative to $__root_dir__
     a("--tool_conf_path", default="config/tool_conf.xml")  # relative to $__root_dir__
     a("--xtra_files", default=[], action="append",) # history data items to add to the tool base directory
     args = parser.parse_args()
@@ -990,7 +988,7 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     assert args.tool_name, "## This ToolFactory cannot build a tool without a tool name. Please supply one."
     logfilename = os.path.join(REP_DIR, 'ToolFactory_make_%s_log.txt' % args.tool_name)
     if not os.path.exists(REP_DIR):
-            os.mkdir(REP_DIR)
+        os.mkdir(REP_DIR)
     logger.setLevel(logging.INFO)
     fh = logging.FileHandler(logfilename, mode='w')
     fformatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
