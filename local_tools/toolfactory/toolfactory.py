@@ -394,11 +394,18 @@ class Tool_Factory:
             test = p["test"]
             oldcl = p["origCL"]
             test = test.strip()
+            filta = p.get('filter',[])
             lab = p.get('label',"")
             if len(lab.strip()) == 0:
                 lab = newname
             ndash = self.getNdash(newcl)
             aparm = gxtp.OutputData(name=newname, format=newfmt, num_dashes=ndash, label=lab)
+            if len(filta) > 0:
+                for when in filta:
+                    owhen = gxtp.ChangeFormatWhen(when)
+                    ofilta = gxtp.ChangeFormat()
+                    ofilta.append(owhen)
+                    aparm.append(ofilta)
             aparm.positional = self.is_positional
             if self.is_positional:
                 if oldcl.upper() == "STDOUT":
