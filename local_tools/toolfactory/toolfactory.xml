@@ -98,7 +98,8 @@
                 </valid>
               </sanitizer>
             </param>
-            <param name="history_label" type="text" label="Output label" optional="true" value="" help="Label used for this output in history.">
+            <param name="history_label" type="text" label="Output label. Allows template substitution" optional="true" value=""
+                help="Label used for this output - for example 'Plotlytabular $title on $input_tab.element_identifier' where variable templates are informative" >
               <sanitizer>
                 <valid initial="string.printable" >
                 </valid>
@@ -116,9 +117,9 @@
             <param name="history_test" type="text"  label="Output test criteria"
               help="Pass/fail decision criterion for this output compared to test generation. Available options are diff:[lines], sim_size:[delta (integer) or delta_frac (float)"
               value="diff:0"/>
-            <repeat name="history_whens" title="Optional multiple when clauses for change_format on this data" min="0" help="ADVANCED option only!! Easy to get wrong!">
-              <param name="history_when" type="text"  label="Add a *change_format* expression for this output depending on other parameters"
-              help="*when* expression, such as *when input='selection_mode'  value = 'small_png' format='png'* These can be used to change the output datatype" value="">
+            <repeat name="history_whens" title="Optional change_format on this data" min="0" help="ADVANCED option only!! Easy to get wrong!">
+              <param name="history_when" type="text"  label="Add a 'when' expression for this output so format can depend on another parameter"
+              help="Supply the three key=value pairs needed as shown - no quotes: input=image_format value=small_png format=png" value="">
                   <sanitizer>
                       <valid initial="string.printable">
                       </valid>
@@ -160,10 +161,11 @@
         </param>
         <repeat name="additional_parameters" title="Command Line Parameters" min="0"
              help="Command line settings for the user to pass to the executable. See examples below to see how these can be parsed by scripts in the various languages">
-          <param name="param_name" type="text" value="" label="Name for this parameter - MUST not be blank!">
+          <param name="param_name" type="text" value="" label="Name for this parameter. Underscore, letters and digits only. No spaces allowed">
             <sanitizer invalid_char="">
-              <valid initial="string.ascii_letters,string.digits"/>
-              <mapping initial="none"/>
+              <valid initial="string.ascii_letters,string.digits">
+              <add value="_" />
+              </valid>
             </sanitizer>
           </param>
           <conditional name="ap_type">
@@ -623,12 +625,11 @@ Paper_
 
 *Licensing*
 
-Copyright Ross Lazarus (ross period lazarus at gmail period com) May 2012
-All rights reserved.
-Licensed under the LGPL_
+Copyright Ross Lazarus May 2012
+Licensed under the MIT_ licence.
 
-.. _LGPL: http://www.gnu.org/copyleft/lesser.html
-.. _GTF:  https://github.com/fubar2/toolfactory
+.. _MIT: https://mit-license.org/
+.. _GTF:  https://github.com/fubar2/galaxy_tf_overlay
 .. _Paper: https://academic.oup.com/bioinformatics/article/28/23/3139/192853
 
 
