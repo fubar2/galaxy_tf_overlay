@@ -244,7 +244,7 @@ class Tool_Factory:
             if p["origCL"].strip().upper() == "STDOUT":
                 self.lastxclredirect = [">", "$%s" % p["name"]]
             else:
-                xclsuffix.append([p["name"], "$%s" % p["name"], p.get("label","")])
+                xclsuffix.append([p["name"], "$%s" % p["name"], ""])
         for p in self.addpar:
             nam = p["name"]
             rep = p["repeat"] == "1"
@@ -273,7 +273,7 @@ class Tool_Factory:
             if p["origCL"].strip().upper() == "STDOUT":
                 self.lastxclredirect = [">", "$%s" % p["name"]]
             else:
-                xclsuffix.append([p["CL"], "$%s" % p["name"], p.get("label","")])
+                xclsuffix.append([p["CL"], "$%s" % p["name"], ""])
         for p in self.addpar:
             nam = p["name"]
             rep = p["repeat"] == "1"  # repeats make NO sense
@@ -394,18 +394,29 @@ class Tool_Factory:
             test = p["test"]
             oldcl = p["origCL"]
             test = test.strip()
-            filta = p.get('filter',[])
+            filta = p.get('when',[])
             lab = p.get('label',"")
             if len(lab.strip()) == 0:
                 lab = newname
             ndash = self.getNdash(newcl)
             aparm = gxtp.OutputData(name=newname, format=newfmt, num_dashes=ndash, label=lab)
             if len(filta) > 0:
-                for when in filta:
-                    owhen = gxtp.ChangeFormatWhen(when)
-                    ofilta = gxtp.ChangeFormat()
+                ofilta = gxtp.ChangeFormat()
+                for whens in filta: # when input=|image_type| value=|large_png| format=|png|
+                    whenss = whens.replace('|','"').replace('when ','')
+                    clauses = whenss.split()
+                    for c in clauses:
+                        if c.startswith('value'):
+                            v = c.split('=')[1]
+                        elif c.startswith('format'):
+                            f = c.split('=')[1]
+                        elif c.startswith('input'):
+                            i = c.split('=')[1]
+                        else:
+                            print('bad when - need value=, format= and input=, got', whens)
+                    owhen = gxtp.ChangeFormatWhen(format=f, input=i, value=v)
                     ofilta.append(owhen)
-                    aparm.append(ofilta)
+                aparm.append(ofilta)
             aparm.positional = self.is_positional
             if self.is_positional:
                 if oldcl.upper() == "STDOUT":
