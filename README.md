@@ -5,12 +5,18 @@
 Clone the latest Galaxy server code and install a configuration overlay, allowing your new development server to
 *turn scripts into shareable Galaxy tools*.
 
-## Update August 2023: 
+## Update August 2023:
 Two recent examples of useful ToolFactory generated tool generation jobs are included in an uploaded administrator history ready to re-run and adjust as needed. They wrap plotly.express and are described at https://lazarus.name/demo/. They are available for server installation from the Galaxy Toolshed:
 
 ![plotly_tabular_tool](https://github.com/fubar2/plotly_tabular_tool), a generic and interactive html plot generator suitable for <5k rows of data,
-and 
+and
 ![plotly_blast_tool](https://github.com/fubar2/plotly_blast_tool), a customised version for blast search 25 column Galaxy tabular outputs.
+
+ToolFactory now supports change_format *when* clauses so these two tools allow either png or html interactive outputs. These tools are now
+included in the Docker or local ToolFactory instances as an advanced example history and workflow, making it easy to see how they were created
+and easy to make revised versions for your own use. For example, the specialised blast version has the header hardwired and
+transforms the evalue column as -log10, but is otherwise the same code as the generic
+tabular plotter.
 
 ##  Intended users
 
