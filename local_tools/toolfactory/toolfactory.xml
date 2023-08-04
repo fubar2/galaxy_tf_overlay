@@ -99,7 +99,7 @@
               </sanitizer>
             </param>
             <param name="history_label" type="text" label="Output label. Allows template substitution" optional="true" value=""
-                help="Label used for this output - for example 'Plotlytabular $title on $input_tab.element_identifier' where variable templates are informative" >
+                help="Label used for this output - for example 'Plotlytabular $title on $input_tab.element_identifier' where variable templates are informative." >
               <sanitizer>
                 <valid initial="string.printable" >
                 </valid>
@@ -258,14 +258,14 @@
 --selecttext_parameters '{"name":"$apar.param_name", "label":"$apar.param_label", "help":"$apar.param_help",
 "type":"$apar.ap_type.param_type","CL":"$apar.param_CL","override":"$apar.param_CLprefixed","value": [
          #for $i,$st in enumerate($apar.ap_type.selectTexts):
-           "$st.select_value"
+           "$st.select_value.strip()"
            #if ($i < (len($apar.ap_type.selectTexts)-1)):
            ,
            #end if
          #end for
          ], "texts": [
          #for $i,$st in enumerate($apar.ap_type.selectTexts):
-         "$st.select_text"
+         "$st.select_text.strip()"
           #if ($i < (len($apar.ap_type.selectTexts)-1)):
            ,
            #end if
@@ -274,7 +274,7 @@
          ]
          }'
        #else:
---additional_parameters '{"name": "$apar.param_name", "value": "$apar.ap_type.param_value", "label": "$apar.param_label", "help": "$apar.param_help",
+--additional_parameters '{"name": "$apar.param_name", "value": "$apar.ap_type.param_value.strip()", "label": "$apar.param_label", "help": "$apar.param_help",
 "type": "$apar.ap_type.param_type","CL": "$apar.param_CL","override": "$apar.param_CLprefixed", "repeat": "$apar.param_repeat"}'
          #end if
        #end for
