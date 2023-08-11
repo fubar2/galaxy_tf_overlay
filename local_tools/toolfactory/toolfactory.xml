@@ -84,8 +84,12 @@
               help="If you will pass positional parameters, enter the integer ordinal for this parameter. If Argparse style, '--' will be prepended or '-' if
               single character" value="">
             </param>
-            <param name="input_repeat" type="boolean" checked="False" truevalue="1"  falsevalue="0" label="Allow user to repeat this input as
-            many times as wanted - script/executable must parse these."/>
+            <param name="input_required" type="select" label="Input mode - optional, required, repeated optional or 1 or more repeated required.">
+                <option value="required" selected="true">Required single input</option>
+                <option value="optional">Optional single input</option>
+                <option value="required1">Required 1 or more repeats</option>
+                <option value="optional1">Optional 1 or more repeats</option>
+            </param>
         </repeat>
         <repeat name="history_outputs" min="0" title="Outputs"
              help="New history items output by the executable to appear in the user history after the tool runs. The name will become a history item for
@@ -98,7 +102,7 @@
                 </valid>
               </sanitizer>
             </param>
-            <param name="history_label" type="text" label="Output label. Allows template substitution" optional="true" value=""
+            <param name="history_label" type="text" label="Output label. Allows template substitution"  value=""
                 help="Label used for this output - for example 'Plotlytabular $title on $input_tab.element_identifier' where variable templates are informative." >
               <sanitizer>
                 <valid initial="string.printable" >
@@ -133,7 +137,7 @@
             <param name="name" type="text" label="Name"
               help="for new collection with all outputs not individually passed to history outputs. No spaces! Script MUST create and fill a directory
               with the same name and the tool test MUST be overwritten - see the plotter example for hints">
-              <sanitizer invalid_char="_">
+              <sanitizer>
                 <valid initial="string.ascii_letters,string.digits" >
                    <add value="_" />
                 </valid>
@@ -145,7 +149,11 @@
                 <option value="paired">Paired</option>
                 <option value="list:paired">List of paired</option>
             </param>
-            <param name="label" type="text"  label="Label for this collection" help="" value=""/>
+            <param name="label" type="text"  label="Label for this collection" help="" value="">
+                <sanitizer>
+                <valid initial="string.printable" />
+              </sanitizer>
+            </param>
             <param name="discover" type="text"  label="Discover datasets expression" help="__name_and_ext__ should catch all filenames with extensions"
             value="__name_and_ext__"/>
         </repeat>
@@ -175,6 +183,7 @@
             <option value="float">Float</option>
             <option value="boolean">Boolean</option>
             <option value="selecttext">Select text string</option>
+            <option value="clflag">Flag - user can set. Only used for argparse parameter passing style</option>
           </param>
           <when value = "text">
               <expand macro="singleText" />
@@ -190,6 +199,14 @@
           </when>
           <when value = "selecttext">
               <expand macro="selectText" />
+          </when>
+          <when value = "clflag">
+             <param name="param_value" type="select" value="notset">
+                    <option value="Do not set this flag on the command line">'notset'</option>
+                    <option value="Set this flag on the command line">'set'</option>
+             </param>
+          </when>
+      </xml>
           </when>
           </conditional>
           <param name="param_label" type="text" value="" label="Label for the form">
@@ -281,7 +298,7 @@
     #end if
     #for $intab in $io_param.ppass.io.history_inputs
 --input_files '{"name": "$intab.input_files", "CL": "$intab.input_CL", "format": "$intab.input_formats", "label": "$intab.input_label",
-"help": "$intab.input_help", "repeat": "$intab.input_repeat"}'
+"help": "$intab.input_help", "required": "$intab.input_required"}'
     #end for
     #for $otab in $io_param.ppass.io.history_outputs
          #if str($otab.history_label) > ""
@@ -404,7 +421,7 @@ ${help_text}
     #end if
     #for $intab in $io_param.ppass.io.history_inputs
 --input_files '{"name": "$intab.input_files", "CL": "$intab.input_CL", "format": "$intab.input_formats", "label": "$intab.input_label",
-"help": "$intab.input_help", "repeat": "$intab.input_repeat"}'
+"help": "$intab.input_help", "required": "$intab.input_required"}'
     #end for
     #for $otab in $io_param.ppass.io.history_outputs
          #if str($otab.history_label) > ""
@@ -540,7 +557,7 @@ ${help_text}
         </when>
         <when value="yes">
             <param name="xtra_files" type="data" format="data" label="Select all files from your history to add to tool directory for the script to use" multiple="true"
-               help="If your script needs access to a .jar or other strange resource, upload it so you can select it here.
+               help="If your script needs access to a .jar or other specific permanent resource, upload it before building, so you can select it here.
                All those selected history items will be added to the tool directory. That path is available at execution as $__tool_directory__, for use in the command section.
                These need to be expanded and used as parameters for the script where needed: $__tool_directory__/BlastTools.jar for example"/>
         </when>
@@ -592,19 +609,17 @@ Only users with emails in the local admin_user configuration setting in config/g
 Please raise an issue, or even better, submit a pull request fixing it, on the github repository GTF_
 
 **What it does**
-This tool optionally generates normal workflow compatible first class Galaxy tools
+This tool contains an automated code generator, and creates normal, workflow compatible Galaxy tools as Toolshed ready archives. The
+new tool is immediately installed and available for use - a page refresh will be needed to see the new tool in the "Local" tool section.
 
-Generated tools can run existing binary packages that become requirements, existing scripts, or new scripts pasted into this tool form.
-Pasted scripts are written so they are part of the new tool and cannot be adjusted by the downstream user.
-Binary packages are managed by the dependency subsystem - conda usually, so anything in bioconda or conda_forge is available for example.
+Generated tools can use existing Conda packages. These become requirements for optional scripts pasted into this tool form.
+Pasted scripts *cannot be adjusted* by the downstream user.
 
 Any number of parameters can be built into the new tool form for passing in to the script or executable at runtime.
 These can be editable by the downstream user or baked in.
 
-A new tarball compatible with any Galaxy toolshed is created in your history, however, it does not have the test prepared.
-There is a separate tool you can run to update the archive after testing with Planemo
-
-If the configuration in job_conf.xml allows tools to write to [galaxy_root]/tools, the new tool will be installed so you can view and test it locally.
+A new tarball compatible with any Galaxy toolshed is created in your history, including a test based on the supplied default parameter
+values and input history datasets.
 
 .. class:: warningmark
 
@@ -617,8 +632,7 @@ Admin_users will have the power to do anything they want as the Galaxy user if y
 **Use on public servers**  is STRONGLY discouraged for obvious reasons
 
 The tools generated by this tool will run just as securely as any other normal installed Galaxy tool but like any other new tools,
-should always be checked carefully before installation.
-We recommend that you follow the good code hygiene practices associated with safe toolshed practices.
+should always be checked carefully before installation. We recommend that you follow the good code hygiene practices associated with safe toolshed practices.
 
 
 Paper_

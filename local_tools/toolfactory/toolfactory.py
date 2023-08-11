@@ -87,18 +87,24 @@ class Tool_Factory:
         prepare command line cl for running the tool here
         and prepare elements needed for galaxyxml tool generation
         """
+        assert args.parampass in [
+            "0",
+            "argparse",
+            "positional",
+            ], 'args.parampass must be "0","positional" or "argparse"'
+        self.script_in_help = False # IUC recommendation
         self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
         self.tool_id = self.tool_name
         self.local_tools = os.path.join(args.galaxy_root, "local_tools")
         self.local_tool_conf = os.path.join(self.local_tools, "local_tool_conf.xml")
         self.ourcwd = os.getcwd()
         self.collections = []
-
         if len(args.collection) > 0:
             try:
                 self.collections = [json.loads(x) for x in args.collection if len(x.strip()) > 1]
             except Exception:
                 logger.error(f"--collections parameter {str(args.collection)} is malformed - should be a dictionary")
+        self.infiles = []
         try:
             self.infiles = [json.loads(x) for x in args.input_files if len(x.strip()) > 1]
         except Exception:
@@ -109,6 +115,7 @@ class Tool_Factory:
                 self.extra_files = [json.loads(x) for x in args.xtra_files if len(x.strip()) > 1]
             except Exception:
                 logger.error(f"--xtra_files parameter {str(args.xtra_files)} is malformed - should be a dictionary")
+        self.outfiles = []
         try:
             self.outfiles = [json.loads(x) for x in args.output_files if len(x.strip()) > 1]
         except Exception:
@@ -116,10 +123,12 @@ class Tool_Factory:
         assert (
             len(self.outfiles) + len(self.collections)
         ) > 0, "No outfiles or output collections specified. The Galaxy job runner will fail without an output of some sort"
+        self.addpar = []
         try:
             self.addpar = [json.loads(x) for x in args.additional_parameters if len(x.strip()) > 1]
         except Exception:
             logger.error(f"--additional_parameters {args.additional_parameters} is malformed - should be a dictionary")
+        self.selpar = []
         try:
             self.selpar = [json.loads(x) for x in args.selecttext_parameters if len(x.strip()) > 1]
         except Exception:
@@ -144,11 +153,6 @@ class Tool_Factory:
             else:
                 self.executeme = None
         aXCL = self.xmlcl.append
-        assert args.parampass in [
-            "0",
-            "argparse",
-            "positional",
-        ], 'args.parampass must be "0","positional" or "argparse"'
         self.newtool = gxt.Tool(
             self.tool_name,
             self.tool_id,
@@ -216,17 +220,20 @@ class Tool_Factory:
         """no parameters or repeats - uses < and > for i/o"""
         aXCL = self.xmlcl.append
         if len(self.infiles) > 0:
-            aXCL("<")
-            aXCL('$%s' % self.infiles[0]["infilename"])
+            aXCL('<')
+            aXCL('$%s' % self.infiles[0]['infilename'])
         if len(self.outfiles) > 0:
-            aXCL(">")
+            aXCL('>')
             aXCL('$%s' % self.outfiles[0]["name"])
 
 
     def prepargp(self):
         xclsuffix = []
         for i, p in enumerate(self.infiles):
+            rep = p["required"] in ['optional1', 'required1']
+            req = p["required"] in ['required', 'required1']
             nam = p["infilename"]
+            flag = p['CL']
             if p["origCL"].strip().upper() == "STDIN":
                 xappendme = [
                     nam,
@@ -234,27 +241,38 @@ class Tool_Factory:
                     '< $%s' % nam,
                 ]
             else:
-                rep = p["repeat"] == "1"
                 over = ""
-                if rep:
-                    over = f'#for $rep in $R_{nam}:\n--{nam} "$rep.{nam}"\n#end for'
+                if req:
+                    if rep:
+                        over = f'#for $rep in $R_{nam}:\n--{nam} "$rep.{nam}"\n#end for'
+                else:
+                    if rep:
+                        over = f'#for $rep in $R_{nam}:\n--{nam} "$rep.{nam}"\n#end for'
+                    else:
+                        over = f"#if ${nam}\n --{nam} ${nam} \n#end if"
                 xappendme = [p["CL"], '$%s' % p["CL"], over]
             xclsuffix.append(xappendme)
         for i, p in enumerate(self.outfiles):
             if p["origCL"].strip().upper() == "STDOUT":
-                self.lastxclredirect = [">", "$%s" % p["name"]]
+                self.lastxclredirect = ['>', '$%s' % p["name"]]
             else:
                 xclsuffix.append([p["name"], "$%s" % p["name"], ""])
         for p in self.addpar:
             nam = p["name"]
-            rep = p["repeat"] == "1"
+            flag = p["CL"]
+            rep = p.get("repeat",0) == "1"
             if rep:
                 over = f'#for $rep in $R_{nam}:\n--{nam} "$rep.{nam}"\n#end for'
             else:
-                over = p["override"]
-            xclsuffix.append([p["CL"], '"$%s"' % nam, over])
+                over = p.get("override",'')
+            if p["type"] == 'clflag':
+                over = f'#if ${nam}\n --{flag}\n#end if'
+            xclsuffix.append([p["CL"], "'$%s'" % nam, over])
         for p in self.selpar:
-            xclsuffix.append([p["CL"], '"$%s"' % p["name"], p["override"]])
+            xclsuffix.append([p["CL"], "'$%s'" % p["name"], p.get("override","")])
+        for p in self.collections:
+            newname = p["name"]
+            xclsuffix.append([newname, "'%s'" % newname, ""])
         self.xclsuffix = xclsuffix
 
     def prepclpos(self):
@@ -262,27 +280,30 @@ class Tool_Factory:
         for i, p in enumerate(self.infiles):
             if p["origCL"].strip().upper() == "STDIN":
                 xappendme = [
-                    "999",
+                    '999',
                     p["infilename"],
-                    "< $%s" % p["infilename"],
+                    '< $%s' % p["infilename"],
                 ]
             else:
-                xappendme = [p["CL"], "$%s" % p["infilename"], ""]
+                xappendme = [p["CL"], '$%s' % p["infilename"], ""]
             xclsuffix.append(xappendme)
         for i, p in enumerate(self.outfiles):
             if p["origCL"].strip().upper() == "STDOUT":
-                self.lastxclredirect = [">", "$%s" % p["name"]]
+                self.lastxclredirect = ['>', '$%s' % p["name"]]
             else:
-                xclsuffix.append([p["CL"], "$%s" % p["name"], ""])
+                xclsuffix.append([p["CL"], '$%s' % p["name"], ""])
         for p in self.addpar:
             nam = p["name"]
-            rep = p["repeat"] == "1"  # repeats make NO sense
+            rep = p.get("repeat","0") == "1"  # repeats make NO sense
             if rep:
                 logger.warning(f"### warning. Repeats for {nam} ignored - not permitted in positional parameter command lines!")
-            over = p["override"]
-            xclsuffix.append([p["CL"], '"$%s"' % nam, over])
+            over = p.get("override","")
+            xclsuffix.append([p["CL"], "'$%s'" % nam, over])
         for p in self.selpar:
-            xclsuffix.append([p["CL"], '"$%s"' % p["name"], p["override"]])
+            xclsuffix.append([p["CL"], "'$%s'" % p["name"], p.get("override", "")])
+        for p in self.collections:
+            newname = p["name"]
+            xclsuffix.append(newname, "'$%s'" % newname, "")
         xclsuffix.sort()
         self.xclsuffix = xclsuffix
 
@@ -297,10 +318,10 @@ class Tool_Factory:
         tscript.write(self.script)
         tscript.close()
         self.spacedScript = [f"    {x.replace('${','$ {')}" for x in rx if x.strip() > ""]
-        rx.insert(0, "#raw")
-        rx.append("#end raw")
+        rx.insert(0, '#raw')
+        rx.append('#end raw')
         self.escapedScript = rx
-        art = "%s.%s" % (self.tool_name, self.executeme[0])
+        art = '%s.%s' % (self.tool_name, self.executeme[0])
         artifact = open(art, "wb")
         artifact.write(bytes(self.script, "utf8"))
         artifact.close()
@@ -345,6 +366,10 @@ class Tool_Factory:
             addp = copy.copy(p)
             addp["origCL"] = addp["CL"]
             self.addpar[i] = addp
+        for i, p in enumerate(self.collections):
+            addp = copy.copy(p)
+            addp["CL"] = addp["name"]
+            self.collections[i] = addp
 
     def clpositional(self):
         # inputs in order then params
@@ -355,21 +380,22 @@ class Tool_Factory:
             for cl in self.lastxclredirect:
                 aXCL(cl)
 
-
     def clargparse(self):
         """argparse style"""
         aXCL = self.xmlcl.append
         # inputs then params in argparse named form
-
         for (k, v, koverride) in self.xclsuffix:
             if koverride > "":
                 k = koverride
                 aXCL(k)
             else:
-                if len(k.strip()) == 1:
-                    k = "-%s" % k
+                kl = len(k.strip())
+                if kl == 0:
+                    k = ' '
+                elif kl == 1:
+                    k = '-%s' % k
                 else:
-                    k = "--%s" % k
+                    k = '--%s' % k
                 aXCL(k)
                 aXCL(v)
         if self.lastxclredirect:
@@ -468,14 +494,15 @@ class Tool_Factory:
             newname = p["infilename"]
             newfmt = p["format"]
             ndash = self.getNdash(newname)
-            reps = p.get("repeat", "0") == "1"
+            reps = (p.get("required", "") in ['optional1', 'required1'])
+            isoptional = (p.get("required","") in ['optional', 'optional1'])
             if not len(p["label"]) > 0:
                 alab = p["CL"]
             else:
                 alab = p["label"]
             aninput = gxtp.DataParam(
                 newname,
-                optional=False,
+                optional=isoptional,
                 label=alab,
                 help=p["help"],
                 format=newfmt,
@@ -504,13 +531,13 @@ class Tool_Factory:
                 self.testparam.append(tparm)
         for p in self.addpar:
             newname = p["name"]
-            newval = p["value"]
+            newval = p.get("value","")
             newlabel = p["label"]
-            newhelp = p["help"]
-            newtype = p["type"]
+            newhelp = p.get("help","")
+            newtype = p.get("type","?")
             newcl = p["CL"]
             oldcl = p["origCL"]
-            reps = p["repeat"] == "1"
+            reps = p.get("repeat","0") == "1"
             if not len(newlabel) > 0:
                 newlabel = newname
             ndash = self.getNdash(newname)
@@ -546,9 +573,35 @@ class Tool_Factory:
                     value=newval,
                     num_dashes=ndash,
                 )
+            elif newtype == "clflag":
+                if p['value'] == 'set':
+                    initval = newcl
+                else:
+                    initval = ''
+                aparm = gxtp.SelectParam(
+                    newname,
+                    label=newlabel,
+                    help=newhelp,
+                    value = initval,
+                    num_dashes=ndash,
+                )
+                anoptt = gxtp.SelectOption(
+                    value=newcl,
+                    text='Set this flag on the command line',
+                )
+                anoptf = gxtp.SelectOption(
+                    value='',
+                    text='Do not set this flag on the command line',
+                )
+                if p['value'] == 'set': # make default same as form
+                    aparm.append(anoptt)
+                    aparm.append(anoptf)
+                else:
+                    aparm.append(anoptf)
+                    aparm.append(anoptt)
             else:
                 raise ValueError(
-                    'Unrecognised parameter type "%s" for\
+                    'Unrecognised parameter type "%s" for \
                  additional parameter %s in makeXML'
                     % (newtype, newname)
                 )
@@ -569,7 +622,7 @@ class Tool_Factory:
                 self.testparam.append(tparm)
         for p in self.selpar:
             newname = p["name"]
-            newval = p["value"]
+            newval = p.get("value","")
             newlabel = p["label"]
             newhelp = p["help"]
             newtype = p["type"]
@@ -603,22 +656,7 @@ class Tool_Factory:
                  selecttext parameter %s in makeXML'
                     % (newtype, newname)
                 )
-        for p in self.collections:
-            newkind = p["kind"]
-            newname = p["name"]
-            newlabel = p["label"]
-            newdisc = p["discover"]
-            collect = gxtp.OutputCollection(newname, label=newlabel, type=newkind)
-            disc = gxtp.DiscoverDatasets(pattern=newdisc, directory=f"{newname}", visible="false")
-            collect.append(disc)
-            self.toutputs.append(collect)
-            try:
-                tparm = gxtp.TestOutputCollection(newname)  # broken until PR merged.
-                self.testparam.append(tparm)
-            except Exception:
-                logging.error(
-                    "WARNING: Galaxyxml version does not have the PR merged yet - tests for collections must be over-ridden until then!"
-                )
+
 
     def doNoXMLparam(self):
         """filter style package - stdin to stdout"""
@@ -679,7 +717,7 @@ class Tool_Factory:
             safertext = "\n".join([cheetah_escape(x) for x in helptext])
         if len(safertext.strip()) == 0:
             safertext = "Ask the tool author (%s) to rebuild with help text please\n" % (self.args.user_email)
-        if self.args.script_path:
+        if self.script_in_help and self.args.script_path:
             if len(safertext) > 0:
                 safertext = safertext + "\n\n------\n"  # transition allowed!
             scr = [x for x in self.spacedScript if x.strip() > ""]
@@ -689,11 +727,27 @@ class Tool_Factory:
             scr.append("\n")
             safertext = safertext + "\n".join(scr)
         self.newtool.help = safertext
+        for p in self.collections:
+            newkind = p["kind"]
+            newname = p["name"]
+            newlabel = p["label"]
+            newdisc = p["discover"]
+            collect = gxtp.OutputCollection(newname, label=newlabel, type=newkind)
+            disc = gxtp.DiscoverDatasets(pattern=newdisc, directory=f"{newname}", visible="false")
+            collect.append(disc)
+            self.toutputs.append(collect)
+            try:
+                tparm = gxtp.TestOutputCollection(newname)  # broken until PR merged.
+                self.testparam.append(tparm)
+            except Exception:
+                logging.error(
+                    "WARNING: Galaxyxml version does not have the PR merged yet - tests for collections must be over-ridden until then!"
+                )
         self.newtool.version_command = f'echo "{self.args.tool_version}"'
-        std = gxtp.Stdios()
-        std1 = gxtp.Stdio()
-        std.append(std1)
-        self.newtool.stdios = std
+        # std = gxtp.Stdios()
+        # std1 = gxtp.Stdio()
+        # std.append(std1)
+        # self.newtool.stdios = std
         requirements = gxtp.Requirements()
         self.condaenv = []
         if self.args.packages:
@@ -790,12 +844,15 @@ class Tool_Factory:
         logger.info("Copied %s to %s" % (xreal, xout))
         for p in self.infiles:
             pth = p["name"]
-            dest = os.path.join(self.tooltestd, "%s_sample" % p["infilename"])
-            shutil.copyfile(pth, dest)
-            logger.info("Copied %s to %s" % (pth, dest))
-            dest = os.path.join(self.repdir, "%s_sample.%s" % (p["infilename"], p["format"]))
-            shutil.copyfile(pth, dest)
-            logger.info("Copied %s to %s" % (pth, dest))
+            if os.path.exists(pth):
+                dest = os.path.join(self.tooltestd, "%s_sample" % p["infilename"])
+                shutil.copyfile(pth, dest)
+                logger.info("Copied %s to %s" % (pth, dest))
+                dest = os.path.join(self.repdir, "%s_sample.%s" % (p["infilename"], p["format"]))
+                shutil.copyfile(pth, dest)
+                logger.info("Copied %s to %s" % (pth, dest))
+            else:
+                logger.info("Optional input path %s does not exist - not copied" % pth)
         if self.extra_files and len(self.extra_files) > 0:
             for xtra in self.extra_files:
                 fpath = xtra["fpath"]
@@ -842,6 +899,7 @@ class Tool_Factory:
             "--galaxy_url", GALAXY_URL, xout]
         clx= ["planemo", "test", "--galaxy_admin_key", "[GALAXY_ADMIN_KEY]", "--engine", "external_galaxy" , "--update_test_data",
             "--galaxy_url", GALAXY_URL, xout]
+        logger.info('planemo_local_test executing: %s' % ' '.join(clx))
         p = subprocess.run(
             " ".join(cl),
             shell=True,
