@@ -87,8 +87,8 @@
             <param name="input_required" type="select" label="Input mode - optional, required, repeated optional or 1 or more repeated required.">
                 <option value="required" selected="true">Required single input</option>
                 <option value="optional">Optional single input</option>
-                <option value="required1">Required 1 or more repeats</option>
-                <option value="optional1">Optional 1 or more repeats</option>
+                <option value="required1">Required. 1 or more repeats</option>
+                <option value="optional1">Optional. 1 or more repeats</option>
             </param>
         </repeat>
         <repeat name="history_outputs" min="0" title="Outputs"
@@ -202,11 +202,9 @@
           </when>
           <when value = "clflag">
              <param name="param_value" type="select" value="notset">
-                    <option value="Do not set this flag on the command line">'notset'</option>
-                    <option value="Set this flag on the command line">'set'</option>
+                    <option value="Do not set this flag">notset</option>
+                    <option value="Set this flag on the command line">set</option>
              </param>
-          </when>
-      </xml>
           </when>
           </conditional>
           <param name="param_label" type="text" value="" label="Label for the form">
