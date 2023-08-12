@@ -267,7 +267,7 @@ class Tool_Factory:
             else:
                 over = p.get("override",'')
             if p["type"] == 'clflag':
-                over = f'#if "${nam}"=="set"\n --{flag}\n#end if'
+                over = f'#if ${nam} == "set"\n --{flag}\n#end if'
             xclsuffix.append([p["CL"], "'$%s'" % nam, over])
         for p in self.selpar:
             xclsuffix.append([p["CL"], "'$%s'" % p["name"], p.get("override","")])
@@ -580,7 +580,6 @@ class Tool_Factory:
                     newname,
                     label=newlabel,
                     help=newhelp,
-                    value = initval,
                     num_dashes=ndash,
                 )
                 anoptt = gxtp.SelectOption(
