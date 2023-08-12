@@ -8,7 +8,7 @@ FROM ubuntu:latest
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
 
 ENV GALAXY_USER="galaxy" \
-  #FOO="do not cacheme" \
+  FOO="do not cacheme" \
   VER="23.0" \
   GALAXY_UID=1450 \
   GALAXY_GID=1450 \
@@ -29,7 +29,7 @@ ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_leve
   GALAXY_HOME="/home/galaxy"
 
 RUN mkdir -p /work \
-  #&& echo "do not cache me" \
+  && echo "do not cache me" \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
   && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
   && apt-get -qq update \
