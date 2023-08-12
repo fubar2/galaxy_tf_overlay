@@ -259,6 +259,7 @@ class Tool_Factory:
                 xclsuffix.append([p["name"], "$%s" % p["name"], ""])
         for p in self.addpar:
             nam = p["name"]
+            val = p["value"]
             flag = p["CL"]
             rep = p.get("repeat",0) == "1"
             if rep:
@@ -266,7 +267,7 @@ class Tool_Factory:
             else:
                 over = p.get("override",'')
             if p["type"] == 'clflag':
-                over = f'#if ${nam}\n --{flag}\n#end if'
+                over = f'#if "${nam}"=="set"\n --{flag}\n#end if'
             xclsuffix.append([p["CL"], "'$%s'" % nam, over])
         for p in self.selpar:
             xclsuffix.append([p["CL"], "'$%s'" % p["name"], p.get("override","")])
@@ -574,10 +575,7 @@ class Tool_Factory:
                     num_dashes=ndash,
                 )
             elif newtype == "clflag":
-                if p['value'] == 'set':
-                    initval = newcl
-                else:
-                    initval = ''
+                initval = newval
                 aparm = gxtp.SelectParam(
                     newname,
                     label=newlabel,
@@ -586,12 +584,12 @@ class Tool_Factory:
                     num_dashes=ndash,
                 )
                 anoptt = gxtp.SelectOption(
-                    value=newcl,
-                    text='Set this flag on the command line',
+                    value='set',
+                    text='Set this flag',
                 )
                 anoptf = gxtp.SelectOption(
-                    value='',
-                    text='Do not set this flag on the command line',
+                    value='notset',
+                    text='Do not set this flag',
                 )
                 if p['value'] == 'set': # make default same as form
                     aparm.append(anoptt)

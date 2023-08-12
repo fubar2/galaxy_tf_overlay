@@ -3,6 +3,10 @@
   <macros>
       <xml name="singleText">
             <param name="param_value" type="text" value="" label="Default text value">
+                <sanitizer>
+                <valid initial="string.printable" >
+                </valid>
+              </sanitizer>
           </param>
       </xml>
       <xml name="singleInt">
@@ -22,6 +26,10 @@
           <repeat name="selectTexts" title="Add each option to be presented" min="2" default="2"
              help="Each text added here will also have  a value to be emitted on the command line when the text is chosen">
             <param name="select_text" type="text" value="" label="Explanatory text the user will see for this choice" >
+                <sanitizer>
+                <valid initial="string.printable" >
+                </valid>
+              </sanitizer>
           </param>
           <param name="select_value" type="text" value="" label="Value for the command line when the user selects this option">
           </param>
@@ -31,8 +39,12 @@
         <param name="tool_version" label="Tool Version - bump this to warn users trying to redo old analyses" type="text" value="0.01"
             help="If you change your script and regenerate the 'same' tool, you should inform Galaxy (and users) by changing (bumping is traditional) this number"/>
         <param name="tool_desc" label="Tool Synopsis" type="text" value=""
-            help="Supply a brief tool description for the Galaxy tool menu entry" />
-
+            help="Supply a brief tool description for the Galaxy tool menu entry">
+                <sanitizer>
+                <valid initial="string.printable" >
+                </valid>
+              </sanitizer>
+         </param>
          <param name="help_text" label="Tool form documentation and help text for users" type="text" area="true"
             value="**What it Does**"
              help="Supply user documentation to appear on the new tool form as reStructured text - http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html" >
@@ -77,8 +89,16 @@
                </options>
             </param>
             <param name="input_label" type="text" value="" label="This will become the user prompt for the form so please make it informative" >
+              <sanitizer>
+                <valid initial="string.printable" >
+                </valid>
+              </sanitizer>
             </param>
             <param name="input_help" type="text" value="" label="This will become help text on the form." >
+                <sanitizer>
+                <valid initial="string.printable" >
+                </valid>
+              </sanitizer>
             </param>
             <param name="input_CL" type="text" label="Positional: ordinal integer. Argparse: argument name. STDIN if the executable/script expects it"
               help="If you will pass positional parameters, enter the integer ordinal for this parameter. If Argparse style, '--' will be prepended or '-' if
@@ -202,20 +222,33 @@
           </when>
           <when value = "clflag">
              <param name="param_value" type="select" value="notset">
-                    <option value="Do not set this flag">notset</option>
-                    <option value="Set this flag on the command line">set</option>
+                    <option value='notset'>DO NOT set this flag</option>
+                    <option value='set'>SET this flag</option>
              </param>
           </when>
           </conditional>
           <param name="param_label" type="text" value="" label="Label for the form">
+                <sanitizer>
+                <valid initial="string.printable" >
+                </valid>
+              </sanitizer>
           </param>
           <param name="param_help" type="text" value="" label="Help for this parameter">
+              <sanitizer>
+                <valid initial="string.printable" >
+                </valid>
+              </sanitizer>
           </param>
           <param name="param_CL" type="text" label="Positional ordinal | argparse argument name"
               help="Using positional parameters, enter the integer ordinal for this parameter on the command line. Using Argparse style,
               '--' will be prepended on the CL" value="" />
           <param name="param_CLprefixed" type="text" label="Override the generated default argparse name prefix if not empty - eg ----foo if needed"
-              help="Some targets like Planemo expect an unadorned action like 'test' before --galaxy_root." value="" />
+              help="Some targets like Planemo expect an unadorned action like 'test' before --galaxy_root." value="">
+                <sanitizer>
+                <valid initial="string.printable" >
+                </valid>
+              </sanitizer>
+          </param>
           <param name="param_repeat" type="boolean" checked="False" truevalue="1"  falsevalue="0"
           label="Allow user to repeat this as many times as needed." />
         </repeat>
@@ -273,14 +306,14 @@
 --selecttext_parameters '{"name":"$apar.param_name", "label":"$apar.param_label", "help":"$apar.param_help",
 "type":"$apar.ap_type.param_type","CL":"$apar.param_CL","override":"$apar.param_CLprefixed","value": [
          #for $i,$st in enumerate($apar.ap_type.selectTexts):
-           "$st.select_value.strip()"
+           "$st.select_value"
            #if ($i < (len($apar.ap_type.selectTexts)-1)):
            ,
            #end if
          #end for
          ], "texts": [
          #for $i,$st in enumerate($apar.ap_type.selectTexts):
-         "$st.select_text.strip()"
+         "$st.select_text"
           #if ($i < (len($apar.ap_type.selectTexts)-1)):
            ,
            #end if
@@ -289,7 +322,7 @@
          ]
          }'
        #else:
---additional_parameters '{"name": "$apar.param_name", "value": "$apar.ap_type.param_value.strip()", "label": "$apar.param_label", "help": "$apar.param_help",
+--additional_parameters '{"name": "$apar.param_name", "value": "$apar.ap_type.param_value", "label": "$apar.param_label", "help": "$apar.param_help",
 "type": "$apar.ap_type.param_type","CL": "$apar.param_CL","override": "$apar.param_CLprefixed", "repeat": "$apar.param_repeat"}'
          #end if
        #end for
