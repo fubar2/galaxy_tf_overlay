@@ -6,23 +6,26 @@ Clone the latest Galaxy server code and install a configuration overlay, allowin
 *turn scripts into shareable Galaxy tools*.
 
 ## Update August 2023:
-Two recent examples of useful ToolFactory generated tool generation jobs are included in an uploaded administrator history ready to re-run and adjust as needed. They wrap plotly.express and are described at https://lazarus.name/demo/. They are available for server installation from the Galaxy Toolshed:
+Examples of useful ToolFactory generated tool generation jobs are included in an uploaded administrator history ready to re-run and adjust as needed.
+Histories are also available for importing into any ToolFactory instance from the repository:
 
-![plotly_tabular_tool](https://github.com/fubar2/plotly_tabular_tool), a generic and interactive html plot generator suitable for <5k rows of data,
-and
-![plotly_blast_tool](https://github.com/fubar2/plotly_blast_tool), a customised version for blast search 25 column Galaxy tabular outputs.
+1. ![Survival analysis tool](https://github.com/fubar2/lifelines_tool), Kaplan-Meier and Cox-PH models using the lifelines package
+2. ![plotly_tabular_tool](https://github.com/fubar2/plotly_tabular_tool), a generic and interactive html plot generator,
+3. ![plotly_blast_tool](https://github.com/fubar2/plotly_blast_tool), a customised version for blast search 25 column Galaxy tabular outputs.
+4. ![tabular text to rectangular format](https://github.com/fubar2/tabtext_to_rectangular/blob/main/Galaxy-History-torectangulartabtool.tar.gz)
 
-ToolFactory now supports change_format *when* clauses so these two tools allow either png or html interactive outputs. These tools are now
-included in the Docker or local ToolFactory instances as an advanced example history and workflow, making it easy to see how they were created
-and easy to make revised versions for your own use. For example, the specialised blast version has the header hardwired and
-transforms the evalue column as -log10, but is otherwise the same code as the generic
-tabular plotter.
+ToolFactory now supports change_format *when* clauses so these two tools allow either png or html interactive outputs,
+optional input files, and command line flag parameters.
 
 ##  Triage point
 
-If you are new to Galaxy, and you know that you will be doing a lot of tool development, please do not proceed. We strongly recommend that you spend your time with the [specialised development methods](https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-from-scratch/tutorial.html) training material for the supported tool chain infrastructure and practices. In the long run, it will be time well spent. 
+If you are new to Galaxy, and you know that you will be doing a lot of tool development, please do not proceed.
+We strongly recommend that you spend your time with the [specialised development methods](https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-from-scratch/tutorial.html) training material for the supported tool chain infrastructure and practices. In the long run, it will be time well spent.
 
-The ToolFactory is an automated code generator. It can only deal with a small subset of uncomplicated tool building tasks. It is potentially useful for those with relatively modest tool building requirements. Converting locally developed scripts into ordinary Galaxy tools is one of the main use-cases. Where difficulties arise, tweaks to the script i/o may allow the simple automated code generator to wrap it. Learning to use the ToolFactory may be a useful and correspondingly modest investment of effort.
+The ToolFactory is an automated code generator. It can only deal with a small subset of uncomplicated tool building tasks.
+It is potentially useful for those with relatively modest tool building requirements. Converting locally developed scripts into ordinary
+Galaxy tools is one of the main use-cases. Where difficulties arise, tweaks to the script i/o may allow the simple automated code g
+enerator to wrap it. Learning to use the ToolFactory may be a useful and correspondingly modest investment of effort.
 
 ## Installation and very quick start instructions (see below for a local *persistent* non-docker installation)
 
@@ -41,7 +44,7 @@ After starting the new image, watch the docker container logs until gunicorn is 
 about 20-30 seconds, then browse to [http://localhost:8080](http://localhost:8080)
 If a Galaxy server appears, proceed with the login instructions above and you should see a history containing all the example tools.
 
-Only an administrator can execute the ToolFactory. The default email is "toolfactory@galaxy.org" and the password is "ChangeMe!"
+Only an administrator can execute the ToolFactory tool. The default administrator login email is "toolfactory@galaxy.org" and the password is "ChangeMe!"
 
 ## Basic idea
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.
@@ -51,7 +54,7 @@ The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that c
  * The generated tool has a typical form with the supplied help text, prompts, input parameters and history input data selector elements.
  * The new tool is installed in the development server, ready to use.
  * It will work exactly as the user will see it wherever it is installed from the Toolshed.
- * The XML wrapper document is generated from the form settings, using a [specialised XML parser](https://github.com/hexylena/galaxyxml).https://lazarus.name/demo/
+ * The XML wrapper document is generated from the form settings, using a [specialised XML parser](https://github.com/hexylena/galaxyxml).
  * Data inputs and parameter settings supplied on the ToolFactory form, are used as the built-in tool test.
  * Tools need to be installed in a well managed Galaxy server to be useful for research, but they are ready to run.
 
@@ -60,7 +63,8 @@ It uses an automated code generator, so there are many requirements it will not 
 Conditional parameters, that depend on user choices such as selecting paired or unpaired sequence inputs, are not supported at present.
 Those and most other advanced tool features will need an expert developer.
 Many useful, simple tools do not need them. Tools requiring them can be split into several separate tools if necessary.
-Simple tools are sometimes very useful in complex analyses, so the ToolFactory may offer a solution for researchers lacking the necessary additional Galaxy tool building skills.
+Simple tools are sometimes very useful in complex analyses, so the ToolFactory may offer a solution for researchers lacking the necessary
+additional Galaxy tool building skills.
 
 The "Hello" tool was generated by filling in a form. That form can be regenerated, by clicking the circular arrow redo button ⭮ on the archive containing the tool, in the default history.
 It's a trivial example, but shows how to run any simple bash script, how to interact with the user and how to write a new output file to the history.
@@ -110,7 +114,7 @@ job in the history.
 
 *Do not try to debug your script* using the ToolFactory, because it is a very inefficient way to do something more easily done in a shell session.
 
-If there are complications in the way the script requires parameter passed that the ToolFactory cannot satisfy, it may sometimes be possible to adjust the script, to suit the simple ToolFactory XML code generator. This is not possible with any Conda analysis package, so these will usually need an experienced developer and the usual development tools to cope with their complicated command lines. 
+If there are complications in the way the script requires parameter passed that the ToolFactory cannot satisfy, it may sometimes be possible to adjust the script, to suit the simple ToolFactory XML code generator. This is not possible with any Conda analysis package, so these will usually need an experienced developer and the usual development tools to cope with their complicated command lines.
 
 Before starting the form, if the tool takes any history input files, upload the working test data samples you already have, into a Galaxy history, ready to select on the
 ToolFactory form as each user input history element  is defined
@@ -121,7 +125,7 @@ These provide data for the test. A tool *cannot be tested and built* if they are
 
 The ToolFactory offers simple *filters* taking STDIN and writing to STDOUT like the tac|rev example. These can use any Conda dependency. Unix utilities can be included as Conda dependencies to ensure that the tool will run, even in execution environments lacking common utilities.
 
-Adding parameters and i/o in a more complicated command line driven model, with Conda packages, with or without a supplied script, covers a large range of common requirements, 
+Adding parameters and i/o in a more complicated command line driven model, with Conda packages, with or without a supplied script, covers a large range of common requirements,
 bearing in mind the many limitations of an automated code generator.
 
 Each tool can specify any number of user selected history input files, and user supplied parameters.
@@ -131,8 +135,8 @@ Output files can be written as individual new history items for downstream analy
 
 Details are supplied on the form for each of the elements needed for the new tool. These include:
 
- * An optional working script. 
- * Dependencies with versions. Anything available in Conda, such as Python/R/Lisp/BWA/samtools. 
+ * An optional working script.
+ * Dependencies with versions. Anything available in Conda, such as Python/R/Lisp/BWA/samtools.
  * Input sample files uploaded in the history, selected when defining input files, and used for the tool test.
  * Output files that will appear in the history when the new tool is run.
  * User-controlled command line parameters.
@@ -237,13 +241,13 @@ The steps include:
  * Create the default admin user and insert the API keys in various ToolFactory scripts.
  * Upload the default history and a workflow to build the examples.
 
-This takes 20 minutes or more to complete - an extra ~10 for the visualisations.
+This takes 10 minutes or more to complete.
 
-A functioning development server will occupy ~9GB of disk space, so be sure your machine has plenty of room.
+A functioning development server will occupy ~6GB of disk space, so be sure your machine has plenty of room.
 It will be based in a single directory, *galaxytf* in the same directory as the galaxy_tf_overlay repository was cloned into.
 That is where the script should be run as shown above.
 
-Rerunning the *localtf.sh* script will *destroy the entire galaxytf directory* - all ~9GB, and create a clean new installation.
+Rerunning the *localtf.sh* script will *destroy the entire galaxytf directory* - all ~6GB, and create a clean new installation.
 It should only need to be run once in the life of the development server.
 
 Remove the *galaxytf* directory to remove the entire development server when it is no longer needed. Save all your tools and histories,
