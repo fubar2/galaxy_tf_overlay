@@ -1,11 +1,11 @@
-# Build a local, disposable ToolFactory development server.
+## Build a local, disposable ToolFactory development server.
 
-## See the introductory tutorial at https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-generators/tutorial.html
+### See the introductory tutorial at https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-generators/tutorial.html
 
 Clone the latest Galaxy server code and install a configuration overlay, allowing your new development server to
 *turn scripts into shareable Galaxy tools*.
 
-## Update August 2023:
+### Update August 2023:
 Examples of useful ToolFactory generated tool generation jobs are included in an uploaded administrator history ready to re-run and adjust as needed.
 Histories are also available for importing into any ToolFactory instance from the repository:
 
@@ -17,7 +17,7 @@ Histories are also available for importing into any ToolFactory instance from th
 ToolFactory now supports change_format *when* clauses so these two tools allow either png or html interactive outputs,
 optional input files, and command line flag parameters.
 
-##  Triage point
+###  Triage point
 
 If you are new to Galaxy, and you know that you will be doing a lot of tool development, please do not proceed.
 We strongly recommend that you spend your time with the [specialised development methods](https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-from-scratch/tutorial.html) training material for the supported tool chain infrastructure and practices. In the long run, it will be time well spent.
@@ -27,9 +27,9 @@ It is potentially useful for those with relatively modest tool building requirem
 Galaxy tools is one of the main use-cases. Where difficulties arise, tweaks to the script i/o may allow the simple automated code g
 enerator to wrap it. Learning to use the ToolFactory may be a useful and correspondingly modest investment of effort.
 
-## Installation and very quick start instructions (see below for a local *persistent* non-docker installation)
+### Installation and very quick start instructions (see below for a local *persistent* non-docker installation)
 
-### Docker image - without persistence
+#### Docker image - without persistence
 
 The docker image created from the Dockerfile in this repository is the quickest and easiest way to get the ToolFactory working.
 Be warned that all work is lost when the container is stopped - nothing is persistent.
@@ -46,7 +46,7 @@ If a Galaxy server appears, proceed with the login instructions above and you sh
 
 Only an administrator can execute the ToolFactory tool. The default administrator login email is "toolfactory@galaxy.org" and the password is "ChangeMe!"
 
-## Basic idea
+### Basic idea
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.
 
  * Tools created by the ToolFactory are ordinary, secure, shareable Galaxy tools.
@@ -76,7 +76,7 @@ A browser screen refresh will be needed, when the job succeeds, to reload the to
 Even using an automated generator, planning and preparation are essential, to efficiently create a useful tool. Debugging the script in the ToolFactory is very clumsy.
 Get it right on the command line first, in a Conda environment. Then upload all the test data into a history and build the new tool. That way, any errors are probably from ToolFactory form configuration, since the script is known to work with that test data, those parameters and those dependencies.
 
-## Simple tool examples as models
+### Simple tool examples as models
 
 The default history for the admin account contains the results of running a workflow (also installed) that generates all the examples.
 The most convenient way to see how the ToolFactory works, is to use Galaxy's inbuilt redo ⭮ button for any interesting example outputs
@@ -104,7 +104,7 @@ XML command line, as the BWA examples demonstrate.
 The Plotter example illustrates parameter passing to Rscript, and presenting arbitrary plots or other new outputs as history collections.
 
 
-## Building your own tools.
+### Building your own tools.
 
 Start out with a script that works correctly on a command line with associated packages and dependency versions for Conda.
 It might be an open source package, or your own Python or shell script. Working means correctly processing some small but realistic test data inputs.
@@ -261,7 +261,7 @@ Once local desktop installation is complete:
  * In 23.0 that is equivalent to *.venv/bin/galaxyctl start* and *.venv/bin/galaxyctl stop*.
 
 
-## Local installation and admin login
+### Local installation and admin login
 The default login is *toolfactory@galaxy.org* with password *ChangeMe!*
 Please change it after logging in to the desktop version. Changes in the Docker version will be lost after shutting it down.
 
