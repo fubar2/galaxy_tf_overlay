@@ -12,7 +12,7 @@ Histories are also available for importing into any ToolFactory instance from th
 1. ![Survival analysis tool](https://github.com/fubar2/lifelines_tool), Kaplan-Meier and Cox-PH models using the lifelines package
 2. ![plotly_tabular_tool](https://github.com/fubar2/plotly_tabular_tool), a generic and interactive html plot generator,
 3. ![plotly_blast_tool](https://github.com/fubar2/plotly_blast_tool), a customised version for blast search 25 column Galaxy tabular outputs.
-4. ![tabular text to rectangular format](https://github.com/fubar2/tabtext_to_rectangular/blob/main/Galaxy-History-torectangulartabtool.tar.gz)
+4. ![tabular text to rectangular format](https://github.com/fubar2/tabtext_to_rectangular), testing a tool to convert ragged tabular into rectangular.
 
 ToolFactory now supports change_format *when* clauses so these two tools allow either png or html interactive outputs,
 optional input files, and command line flag parameters.
