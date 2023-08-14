@@ -24,4 +24,7 @@ export GALAXY_INSTALL_PREBUILT_CLIENT=1
 . $1/.venv/bin/activate
 pip install -U ephemeris bioblend planemo
 python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
+cp -rv $GALAXY_ROOT/database $GALAXY_ROOT/database_copy \
+cp -rv $GALAXY_ROOT/local_tools $GALAXY_ROOT/local_tools_copy \
+
 

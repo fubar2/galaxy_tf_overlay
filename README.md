@@ -1,39 +1,44 @@
-## Build a local, disposable ToolFactory development server.
+## The Galaxy ToolFactory server
 
-**Introductory tutorial at https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-generators/tutorial.html**
+Clone v23.0 of the Galaxy server code and install a configuration overlay to set up your own ToolFactory appliance.
+The resulting development server can *turn working command line scripts into shareable Galaxy tools*.
 
-Clone the latest Galaxy server code and install a configuration overlay, allowing your new development server to
-*turn scripts into shareable Galaxy tools*.
+An introductory ToolFactory GTN [tutorial is available](https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-generators/tutorial.html)
 
 ** Update August 2023:**
 
-Examples of useful ToolFactory generated tool generation jobs are included in an uploaded administrator history ready to re-run and adjust as needed.
-Histories are also available for importing into any ToolFactory instance from the repository:
+ToolFactory now supports:
+ 1. change_format *when* clauses so plotting tools can allow either png or html interactive outputs.
+ 2. optional input files, and
+ 3. command line flag parameters.
+
+Examples of more complex sample ToolFactory generated tools are included in an administrator history ready to re-run and adjust as needed.
+Histories are also available for importing into any ToolFactory instance from ToolFactory generated tool github repositories.
+*Do not use the URL to the history tar.gz file in the github file list - it won't work!!*
+Github knows it's binary so will warn before allowing downloads.
+Click on it to open the download form, then copy the *raw* link URL, to paste into the ToolFactory user history import input field.
 
 1. ![Survival analysis tool](https://github.com/fubar2/lifelines_tool), Kaplan-Meier and Cox-PH models using the lifelines package
 2. ![plotly_tabular_tool](https://github.com/fubar2/plotly_tabular_tool), a generic and interactive html plot generator,
 3. ![plotly_blast_tool](https://github.com/fubar2/plotly_blast_tool), a customised version for blast search 25 column Galaxy tabular outputs.
 4. ![tabular text to rectangular format](https://github.com/fubar2/tabtext_to_rectangular), testing a tool to convert ragged tabular into rectangular.
 
-ToolFactory now supports change_format *when* clauses so these two tools allow either png or html interactive outputs,
-optional input files, and command line flag parameters.
-
-###  Triage point
+###  Triage: Is this useful for you?
 
 If you are new to Galaxy, and you know that you will be doing a lot of tool development, please do not proceed.
 We strongly recommend that you spend your time with the [specialised development methods](https://training.galaxyproject.org/training-material/topics/dev/tutorials/tool-from-scratch/tutorial.html) training material for the supported tool chain infrastructure and practices. In the long run, it will be time well spent.
 
 The ToolFactory is an automated code generator. It can only deal with a small subset of uncomplicated tool building tasks.
-It is potentially useful for those with relatively modest tool building requirements. Converting locally developed scripts into ordinary
-Galaxy tools is one of the main use-cases. Where difficulties arise, tweaks to the script i/o may allow the simple automated code g
-enerator to wrap it. Learning to use the ToolFactory may be a useful and correspondingly modest investment of effort.
+It is potentially useful for those who write their own scripts, particularly where these have relatively modest tool forms and requirements.
+Most complicated Conda package require hand written XML to generate the correct command line. Simpler packages with very
+regular command lines may be tractable, but converting locally developed scripts into Galaxy tools is the main use-case.
+Where difficulties arise for the simple automated code generator, tweaks to the script i/o may allow it to work.
+Learning to use the ToolFactory may be a useful and correspondingly modest investment of effort.
 
 ### Installation and very quick start instructions (see below for a local *persistent* non-docker installation)
 
-#### Docker image - without persistence
-
 The docker image created from the Dockerfile in this repository is the quickest and easiest way to get the ToolFactory working.
-Be warned that all work is lost when the container is stopped - nothing is persistent.
+Be warned that all work is lost when the container is stopped - nothing is persistent at present.
 Any useful artifacts such as work done in a new history or new tool tarballs must be exported and saved before shutting down.
 
 ```
@@ -42,10 +47,14 @@ docker run -d -p 8080:8080 quay.io/fubar2/galaxy_toolfactory:latest
 ```
 
 After starting the new image, watch the docker container logs until gunicorn is ready to serve, or wait
-about 20-30 seconds, then browse to [http://localhost:8080](http://localhost:8080)
-If a Galaxy server appears, proceed with the login instructions above and you should see a history containing all the example tools.
+about 30 seconds, then browse to [http://localhost:8080](http://localhost:8080)
+When a Galaxy server appears it is in locked down mode - new accounts are not available.
+Proceed using the login credentials above.
+A history containing all the example tools should be offered.
 
-Only an administrator can execute the ToolFactory tool. The default administrator login email is "toolfactory@galaxy.org" and the password is "ChangeMe!"
+*Only an administrator can execute the ToolFactory tool. The default administrator login email is "toolfactory@galaxy.org" and the password is "ChangeMe!"*
+Please do change it. Running the API_Key rotating tool in the Local Tools menu is *strongly recommended* on first login for Docker installations.
+They all share the same API key from one quay.io build initially so are particularly insecure until the keys are changed.
 
 ### Basic idea
 The ToolFactory is a Galaxy tool, with an automated *XML code generator*, that converts *working* scripts and Conda dependencies, into ordinary Galaxy tools.

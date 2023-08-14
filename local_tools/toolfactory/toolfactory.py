@@ -581,6 +581,7 @@ class Tool_Factory:
                     label=newlabel,
                     help=newhelp,
                     num_dashes=ndash,
+                    display='radio'
                 )
                 anoptt = gxtp.SelectOption(
                     value='set',
