@@ -28,16 +28,13 @@ ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_leve
   USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
   GALAXY_HOME="/home/galaxy"
 
-COPY scripts/docker_start.sh /usr/local/bin/start.sh
-
 RUN mkdir -p /work \
   #&& echo "do not cache me" \
-  && chmod a+x /usr/local/bin/start.sh \
   && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
   && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
   && apt-get -qq update \
   && apt-get install --no-install-recommends -y locales apt-utils curl \
-  # && locale-gen en_US.UTF-8 \
+  #&& locale-gen en_US.UTF-8 \
   && dpkg-reconfigure --frontend=noninteractive locales \
   && apt-get install -qq --no-install-recommends -y python3 python3-venv python3-pip python3-wheel wget unzip git nano nodeenv sudo \
   && groupadd -r $GALAXY_USER -g $GALAXY_GID \
@@ -57,9 +54,9 @@ RUN mkdir -p /work \
   && su $GALAXY_USER /tmp/runme.sh \
   && wget -q $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip -qq /tmp/overlay.zip -d /work \
+  && chown -R galaxy:galaxy /work \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && cd $OVERLAY_HOME && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME" > /tmp/runme2.sh \
   && su $GALAXY_USER /tmp/runme2.sh \
-  && chown -R galaxy:galaxy /work \
   && rm -rf /home/galaxy/.cache \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/ /var/cache/*  \
@@ -68,7 +65,8 @@ RUN mkdir -p /work \
   && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
               contrib doc
+USER galaxy
 
 EXPOSE 8080
 WORKDIR $GALAXY_ROOT
-CMD ["/usr/bin/sh", "/usr/local/bin/start.sh"]
+CMD ["/usr/bin/sh", "/work/galaxytf/run.sh"]
