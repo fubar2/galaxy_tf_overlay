@@ -57,6 +57,7 @@ RUN mkdir -p /work \
   && chown -R galaxy:galaxy /work \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && cd $OVERLAY_HOME && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME" > /tmp/runme2.sh \
   && su $GALAXY_USER /tmp/runme2.sh \
+  && chown -R /home/galaxy galaxy /work \
   && rm -rf /home/galaxy/.cache \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/ /var/cache/*  \
