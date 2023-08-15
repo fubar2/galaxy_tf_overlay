@@ -7,9 +7,9 @@
 FROM ubuntu:latest
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
 
-ENV GALAXY_USER="galaxy" \
-  #FOO="do not cacheme" \
-  VER="23.0" \
+ENV GALAXY_USER=galaxy \
+  #FOO=do not cacheme \
+  VER=23.0 \
   GALAXY_UID=1450 \
   GALAXY_GID=1450 \
   GALAXY_ROOT="/work/galaxytf"  \
@@ -26,6 +26,7 @@ ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_leve
   RELDIR="galaxy-release_$VER" \
   GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_$VER.zip" \
   USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
+  GALAXY_USER=galaxy \
   GALAXY_HOME="/home/galaxy"
 
 RUN mkdir -p /work \
@@ -37,8 +38,8 @@ RUN mkdir -p /work \
   #&& locale-gen en_US.UTF-8 \
   && dpkg-reconfigure --frontend=noninteractive locales \
   && apt-get install -qq --no-install-recommends -y python3 python3-venv python3-pip python3-wheel wget unzip git nano nodeenv sudo \
-  && groupadd -r $GALAXY_USER -g $GALAXY_GID \
   && adduser --system --quiet --home /home/galaxy --uid $GALAXY_UID --gid $GALAXY_GID --shell /usr/bin/bash $GALAXY_USER \
+  && groupadd -r $GALAXY_USER -g $GALAXY_GID \
   && cd /work \
   && wget -q $GALZIP \
   && unzip -q $REL.zip \
@@ -57,7 +58,7 @@ RUN mkdir -p /work \
   && chown -R galaxy:galaxy /work \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && cd $OVERLAY_HOME && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME" > /tmp/runme2.sh \
   && su $GALAXY_USER /tmp/runme2.sh \
-  && chown -R /home/galaxy galaxy /work \
+  && chown -R galaxy:galaxy /home/galaxy galaxy /work \
   && rm -rf /home/galaxy/.cache \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/ /var/cache/*  \
