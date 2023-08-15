@@ -27,6 +27,8 @@ ARG USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_leve
   GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_$VER.zip" \
   USE_DB_URL="sqlite:////work/galaxytf/database/universe.sqlite?isolation_level=IMMEDIATE" \
   GALAXY_USER=galaxy \
+  GALAXY_UID=1450 \
+  GALAXY_GID=1450 \
   GALAXY_HOME="/home/galaxy"
 
 RUN mkdir -p /work \
