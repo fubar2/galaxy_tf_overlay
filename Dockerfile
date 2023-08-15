@@ -57,13 +57,14 @@ RUN mkdir -p /work \
      && cd $GALAXY_ROOT && sh $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv \
      && . $GALAXY_ROOT/scripts/common_startup_functions.sh" > /tmp/runme.sh \
   && cat /tmp/runme.sh \
-  && su $GALAXY_USER /tmp/runme.sh \
+  && su -p -c "sh /tmp/runme.sh" $GALAXY_USER \
   && wget -q $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip -qq /tmp/overlay.zip -d /work \
-  #&& chown -R galaxy:galaxy /work \
+  && chown -R galaxy:galaxy /work \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && cd $OVERLAY_HOME && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME" > /tmp/runme2.sh \
-  && su $GALAXY_USER /tmp/runme2.sh \
-  && chown -R galaxy:galaxy /home/galaxy /work \
+  && su -p -c "sh /tmp/runme2.sh" galaxy \
+  && chown -R galaxy:galaxy /work \
+  && chown -R galaxy:galaxy /home/galaxy \
   && rm -rf /home/galaxy/.cache \
   && apt-get autoremove -y && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/ /var/cache/*  \
