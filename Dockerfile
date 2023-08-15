@@ -40,8 +40,11 @@ RUN mkdir -p /work \
   #&& locale-gen en_US.UTF-8 \
   && dpkg-reconfigure --frontend=noninteractive locales \
   && apt-get install -qq --no-install-recommends -y python3 python3-venv python3-pip python3-wheel wget unzip git nano nodeenv sudo \
-  && adduser --system --quiet --home /home/galaxy --uid $GALAXY_UID --gid $GALAXY_GID --shell /usr/bin/bash $GALAXY_USER \
   && groupadd -r $GALAXY_USER -g $GALAXY_GID \
+  # && adduser --system --quiet --home /home/galaxy --uid $GALAXY_UID --gid $GALAXY_GID --shell /usr/bin/bash $GALAXY_USER \
+  && useradd  -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
+  && mkdir -p  $GALAXY_HOME \
+  && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME  \
   && cd /work \
   && wget -q $GALZIP \
   && unzip -q $REL.zip \
@@ -57,7 +60,7 @@ RUN mkdir -p /work \
   && su $GALAXY_USER /tmp/runme.sh \
   && wget -q $OVERLAY_ZIP -O /tmp/overlay.zip \
   && unzip -qq /tmp/overlay.zip -d /work \
-  && chown -R galaxy:galaxy /work \
+  #&& chown -R galaxy:galaxy /work \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && cd $OVERLAY_HOME && sh $OVERLAY_HOME/localtf_docker.sh  $GALAXY_ROOT $OVERLAY_HOME" > /tmp/runme2.sh \
   && su $GALAXY_USER /tmp/runme2.sh \
   && chown -R galaxy:galaxy /home/galaxy galaxy /work \
