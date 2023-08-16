@@ -3,12 +3,12 @@
 # This has none of the features of Bjoern's docker-galaxy-stable - uses sqlite for example, but
 # has the latest release 23.0 in the latest ubuntu image FWIW.
 # No persistence so export and save histories or tools before shutting down
-#  and NO visualisations - the config/plugins/visualizations take 3GB of disk
+
 
 FROM ubuntu:22.04
 MAINTAINER Ross Lazarus <ross.lazarus@gmail.com>
 USER root
-
+# save downloading and allow hacking locally to be effective during development ;)
 COPY . /work/galaxy_tf_overlay-main/
 
 ARG ORELDIR=/tmp/galaxy_tf_overlay-main \

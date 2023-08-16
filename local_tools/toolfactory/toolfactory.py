@@ -133,6 +133,11 @@ class Tool_Factory:
             self.selpar = [json.loads(x) for x in args.selecttext_parameters if len(x.strip()) > 1]
         except Exception:
             logger.error(f"--selecttext_parameters {args.selecttext_parameters} is malformed - should be a dictionary")
+        self.selfagpar = []
+        try:
+            self.selflagpar = [json.loads(x) for x in args.selectflag_parameters if len(x.strip()) > 1]
+        except Exception:
+            logger.error(f"--selectflag_parameters {args.selecttext_parameters} is malformed - should be a dictionary")
         self.args = args
         self.cleanuppar()
         self.lastxclredirect = None
@@ -271,6 +276,8 @@ class Tool_Factory:
             xclsuffix.append([p["CL"], "'$%s'" % nam, over])
         for p in self.selpar:
             xclsuffix.append([p["CL"], "'$%s'" % p["name"], p.get("override","")])
+        for p in self.selflagpar:
+            xclsuffix.append(["", "'$%s'" % p["name"], ""])
         for p in self.collections:
             newname = p["name"]
             xclsuffix.append([newname, "'%s'" % newname, ""])
@@ -302,6 +309,8 @@ class Tool_Factory:
             xclsuffix.append([p["CL"], "'$%s'" % nam, over])
         for p in self.selpar:
             xclsuffix.append([p["CL"], "'$%s'" % p["name"], p.get("override", "")])
+        for p in self.selflagpar:
+            xclsuffix.append(["", "'$%s'" % p["name"], ""])
         for p in self.collections:
             newname = p["name"]
             xclsuffix.append(newname, "'$%s'" % newname, "")
@@ -597,6 +606,17 @@ class Tool_Factory:
                 else:
                     aparm.append(anoptf)
                     aparm.append(anoptt)
+            elif newtype == "datacolumn":
+                aparm = gxtp.TextParam(
+                    newname,
+                    type="data_column"
+                    data_ref = p['dataref'],
+                    multiple = (p['multiple'] == "1"),
+                    label=newlabel,
+                    help=newhelp,
+                    value=newval,
+                    num_dashes=ndash,
+                )
             else:
                 raise ValueError(
                     'Unrecognised parameter type "%s" for \
@@ -646,7 +666,7 @@ class Tool_Factory:
                 if self.is_positional:
                     aparm.positional = int(newcl)
                 self.tinputs.append(aparm)
-                tparm = gxtp.TestParam(newname, value=newval)
+                tparm = gxtp.TestParam(newname, value=newval[0])
                 self.testparam.append(tparm)
             else:
                 raise ValueError(
@@ -654,6 +674,34 @@ class Tool_Factory:
                  selecttext parameter %s in makeXML'
                     % (newtype, newname)
                 )
+        for p in self.selflagpar:
+            newname = p["name"]
+            newval = p["value"]
+            newlabel = p["label"]
+            newhelp = p["help"]
+            newtype = p["type"]
+            newtext = p["texts"]
+            newcl = p["CL"]
+            if not len(newlabel) > 0:
+                newlabel = newname
+            aparm = gxtp.SelectParam(
+                newname,
+                label=newlabel,
+                help=newhelp,
+                num_dashes=0,
+            )
+            for i in range(len(newval)):
+                anopt = gxtp.SelectOption(
+                    value=newval[i],
+                    text=newtext[i],
+                )
+                aparm.append(anopt)
+            aparm.positional = self.is_positional
+            if self.is_positional:
+                aparm.positional = int(newcl)
+            self.tinputs.append(aparm)
+            tparm = gxtp.TestParam(newname, value=newval[0])
+            self.testparam.append(tparm)
 
 
     def doNoXMLparam(self):
@@ -742,10 +790,10 @@ class Tool_Factory:
                     "WARNING: Galaxyxml version does not have the PR merged yet - tests for collections must be over-ridden until then!"
                 )
         self.newtool.version_command = f'echo "{self.args.tool_version}"'
-        # std = gxtp.Stdios()
-        # std1 = gxtp.Stdio()
-        # std.append(std1)
-        # self.newtool.stdios = std
+        std = gxtp.Stdios()
+        std1 = gxtp.Stdio()
+        std.append(std1)
+        self.newtool.stdios = std
         requirements = gxtp.Requirements()
         self.condaenv = []
         if self.args.packages:
@@ -1041,6 +1089,7 @@ def main():
     a("--test_override", default=None)
     a("--additional_parameters", action="append", default=[])
     a("--selecttext_parameters", action="append", default=[])
+    a("--selectflag_parameters", action="append", default=[])
     a("--edit_additional_parameters", action="store_true", default=False)
     a("--parampass", default="positional")
     a("--tfout", default="./tfout")
