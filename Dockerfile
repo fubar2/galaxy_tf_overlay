@@ -43,8 +43,10 @@ RUN mkdir -p /work \
   && rm -rf $REL.zip \
   && mv $RELDIR $GALAXY_ROOT \
   && python3 -m venv $GALAXY_VIRTUAL_ENV \
-  && cd $GALAXY_ROOT \
+  && wget -q $OVERLAY_ZIP -O /tmp/overlay.zip \
+  && unzip -qq /tmp/overlay.zip -d /work \
   && chown -R galaxy:galaxy /work \
+  && cd $GALAXY_ROOT \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && export GALAXY_ROOT=$GALAXY_ROOT && export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && export VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
      && export GALAXY_INSTALL_PREBUILT_CLIENT=1 \

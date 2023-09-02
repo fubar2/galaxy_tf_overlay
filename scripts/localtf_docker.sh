@@ -13,8 +13,9 @@ GALAXY_ROOT=$1
 OVERLAY=$2
 USE_DB_URL="sqlite:///$1/database/universe.sqlite?isolation_level=IMMEDIATE"
 cd $GALAXY_ROOT
-mkdir -p $GALAXY_ROOT/database_copy $GALAXY_ROOT/local_tools
+mkdir -p $GALAXY_ROOT/database_copy $GALAXY_ROOT/local_tools_copy
 cp -rv $OVERLAY/config/* $GALAXY_ROOT/config/
+cp -rv $OVERLAY/configdocker/* $GALAXY_ROOT/config # replace normal one
 cp -rv $OVERLAY/local $GALAXY_ROOT/
 cp -rv $OVERLAY/local_tools $GALAXY_ROOT/
 cp -rv $OVERLAY/static/* $GALAXY_ROOT/static/

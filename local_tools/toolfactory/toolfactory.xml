@@ -1,4 +1,4 @@
-<tool id="toolfactory" name="toolfactory" version="3.0" profile="16.04" >
+<tool id="toolfactory" name="toolfactory" version="3.0" profile="22.05" >
   <description>Scripts into tools v3.0</description>
   <macros>
       <xml name="dataColumn">
@@ -10,10 +10,6 @@
       </xml>
       <xml name="singleText">
             <param name="param_value" type="text" value="" label="Default text value">
-                <sanitizer>
-                <valid initial="string.printable" >
-                </valid>
-              </sanitizer>
           </param>
       </xml>
       <xml name="singleInt">
@@ -33,10 +29,6 @@
           <repeat name="selectTexts" title="Add each option to be presented" min="2" default="2"
              help="Each text added here will also have  a value to be emitted on the command line when the text is chosen">
             <param name="select_text" type="text" value="" label="Explanatory text the user will see for this choice" >
-                <sanitizer>
-                <valid initial="string.printable" >
-                </valid>
-              </sanitizer>
           </param>
           <param name="select_value" type="text" value="" label="Value for the command line when the user selects this option">
           </param>
@@ -46,17 +38,9 @@
           <repeat name="selectFlags" title="Add mutually exclusive flag selection" min="2" default="2"
              help="Supply the corresponding mutually exclusive flag as it should appear on the command line if each option is selected">
             <param name="select_text" type="text" value="" label="Explanatory text the user will see for this choice" >
-                <sanitizer>
-                <valid initial="string.printable" >
-                </valid>
-              </sanitizer>
           </param>
           <param name="select_value" type="text" value="" label="Value for the command line when the user selects this option"
              help="Supply the corresponding mutually exclusive flag as it should appear on the command line if each option is selected">
-                <sanitizer>
-                <valid initial="string.printable" >
-                </valid>
-              </sanitizer>
           </param>
           </repeat>
       </xml>
@@ -65,18 +49,10 @@
             help="If you change your script and regenerate the 'same' tool, you should inform Galaxy (and users) by changing (bumping is traditional) this number"/>
         <param name="tool_desc" label="Tool Synopsis" type="text" value=""
             help="Supply a brief tool description for the Galaxy tool menu entry">
-                <sanitizer>
-                <valid initial="string.printable" >
-                </valid>
-              </sanitizer>
          </param>
          <param name="help_text" label="Tool form documentation and help text for users" type="text" area="true"
             value="**What it Does**"
              help="Supply user documentation to appear on the new tool form as reStructured text - http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html" >
-                <sanitizer>
-                    <valid initial="string.printable" />
-                    <mapping initial="none"/>
-                </sanitizer>
         </param>
         <repeat name="citations" title="Citation">
                 <conditional name="citation_type">
@@ -91,10 +67,6 @@
                     <when value="bibtex">
                         <param name="bibtex" label="BibTex" type="text" area="true"
                             help="Supply a BibTex entry that should be cited when this tool is used in published research." value="" >
-                            <sanitizer>
-                                <valid initial="string.printable" />
-                                <mapping initial="none"/>
-                            </sanitizer>
                         </param>
                     </when>
                 </conditional>
@@ -114,16 +86,15 @@
                </options>
             </param>
             <param name="input_label" type="text" value="" label="This will become the user prompt for the form so please make it informative" >
-              <sanitizer>
-                <valid initial="string.printable" >
+              <sanitizer invalid_char="_">
+                <valid initial="string.ascii_letters,string.digits" >
+                    <add value="_" />
+                    <add value="$" />
+                    <add value=" " />
                 </valid>
               </sanitizer>
             </param>
             <param name="input_help" type="text" value="" label="This will become help text on the form." >
-                <sanitizer>
-                <valid initial="string.printable" >
-                </valid>
-              </sanitizer>
             </param>
             <param name="input_CL" type="text" label="Positional: ordinal integer. Argparse: argument name. STDIN if the executable/script expects it"
               help="If you will pass positional parameters, enter the integer ordinal for this parameter. If Argparse style, '--' will be prepended or '-' if
@@ -141,16 +112,19 @@
              users of the new tool you are making containing one of it's outputs">
             <param name="history_name" type="text" label="Output Name" optional="false"
               help="Name used for this output in history. No spaces. Digits and letters only please. Argparse should look for this name on the command line.">
-              <sanitizer invalid_char=" ">
+              <sanitizer invalid_char="_">
                 <valid initial="string.ascii_letters,string.digits" >
-                   <add value="_" />
+                    <add value="_" />
                 </valid>
               </sanitizer>
             </param>
             <param name="history_label" type="text" label="Output label. Allows template substitution"  value=""
                 help="Label used for this output - for example 'Plotlytabular $title on $input_tab.element_identifier' where variable templates are informative." >
-              <sanitizer>
-                <valid initial="string.printable" >
+              <sanitizer invalid_char="_">
+                <valid initial="string.ascii_letters,string.digits" >
+                    <add value="_" />
+                    <add value="$" />
+                    <add value=" " />
                 </valid>
               </sanitizer>
             </param>
@@ -169,10 +143,6 @@
             <repeat name="history_whens" title="Optional change_format on this data" min="0" help="ADVANCED option only!! Easy to get wrong!">
               <param name="history_when" type="text"  label="Add a 'when' expression for this output so format can depend on another parameter"
               help="Supply the three key=value pairs needed as shown - no quotes: input=image_format value=small_png format=png" value="">
-                  <sanitizer>
-                      <valid initial="string.printable">
-                      </valid>
-                 </sanitizer>
               </param>
             </repeat>
         </repeat>
@@ -195,8 +165,11 @@
                 <option value="list:paired">List of paired</option>
             </param>
             <param name="label" type="text"  label="Label for this collection" help="" value="">
-                <sanitizer>
-                <valid initial="string.printable" />
+              <sanitizer invalid_char="_">
+                <valid initial="string.ascii_letters,string.digits" >
+                    <add value="_" />
+                    <add value="$" />
+                </valid>
               </sanitizer>
             </param>
             <param name="discover" type="text"  label="Discover datasets expression" help="__name_and_ext__ should catch all filenames with extensions"
@@ -215,7 +188,7 @@
         <repeat name="additional_parameters" title="Command Line Parameters" min="0"
              help="Command line settings for the user to pass to the executable. See examples below to see how these can be parsed by scripts in the various languages">
           <param name="param_name" type="text" value="" label="Name for this parameter. Underscore, letters and digits only. No spaces allowed">
-            <sanitizer invalid_char="">
+            <sanitizer invalid_char="_">
               <valid initial="string.ascii_letters,string.digits">
               <add value="_" />
               </valid>
@@ -261,24 +234,24 @@
           </when>
           </conditional>
           <param name="param_label" type="text" value="" label="Label for the form">
-                <sanitizer>
-                <valid initial="string.printable" >
+              <sanitizer invalid_char="_">
+                <valid initial="string.ascii_letters,string.digits" >
+                    <add value="_" />
+                    <add value="$" />
+                    <add value=" " />
                 </valid>
               </sanitizer>
           </param>
           <param name="param_help" type="text" value="" label="Help for this parameter">
-              <sanitizer>
-                <valid initial="string.printable" >
-                </valid>
-              </sanitizer>
           </param>
           <param name="param_CL" type="text" label="Positional ordinal | argparse argument name"
               help="Using positional parameters, enter the integer ordinal for this parameter on the command line. Using Argparse style,
               '--' will be prepended on the CL" value="" />
           <param name="param_CLprefixed" type="text" label="Override the generated default argparse name prefix if not empty - eg ----foo if needed"
               help="Some targets like Planemo expect an unadorned action like 'test' before --galaxy_root." value="">
-                <sanitizer>
+              <sanitizer invalid_char="_">
                 <valid initial="string.printable" >
+                    <remove value="'" />
                 </valid>
               </sanitizer>
           </param>
@@ -410,7 +383,7 @@
     #end for
 --tested_tool_out "$untested_tool"
 --galaxy_root "$__root_dir__"
---tool_dir "$__tool_directory__"
+--toolfactory_dir "$__tool_directory__"
     #if $cl_options.xtracond.needxtra == "yes"
        #for $x in $cl_options.xtracond.xtra_files
 --xtra_file '{"fpath":"$x", "fname":"$x.element_identifier"}'
@@ -496,7 +469,6 @@ ${help_text}
              help="Script must handle all i/o and parameters as specified below using the parameters and passing method chosen below">
               <sanitizer>
                  <valid initial="string.printable"/>
-                 <mapping initial="none"/>
               </sanitizer>
              </param>
         </when>
@@ -506,6 +478,8 @@ ${help_text}
     <conditional name="ppass">
         <param name="parampass"  type="select" display="radio" label="Command line parameter passing method to use">
             <option value="argparse" selected="true">Argparse: passed in the form of --clname value</option>
+            <option value="embed">Script has Cheetah templates for parameters embedded into the code</option>
+            <option value="embednfmod">Specialised embed with nf-core module pixie dust</option>
             <option value="positional">Positional: Passed in the order of positional ordinals ...foo.bam bar.idx zot.xls</option>
             <option value="0">Tool reads selected input file from STDIN and writes STDOUT with no parameters</option>
         </param>

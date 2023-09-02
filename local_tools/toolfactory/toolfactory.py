@@ -41,9 +41,7 @@ import lxml.etree as ET
 
 import yaml
 
-# sed will update these settings during tfsetup.py first run
-GALAXY_ADMIN_KEY = "1382700433949979904"
-GALAXY_URL = "http://localhost:8080"
+
 myversion = "V3.0 February 2023"
 verbose = True
 debug = True
@@ -87,15 +85,28 @@ class Tool_Factory:
         prepare command line cl for running the tool here
         and prepare elements needed for galaxyxml tool generation
         """
+        # sed will update these settings during tfsetup.py first run
+        self.GALAXY_ADMIN_KEY = "1874907739332310784"
+        self.GALAXY_URL = "http://localhost:8080"
+        self.myversion = "V3.0 February 2023"
+        self.verbose = True
+        self.debug = True
+        self.toolFactoryURL = "https://github.com/fubar2/galaxy_tf_overlay"
+        self.logger = logging.getLogger(__name__)
         assert args.parampass in [
             "0",
+            "embed",
             "argparse",
             "positional",
-            ], 'args.parampass must be "0","positional" or "argparse"'
+            "embednfmod",
+            ], 'args.parampass %s not 0,positional, embed, embednfmod or argparse' % args.parampass
         self.script_in_help = False # IUC recommendation
         self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
         self.tool_id = self.tool_name
-        self.local_tools = os.path.join(args.galaxy_root, "local_tools")
+        if args.parampass == "embednfmod":
+            self.local_tools = "./"
+        else:
+            self.local_tools = os.path.join(args.galaxy_root, "local_tools")
         self.local_tool_conf = os.path.join(self.local_tools, "local_tool_conf.xml")
         self.ourcwd = os.getcwd()
         self.collections = []
@@ -143,6 +154,7 @@ class Tool_Factory:
         self.lastxclredirect = None
         self.xmlcl = []
         self.is_positional = self.args.parampass == "positional"
+        self.is_embedded = self.args.parampass == "embed" or self.args.parampass == "embednfmod"
         if self.args.sysexe:
             if " " in self.args.sysexe:
                 self.executeme = shlex.split(self.args.sysexe)
@@ -202,7 +214,6 @@ class Tool_Factory:
             self.cl_suffix = [x.rstrip() for x in stos]
         else:
             self.cl_suffix = None
-
         if self.args.script_path:
             for ex in self.executeme:
                 aXCL(ex)
@@ -210,16 +221,16 @@ class Tool_Factory:
         else:
             for ex in self.executeme:
                 aXCL(ex)
-
         if self.args.parampass == "0":
             self.clsimple()
-        else:
-            if self.args.parampass == "positional":
+        elif self.args.parampass == "positional":
                 self.prepclpos()
                 self.clpositional()
-            else:
-                self.prepargp()
-                self.clargparse()
+        elif self.args.parampass == "argparse":
+            self.prepargp()
+            self.clargparse()
+        else:
+            self.prepembed()
 
     def clsimple(self):
         """no parameters or repeats - uses < and > for i/o"""
@@ -230,6 +241,16 @@ class Tool_Factory:
         if len(self.outfiles) > 0:
             aXCL('>')
             aXCL('$%s' % self.outfiles[0]["name"])
+
+    def prepembed(self):
+        self.xmlcl = [] # wipe anything there
+        aX = self.xmlcl.append
+        aX('')
+        aX('#set prefix = "%s"' % os.path.join('nfcoreout', self.tool_name))
+        aX('#set task_process = "%s"' % self.tool_name)
+        aX('mkdir -p nfcoreout')
+        aX("&& Rscript $runme")
+        aX('&& cp -r nfcoreout/ /home/ross/rossgit/nftoolmaker/ ')
 
 
     def prepargp(self):
@@ -322,15 +343,15 @@ class Tool_Factory:
         rx = [x.rstrip() for x in rx]
         rxcheck = [x.strip() for x in rx if x.strip() > ""]
         assert len(rxcheck) > 0, "Supplied script is empty. Cannot run"
-        self.script = "\n".join(rx)
+        self.script = "\n".join(rxcheck)
         fhandle, self.sfile = tempfile.mkstemp(prefix=self.tool_name, suffix="_%s" % (self.executeme[0]))
         tscript = open(self.sfile, "w")
         tscript.write(self.script)
         tscript.close()
         self.spacedScript = [f"    {x.replace('${','$ {')}" for x in rx if x.strip() > ""]
-        rx.insert(0, '#raw')
-        rx.append('#end raw')
-        self.escapedScript = rx
+        rxcheck.insert(0, '#raw')
+        rxcheck.append('#end raw')
+        self.escapedScript = rxcheck
         art = '%s.%s' % (self.tool_name, self.executeme[0])
         artifact = open(art, "wb")
         artifact.write(bytes(self.script, "utf8"))
@@ -609,7 +630,7 @@ class Tool_Factory:
             elif newtype == "datacolumn":
                 aparm = gxtp.TextParam(
                     newname,
-                    type="data_column"
+                    type="data_column",
                     data_ref = p['dataref'],
                     multiple = (p['multiple'] == "1"),
                     label=newlabel,
@@ -830,7 +851,11 @@ class Tool_Factory:
         self.newtool.inputs = self.tinputs
         if self.args.script_path:
             configfiles = gxtp.Configfiles()
-            configfiles.append(gxtp.Configfile(name="runme", text="\n".join(self.escapedScript)))
+            scrip = self.script
+            if self.args.nftest:
+                scrip = self.script.replace('<-','=')
+                scrip =  '#set prefix = "%s"\n#set task_process = "%s"\n' %  (os.path.join('nfcoreout', self.tool_name), self.tool_name) + scrip
+            configfiles.append(gxtp.Configfile(name="runme", text=scrip))
             self.newtool.configfiles = configfiles
         tests = gxtp.Tests()
         test_a = gxtp.Test()
@@ -941,10 +966,10 @@ class Tool_Factory:
         """
         x = "%s.xml" % self.tool_name
         xout = os.path.join(self.toold, x)
-        cl = ["planemo", "test", "--galaxy_admin_key", GALAXY_ADMIN_KEY, "--engine", "external_galaxy" , "--update_test_data",
-            "--galaxy_url", GALAXY_URL, xout]
+        cl = ["planemo", "test", "--galaxy_admin_key", self.GALAXY_ADMIN_KEY, "--engine", "external_galaxy" , "--update_test_data",
+            "--galaxy_url", self.GALAXY_URL, xout]
         clx= ["planemo", "test", "--galaxy_admin_key", "[GALAXY_ADMIN_KEY]", "--engine", "external_galaxy" , "--update_test_data",
-            "--galaxy_url", GALAXY_URL, xout]
+            "--galaxy_url", self.GALAXY_URL, xout]
         logger.info('planemo_local_test executing: %s' % ' '.join(clx))
         p = subprocess.run(
             " ".join(cl),
@@ -1022,7 +1047,7 @@ class Tool_Factory:
             ET.SubElement(TFsection, "tool", {"file": xmlfile})
         sortchildrenby(TFsection, "file")
         tree.write(tcpath, pretty_print=True)
-        gi = galaxy.GalaxyInstance(url=GALAXY_URL, key=GALAXY_ADMIN_KEY)
+        gi = galaxy.GalaxyInstance(url=self.GALAXY_URL, key=self.GALAXY_ADMIN_KEY)
         toolready = False
         now = time.time()
         nloop = 20
@@ -1069,8 +1094,8 @@ def main():
     """
     parser = argparse.ArgumentParser()
     a = parser.add_argument
+    a("--nftest", action="store_true", default=False)
     a("--script_path", default=None)
-    a("--history_test", default=None)
     a("--sysexe", default=None)
     a("--packages", default=None)
     a("--tool_name", default="newtool")
@@ -1080,7 +1105,7 @@ def main():
     a("--bad_user", default=None)
     a("--help_text", default=None)
     a("--tool_desc", default=None)
-    a("--tool_dir", default=None)
+    a("--toolfactory_dir", default=None)
     a("--tool_version", default="0.01")
     a("--citations", default=None)
     a("--cl_suffix", default=None)
@@ -1119,8 +1144,8 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     logger.addHandler(fh)
     tf = Tool_Factory(args)
     tf.makeTool()
-    tf.update_toolconf()
     tf.writeShedyml()
+    tf.update_toolconf()
     time.sleep(5)
     if tf.condaenv and len(tf.condaenv) > 0 :
         tf.install_deps()

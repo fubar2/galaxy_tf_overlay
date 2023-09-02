@@ -7,6 +7,6 @@ if ! [ -f "$FILE" ]; then
     cp -rv /work/galaxytf/local_tools_copy/* /work/galaxytf/local_tools/
     chown -R galaxy:galaxy /work/galaxytf/database /work/galaxytf/local_tools
 fi
-#rm -rf /work/galaxytf/database_copy /work/galaxytf/local_tools_copy
+rm -rf /work/galaxytf/database_copy /work/galaxytf/local_tools_copy
 cd /work/galaxytf
 /usr/bin/sh /work/galaxytf/run.sh

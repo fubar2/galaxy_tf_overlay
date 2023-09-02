@@ -3,7 +3,8 @@
 # sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 # wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo tee /etc/apt/trusted.gpg.d/pgdg.asc &>/dev/null
 echo "First run takes a while. Go for a walk, read the manual, or do something else more useful than watching"
-OURD="../galaxytf"
+OURD="../galaxytf230"
+GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 THISD=`pwd`
 THISDIR=`echo "$(cd "$(dirname "$THISD")" && pwd)/$(basename "$THISD")"`
 OURDIR=`echo "$(cd "$(dirname "$OURD")" && pwd)/$(basename "$OURD")"`
@@ -42,8 +43,16 @@ cp -rv $THISDIR/static/* $RELDIR/static/
 cp -rv $THISDIR/scripts/* $RELDIR/scripts/
 mv  $RELDIR $OURDIR
 cd $OURDIR
+
+TFC = 'tool_conf.xml,$OURDIR/local_tools/local_tool_conf.xml'
+sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $OURDIR/config/galaxy.yml
+sed -i "s~^  galaxy_root:.*~  galaxy_root: $OURDIR~g" $OURDIR/config/galaxy.yml
 sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $OURDIR/config/galaxy.yml
-GALAXY_VIRTUAL_ENV=$OURDIR/.venv
+sed -i "s~^  #virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $OURDIR/config/galaxy.yml
+sed -i "s~^  #galaxy_root:.*~  galaxy_root: $OURDIR~g" $OURDIR/config/galaxy.yml
+sed -i "s~^  tool_config_file:.*~  tool_config_file: $TFC~g" $OURDIR/config/galaxy.yml
+
+
 export GALAXY_VIRTUAL_ENV=$OURDIR/.venv
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
 GALAXY_INSTALL_PREBUILT_CLIENT=1
