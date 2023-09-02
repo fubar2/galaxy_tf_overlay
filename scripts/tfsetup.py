@@ -98,21 +98,20 @@ def run_sed(options):
     # database_connection: "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
     tfc = 'tool_conf.xml,%s/local_tools/local_tool_conf.xml' % options.galaxy_root
     fixfile = "%s/config/galaxy.yml" % options.galaxy_root
-
     fixme.append(('  virtualenv: ', '  virtualenv: "%s"' % options.galaxy_venv, fixfile))
     fixme.append(('  galaxy_root: ', '  galaxyroot: "%s"' % options.galaxy_root, fixfile))
     fixme.append(('  tool_config_file: ', '  tool_config_file: "%s"' % tfc, fixfile))
     fixfile = "%s/local_tools/toolfactory/toolfactory.py" % options.galaxy_root
-    fixme.append(('GALAXY_ADMIN_KEY = ', 'GALAXY_ADMIN_KEY = "%s"' % options.key, fixfile ))
-    fixme.append(('GALAXY_URL = ' , 'GALAXY_URL = "%s"' % options.galaxy_url, fixfile ))
+    fixme.append(('        GALAXY_ADMIN_KEY = ', '        GALAXY_ADMIN_KEY = "%s"' % options.key, fixfile ))
+    fixme.append(('        GALAXY_URL = ' , '        GALAXY_URL = "%s"' % options.galaxy_url, fixfile ))
     fixfile = "%s/local_tools/toolfactory/install_tf_deps.sh" % options.galaxy_root
     fixme.append(('APIK=', 'APIK="%s"' % options.key, fixfile ))
     fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(os.path.abspath(options.galaxy_root), "local_tools"),  fixfile ))
-    fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
-    fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
-    fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % options.galaxy_venv, fixfile))
-    fixme.append(('API_KEY_USER=', 'API_KEY_USER="%s"' % options.botkey, fixfile))
-    fixme.append(('API_KEY=', 'API_KEY="%s"' % options.key, fixfile))
+    # fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
+    # fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
+    # fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % options.galaxy_venv, fixfile))
+    # fixme.append(('API_KEY_USER=', 'API_KEY_USER="%s"' % options.botkey, fixfile))
+    # fixme.append(('API_KEY=', 'API_KEY="%s"' % options.key, fixfile))
     fixfile = "%s/local_tools/toolfactory/localplanemotest.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
     fixme.append(('API_KEY=', 'API_KEY=%s' % options.key, fixfile))

@@ -42,42 +42,11 @@ import lxml.etree as ET
 import yaml
 
 
-myversion = "V3.0 February 2023"
-verbose = True
-debug = True
-toolFactoryURL = "https://github.com/fubar2/galaxy_tf_overlay"
-REP_DIR = "toolgen"
 logger = logging.getLogger(__name__)
-
-def timenow():
-    """return current time as a string"""
-    return time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(time.time()))
-
-
-cheetah_escape_table = {"$": "\\$", "#": "\\#"}
-
-
-def cheetah_escape(text):
-    """Produce entities within text."""
-    return "".join([cheetah_escape_table.get(c, c) for c in text])
-
-
-def parse_citations(citations_text):
-    """"""
-    citations = [c for c in citations_text.split("**ENTRY**") if c.strip()]
-    citation_tuples = []
-    for citation in citations:
-        if citation.startswith("doi"):
-            citation_tuples.append(("doi", citation[len("doi") :].strip()))
-        else:
-            citation_tuples.append(("bibtex", citation[len("bibtex") :].strip()))
-    return citation_tuples
-
 
 class Tool_Factory:
     """Wrapper for an arbitrary script
     uses galaxyxml
-
     """
 
     def __init__(self, args=None):  # noqa
@@ -85,76 +54,293 @@ class Tool_Factory:
         prepare command line cl for running the tool here
         and prepare elements needed for galaxyxml tool generation
         """
-        # sed will update these settings during tfsetup.py first run
-        self.GALAXY_ADMIN_KEY = "1874907739332310784"
-        self.GALAXY_URL = "http://localhost:8080"
-        self.myversion = "V3.0 February 2023"
-        self.verbose = True
-        self.debug = True
-        self.toolFactoryURL = "https://github.com/fubar2/galaxy_tf_overlay"
-        self.logger = logging.getLogger(__name__)
         assert args.parampass in [
             "0",
             "embed",
             "argparse",
             "positional",
             "embednfmod",
-            ], 'args.parampass %s not 0,positional, embed, embednfmod or argparse' % args.parampass
-        self.script_in_help = False # IUC recommendation
+        ], (
+            "args.parampass %s not 0,positional, embed, embednfmod or argparse"
+            % args.parampass
+        )
+        # sed will update these settings during tfsetup.py first run
+        self.GALAXY_ADMIN_KEY = "956432473193251840"
+        self.GALAXY_URL = "http://localhost:8080"
+        # self.myversion = "V3.0 February 2023"
+        # self.verbose = True
+        # self.debug = True
+        # self.toolFactoryURL = "https://github.com/fubar2/galaxy_tf_overlay"
+        # self.logger = logging.getLogger(__name__)
+        # self.tool_version = args.tool_version
+        # self.nfcoremod = False
+        # if args.parampass == "embednfmod":
+            # self.nfcoremod = True
+        # self.script_in_help = False  # IUC recommendation
+        # self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
+        # self.tool_id = self.tool_name
+        # self.local_tools = os.path.join(args.galaxy_root, "local_tools")
+        # if self.nfcoremod:
+                # self.local_tools = os.path.join(args.tfcollection, "tools")
+                # self.repdir = os.path.join(args.tfcollection, "TFouts", self.tool_name)
+                # self.toold = os.path.join(self.local_tools, self.tool_name)
+                # self.tooltestd = os.path.join(self.toold, "test-data")
+        # if args.nftest:
+                # self.local_tools = os.path.join(args.galaxy_root, "local_tools")
+                # self.repdir = args.tfcollection
+                # self.toold = os.path.join(self.local_tools, self.tool_name)
+                # self.tooltestd = os.path.join(self.toold, "test-data")
+        # os.makedirs(self.repdir, exist_ok=True)
+        # os.makedirs(self.toold, exist_ok=True)
+        # os.makedirs(self.tooltestd, exist_ok=True)
+        # os.makedirs(self.local_tools, exist_ok=True)
+        # self.local_tool_conf = os.path.join(self.local_tools, "local_tool_conf.xml")
+        # self.ourcwd = os.getcwd()
+        # self.collections = []
+        # if len(args.collection) > 0:
+            # try:
+                # self.collections = [
+                    # json.loads(x) for x in args.collection if len(x.strip()) > 1
+                # ]
+            # except Exception:
+                # self.logger.error(
+                    # f"--collections parameter {str(args.collection)} is malformed - should be a dictionary"
+                # )
+        # self.infiles = []
+        # try:
+            # self.infiles = [
+                # json.loads(x) for x in args.input_files if len(x.strip()) > 1
+            # ]
+        # except Exception:
+            # self.logger.error(
+                # f"--input_files parameter {str(args.input_files)} is malformed - should be a dictionary"
+            # )
+        # self.extra_files = []
+        # if len(args.xtra_files) > 0:
+            # try:
+                # self.extra_files = [
+                    # json.loads(x) for x in args.xtra_files if len(x.strip()) > 1
+                # ]
+            # except Exception:
+                # self.logger.error(
+                    # f"--xtra_files parameter {str(args.xtra_files)} is malformed - should be a dictionary"
+                # )
+        # self.outfiles = []
+        # try:
+            # self.outfiles = [
+                # json.loads(x) for x in args.output_files if len(x.strip()) > 1
+            # ]
+        # except Exception:
+            # self.logger.error(
+                # f"--output_files parameter {args.output_files} is malformed - should be a dictionary"
+            # )
+        # assert (
+            # len(self.outfiles) + len(self.collections)
+        # ) > 0, "No outfiles or output collections specified. The Galaxy job runner will fail without an output of some sort"
+        # self.addpar = []
+        # try:
+            # self.addpar = [
+                # json.loads(x) for x in args.additional_parameters if len(x.strip()) > 1
+            # ]
+        # except Exception:
+            # self.logger.error(
+                # f"--additional_parameters {args.additional_parameters} is malformed - should be a dictionary"
+            # )
+        # self.selpar = []
+        # try:
+            # self.selpar = [
+                # json.loads(x) for x in args.selecttext_parameters if len(x.strip()) > 1
+            # ]
+        # except Exception:
+            # self.logger.error(
+                # f"--selecttext_parameters {args.selecttext_parameters} is malformed - should be a dictionary"
+            # )
+        # self.selfagpar = []
+        # try:
+            # self.selflagpar = [
+                # json.loads(x) for x in args.selectflag_parameters if len(x.strip()) > 1
+            # ]
+        # except Exception:
+            # self.logger.error(
+                # f"--selectflag_parameters {args.selecttext_parameters} is malformed - should be a dictionary"
+            # )
+        # self.cleanuppar()
+        # self.lastxclredirect = None
+        # self.xmlcl = []
+        # self.is_positional = self.args.parampass == "positional"
+        # self.is_embedded = self.args.parampass == "embedded"
+        # if self.args.sysexe:
+            # if " " in self.args.sysexe:
+                # self.executeme = shlex.split(self.args.sysexe)
+            # else:
+                # self.executeme = [
+                    # self.args.sysexe,
+                # ]
+        # else:
+            # if self.args.packages:
+                # self.executeme = [
+                    # self.args.packages.split(",")[0].split(":")[0].strip(),
+                # ]
+            # else:
+                # self.executeme = None
+        # aXCL = self.xmlcl.append
+        # self.newtarpath = args.tested_tool_out
+        # self.tinputs = gxtp.Inputs()
+        # self.toutputs = gxtp.Outputs()
+        # self.testparam = []
+        # if self.args.script_path:
+            # self.prepScript()
+        # else:
+            # self.script = None
+        # if self.args.cl_override != None:
+            # scos = open(self.args.cl_override, "r").readlines()
+            # self.cl_override = [x.rstrip() for x in scos]
+        # else:
+            # self.cl_override = None
+        # if self.args.test_override != None:
+            # stos = open(self.args.test_override, "r").readlines()
+            # self.test_override = [x.rstrip() for x in stos]
+        # else:
+            # self.test_override = None
+        # if self.args.cl_prefix != None:
+            # scos = open(self.args.cl_prefix, "r").readlines()
+            # self.cl_prefix = [x.rstrip() for x in scos]
+        # else:
+            # self.cl_prefix = None
+        # if self.args.cl_suffix != None:
+            # stos = open(self.args.cl_suffix, "r").readlines()
+            # self.cl_suffix = [x.rstrip() for x in stos]
+        # else:
+            # self.cl_suffix = None
+        # if self.args.script_path:
+            # for ex in self.executeme:
+                # if ex:
+                    # aXCL(ex)
+            # aXCL("'$runme'")
+        # else:
+            # for ex in self.executeme:
+                # aXCL(ex)
+        # if self.args.parampass == "0":
+            # self.clsimple()
+        # elif self.args.parampass == "positional":
+            # self.prepclpos()
+            # self.clpositional()
+        # elif self.args.parampass == "argparse":
+            # self.prepargp()
+            # self.clargparse()
+        # elif self.args.parampass.startswith("embed"):
+            # self.prepembed()
+        # else:
+            # logging.error(
+                # "Parampass value %s not in 0, positional, argparse, embed or embednfmod"
+                # % self.args.parampass
+            # )
+            # logging.shutdown()
+            # sys.exit(6)
+
+        self.GALAXY_URL = "http://localhost:8080"
+        self.args = args
+        self.myversion = "V3.0 February 2023"
+        self.verbose = True
+        self.debug = True
+        self.toolFactoryURL = "https://github.com/fubar2/galaxy_tf_overlay"
+        self.logger = logging.getLogger(__name__)
+        self.nfcoremod = False
+        if args.parampass == "embednfmod":
+            self.nfcoremod = True
+        self.script_in_help = False  # IUC recommendation
         self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
         self.tool_id = self.tool_name
-        if args.parampass == "embednfmod":
-            self.local_tools = "./"
-        else:
-            self.local_tools = os.path.join(args.galaxy_root, "local_tools")
+        self.local_tools = os.path.join(args.galaxy_root, "local_tools")
+        if self.nfcoremod:
+                self.local_tools = os.path.join(args.tfcollection, "tools")
+                self.repdir = os.path.join(args.tfcollection, "TFouts", self.tool_name)
+                self.toold = os.path.join(self.local_tools, self.tool_name)
+                self.tooltestd = os.path.join(self.toold, "test-data")
+        if args.nftest:
+                self.local_tools = os.path.join(args.galaxy_root, "local_tools")
+                self.repdir = args.tfcollection
+                self.toold = os.path.join(self.local_tools, self.tool_name)
+                self.tooltestd = os.path.join(self.toold, "test-data")
+        os.makedirs(self.repdir, exist_ok=True)
+        os.makedirs(self.toold, exist_ok=True)
+        os.makedirs(self.tooltestd, exist_ok=True)
+        os.makedirs(self.local_tools, exist_ok=True)
         self.local_tool_conf = os.path.join(self.local_tools, "local_tool_conf.xml")
         self.ourcwd = os.getcwd()
         self.collections = []
         if len(args.collection) > 0:
             try:
-                self.collections = [json.loads(x) for x in args.collection if len(x.strip()) > 1]
+                self.collections = [
+                    json.loads(x) for x in args.collection if len(x.strip()) > 1
+                ]
             except Exception:
-                logger.error(f"--collections parameter {str(args.collection)} is malformed - should be a dictionary")
+                self.logger.error(
+                    f"--collections parameter {str(args.collection)} is malformed - should be a dictionary"
+                )
         self.infiles = []
         try:
-            self.infiles = [json.loads(x) for x in args.input_files if len(x.strip()) > 1]
+            self.infiles = [
+                json.loads(x) for x in args.input_files if len(x.strip()) > 1
+            ]
         except Exception:
-            logger.error(f"--input_files parameter {str(args.input_files)} is malformed - should be a dictionary")
+            self.logger.error(
+                f"--input_files parameter {str(args.input_files)} is malformed - should be a dictionary"
+            )
         self.extra_files = []
         if len(args.xtra_files) > 0:
             try:
-                self.extra_files = [json.loads(x) for x in args.xtra_files if len(x.strip()) > 1]
+                self.extra_files = [
+                    json.loads(x) for x in args.xtra_files if len(x.strip()) > 1
+                ]
             except Exception:
-                logger.error(f"--xtra_files parameter {str(args.xtra_files)} is malformed - should be a dictionary")
+                self.logger.error(
+                    f"--xtra_files parameter {str(args.xtra_files)} is malformed - should be a dictionary"
+                )
         self.outfiles = []
         try:
-            self.outfiles = [json.loads(x) for x in args.output_files if len(x.strip()) > 1]
+            self.outfiles = [
+                json.loads(x) for x in args.output_files if len(x.strip()) > 1
+            ]
         except Exception:
-            logger.error(f"--output_files parameter {args.output_files} is malformed - should be a dictionary")
+            self.logger.error(
+                f"--output_files parameter {args.output_files} is malformed - should be a dictionary"
+            )
         assert (
             len(self.outfiles) + len(self.collections)
         ) > 0, "No outfiles or output collections specified. The Galaxy job runner will fail without an output of some sort"
         self.addpar = []
         try:
-            self.addpar = [json.loads(x) for x in args.additional_parameters if len(x.strip()) > 1]
+            self.addpar = [
+                json.loads(x) for x in args.additional_parameters if len(x.strip()) > 1
+            ]
         except Exception:
-            logger.error(f"--additional_parameters {args.additional_parameters} is malformed - should be a dictionary")
+            self.logger.error(
+                f"--additional_parameters {args.additional_parameters} is malformed - should be a dictionary"
+            )
         self.selpar = []
         try:
-            self.selpar = [json.loads(x) for x in args.selecttext_parameters if len(x.strip()) > 1]
+            self.selpar = [
+                json.loads(x) for x in args.selecttext_parameters if len(x.strip()) > 1
+            ]
         except Exception:
-            logger.error(f"--selecttext_parameters {args.selecttext_parameters} is malformed - should be a dictionary")
+            self.logger.error(
+                f"--selecttext_parameters {args.selecttext_parameters} is malformed - should be a dictionary"
+            )
         self.selfagpar = []
         try:
-            self.selflagpar = [json.loads(x) for x in args.selectflag_parameters if len(x.strip()) > 1]
+            self.selflagpar = [
+                json.loads(x) for x in args.selectflag_parameters if len(x.strip()) > 1
+            ]
         except Exception:
-            logger.error(f"--selectflag_parameters {args.selecttext_parameters} is malformed - should be a dictionary")
-        self.args = args
+            self.logger.error(
+                f"--selectflag_parameters {args.selecttext_parameters} is malformed - should be a dictionary"
+            )
         self.cleanuppar()
         self.lastxclredirect = None
         self.xmlcl = []
         self.is_positional = self.args.parampass == "positional"
-        self.is_embedded = self.args.parampass == "embed" or self.args.parampass == "embednfmod"
+        self.is_embedded = self.args.parampass == "embedded"
         if self.args.sysexe:
             if " " in self.args.sysexe:
                 self.executeme = shlex.split(self.args.sysexe)
@@ -170,30 +356,14 @@ class Tool_Factory:
             else:
                 self.executeme = None
         aXCL = self.xmlcl.append
-        self.newtool = gxt.Tool(
-            self.tool_name,
-            self.tool_id,
-            self.args.tool_version,
-            self.args.tool_desc,
-            "",
-        )
-        self.toold = os.path.join(self.local_tools, self.tool_name)
-        self.tooltestd = os.path.join(self.toold, "test-data")
-        self.tooloutdir = "tfout"
-        self.repdir = REP_DIR
         self.newtarpath = args.tested_tool_out
-        self.testdir = os.path.join(self.tooloutdir, "test-data")
-        if not os.path.exists(self.tooloutdir):
-            os.mkdir(self.tooloutdir)
-        if not os.path.exists(self.testdir):
-            os.mkdir(self.testdir)
-        if not os.path.exists(self.repdir):
-            os.mkdir(self.repdir)
         self.tinputs = gxtp.Inputs()
         self.toutputs = gxtp.Outputs()
         self.testparam = []
         if self.args.script_path:
             self.prepScript()
+        else:
+            self.script = None
         if self.args.cl_override != None:
             scos = open(self.args.cl_override, "r").readlines()
             self.cl_override = [x.rstrip() for x in scos]
@@ -216,21 +386,29 @@ class Tool_Factory:
             self.cl_suffix = None
         if self.args.script_path:
             for ex in self.executeme:
-                aXCL(ex)
-            aXCL('$runme')
+                if ex:
+                    aXCL(ex)
+            aXCL("'$runme'")
         else:
             for ex in self.executeme:
                 aXCL(ex)
         if self.args.parampass == "0":
             self.clsimple()
         elif self.args.parampass == "positional":
-                self.prepclpos()
-                self.clpositional()
+            self.prepclpos()
+            self.clpositional()
         elif self.args.parampass == "argparse":
             self.prepargp()
             self.clargparse()
-        else:
+        elif self.args.parampass.startswith("embed"):
             self.prepembed()
+        else:
+            logging.error(
+                "Parampass value %s not in 0, positional, argparse, embed or embednfmod"
+                % self.args.parampass
+            )
+            logging.shutdown()
+            sys.exit(6)
 
     def clsimple(self):
         """no parameters or repeats - uses < and > for i/o"""
@@ -243,15 +421,23 @@ class Tool_Factory:
             aXCL('$%s' % self.outfiles[0]["name"])
 
     def prepembed(self):
-        self.xmlcl = [] # wipe anything there
+        """fix self.script"""
+        scrip = self.script
+        if self.nfcoremod:
+            self.script = (
+                '#set prefix = "%s"\n#set task_process = "%s"\n'
+                % (self.tool_name, self.tool_name)
+                + scrip
+            )
+        self.xmlcl = []  # wipe anything there
         aX = self.xmlcl.append
-        aX('')
-        aX('#set prefix = "%s"' % os.path.join('nfcoreout', self.tool_name))
-        aX('#set task_process = "%s"' % self.tool_name)
-        aX('mkdir -p nfcoreout')
-        aX("&& Rscript $runme")
-        aX('&& cp -r nfcoreout/ /home/ross/rossgit/nftoolmaker/ ')
-
+        aX("")
+        if self.nfcoremod:
+            aX('#set prefix = "%s"' % self.tool_name)
+            aX('#set task_process = "%s"' % self.tool_name)
+        for p in self.collections:
+            aX("mkdir -p %s &&" %  p["name"])
+        aX("%s '$runme'" % self.args.sysexe)
 
     def prepargp(self):
         xclsuffix = []
@@ -344,7 +530,10 @@ class Tool_Factory:
         rxcheck = [x.strip() for x in rx if x.strip() > ""]
         assert len(rxcheck) > 0, "Supplied script is empty. Cannot run"
         self.script = "\n".join(rxcheck)
-        fhandle, self.sfile = tempfile.mkstemp(prefix=self.tool_name, suffix="_%s" % (self.executeme[0]))
+        if len(self.executeme) > 0:
+            self.sfile = os.path.join(self.repdir, "%s.%s" % (self.tool_name, self.executeme[0]))
+        else:
+            self.sfile = os.path.join(self.repdir, "%s.script" % (self.tool_name, self.executeme[0]))
         tscript = open(self.sfile, "w")
         tscript.write(self.script)
         tscript.close()
@@ -764,12 +953,51 @@ class Tool_Factory:
         Uses galaxyhtml
         Hmmm. How to get the command line into correct order...
         """
+        requirements = gxtp.Requirements()
+        self.condaenv = []
+        if self.args.packages:
+            try:
+                for d in self.args.packages.split(","):
+                    ver = None
+                    packg = None
+                    d = d.replace("==", ":")
+                    d = d.replace("=", ":")
+                    if ":" in d:
+                        packg, ver = d.split(":")[:2]
+                        ver = ver.strip()
+                        packg = packg.strip()
+                        self.tool_version = ver
+                    else:
+                        packg = d.strip()
+                        ver = None
+                        self.tool_version = self.args.tool_version
+                    if ver == "":
+                        ver = None
+                    if packg:
+                        requirements.append(
+                            gxtp.Requirement("package", packg.strip(), ver)
+                        )
+                        self.condaenv.append(d)
+            except Exception:
+                self.logger.error("### malformed packages string supplied - cannot parse = %s" % self.args.packages)
+                sys.exit(2)
+        elif self.args.container:
+            requirements.append(
+                            gxtp.Requirement("container", self.args.container))
+        self.newtool = gxt.Tool(
+            self.tool_name,
+            self.tool_id,
+            self.tool_version,
+            self.args.tool_desc,
+            "",
+        )
+        self.newtool.requirements = requirements
         iXCL = self.xmlcl.insert
         aXCL = self.xmlcl.append
         if self.args.cl_prefix:  # DIY CL start
-           self.xmlcl = self.cl_prefix + self.xmlcl
+            self.xmlcl = self.cl_prefix + self.xmlcl
         if self.args.cl_suffix:  # DIY CL end
-            self.xmlcl  += self.cl_suffix
+            self.xmlcl += self.cl_suffix
         if self.cl_override:
             self.newtool.command_override = self.cl_override  # config file
         else:
@@ -781,16 +1009,23 @@ class Tool_Factory:
         safertext = ""
         if self.args.help_text:
             helptext = open(self.args.help_text, "r").readlines()
-            safertext = "\n".join([cheetah_escape(x) for x in helptext])
+            safertext = "\n".join([self.cheetah_escape(x) for x in helptext])
         if len(safertext.strip()) == 0:
-            safertext = "Ask the tool author (%s) to rebuild with help text please\n" % (self.args.user_email)
+            safertext = (
+                "Ask the tool author (%s) to rebuild with help text please\n"
+                % (self.args.user_email)
+            )
         if self.script_in_help and self.args.script_path:
             if len(safertext) > 0:
                 safertext = safertext + "\n\n------\n"  # transition allowed!
             scr = [x for x in self.spacedScript if x.strip() > ""]
             scr.insert(0, "\n\nScript::\n")
             if len(scr) > 300:
-                scr = scr[:100] + ["    >300 lines - stuff deleted", "    ......"] + scr[-100:]
+                scr = (
+                    scr[:100]
+                    + ["    >300 lines - stuff deleted", "    ......"]
+                    + scr[-100:]
+                )
             scr.append("\n")
             safertext = safertext + "\n".join(scr)
         self.newtool.help = safertext
@@ -800,7 +1035,9 @@ class Tool_Factory:
             newlabel = p["label"]
             newdisc = p["discover"]
             collect = gxtp.OutputCollection(newname, label=newlabel, type=newkind)
-            disc = gxtp.DiscoverDatasets(pattern=newdisc, directory=f"{newname}", visible="false")
+            disc = gxtp.DiscoverDatasets(
+                pattern=newdisc, directory=f"{newname}", visible="false"
+            )
             collect.append(disc)
             self.toutputs.append(collect)
             try:
@@ -810,39 +1047,18 @@ class Tool_Factory:
                 logging.error(
                     "WARNING: Galaxyxml version does not have the PR merged yet - tests for collections must be over-ridden until then!"
                 )
-        self.newtool.version_command = f'echo "{self.args.tool_version}"'
+        self.newtool.version_command = f'echo "{self.tool_version}"'
         std = gxtp.Stdios()
-        std1 = gxtp.Stdio()
-        std.append(std1)
+        # s1 = gxtp.Stdio(range=":-1", level="fatal", description="Error occurred. Please check Tool Standard Error")
+        # s2 = gxtp.Stdio(range="137", level="fatal_oom", description="Out of Memory")
+        # s3 = gxtp.Stdio(range="1:", level="fatal", description="Error occurred. Please check Tool Standard Error")
+        s1 = gxtp.Stdio(":-1", level="fatal")
+        s2 = gxtp.Stdio("137", level="fatal_oom")
+        s3 = gxtp.Stdio("1:", level="fatal")
+        std.append(s1)
+        std.append(s2)
+        std.append(s3)
         self.newtool.stdios = std
-        requirements = gxtp.Requirements()
-        self.condaenv = []
-        if self.args.packages:
-            try:
-                for d in self.args.packages.split(","):
-                    ver = None
-                    packg = None
-                    d = d.replace("==", ":")
-                    d = d.replace("=", ":")
-                    if ":" in d:
-                        packg, ver = d.split(":")
-                        ver = ver.strip()
-                        packg = packg.strip()
-                    else:
-                        packg = d.strip()
-                        ver = None
-                    if ver == "":
-                        ver = None
-                    if packg:
-                        requirements.append(gxtp.Requirement("package", packg.strip(), ver))
-                        self.condaenv.append(d)
-            except Exception:
-                logger.error(
-                    "### malformed packages string supplied - cannot parse =",
-                    self.args.packages,
-                )
-                sys.exit(2)
-        self.newtool.requirements = requirements
         if self.args.parampass == "0":
             self.doNoXMLparam()
         else:
@@ -851,11 +1067,7 @@ class Tool_Factory:
         self.newtool.inputs = self.tinputs
         if self.args.script_path:
             configfiles = gxtp.Configfiles()
-            scrip = self.script
-            if self.args.nftest:
-                scrip = self.script.replace('<-','=')
-                scrip =  '#set prefix = "%s"\n#set task_process = "%s"\n' %  (os.path.join('nfcoreout', self.tool_name), self.tool_name) + scrip
-            configfiles.append(gxtp.Configfile(name="runme", text=scrip))
+            configfiles.append(gxtp.Configfile(name="runme", text=self.script))
             self.newtool.configfiles = configfiles
         tests = gxtp.Tests()
         test_a = gxtp.Test()
@@ -864,16 +1076,19 @@ class Tool_Factory:
         tests.append(test_a)
         self.newtool.tests = tests
         self.newtool.add_comment(
-            "Created by %s at %s using the Galaxy Tool Factory." % (self.args.user_email, timenow())
+            "Created by %s at %s using the Galaxy Tool Factory."
+            % (self.args.user_email, self.timenow())
         )
-        self.newtool.add_comment("Source in git at: %s" % (toolFactoryURL))
+        self.newtool.add_comment("Source in git at: %s" % (self.toolFactoryURL))
         exml = self.newtool.export()
-        if self.test_override:  # cannot do this inside galaxyxml as it expects lxml objects for tests
+        if (
+            self.test_override
+        ):  # cannot do this inside galaxyxml as it expects lxml objects for tests
             part1 = exml.split("<tests>")[0]
             part2 = exml.split("</tests>")[1]
             fixed = "%s\n%s\n%s" % (part1, "\n".join(self.test_override), part2)
             exml = fixed
-        with open("%s.xml" % self.tool_name, "w") as xf:
+        with open(os.path.join(self.toold,"%s.xml" % self.tool_name), "w") as xf:
             xf.write(exml)
             xf.write("\n")
         # galaxy history item
@@ -885,34 +1100,42 @@ class Tool_Factory:
         yamlf = open(yfname, "w")
         odict = {
             "name": self.tool_name,
-            "owner": yuser,
+            "owner": "fubar2",
             "type": "unrestricted",
-            "description": self.args.tool_desc,
+            "description": "ToolFactory autogenerated tool",
             "synopsis": self.args.tool_desc,
             "category": "ToolFactory generated Tools",
         }
         yaml.dump(odict, yamlf, allow_unicode=True)
         yamlf.close()
 
+    def writeTFyml(self):
+        """for posterity"""
+        yfname = os.path.join(self.repdir, "%s_ToolFactory.yml" % self.tool_name)
+        yamlf = open(yfname, "w")
+        yaml.dump(self.args, yamlf, allow_unicode=True)
+        yamlf.close()
+
+
     def makeTool(self):
         """write xmls and input samples into place"""
-        os.makedirs(self.tooltestd, exist_ok=True)
         if self.args.parampass == 0:
             self.doNoXMLparam()
         else:
             self.makeXML()
         if self.args.script_path:
-            stname = os.path.join(self.toold, self.sfile)
+            stname = os.path.join(self.toold, os.path.split(self.sfile)[1])
             if not os.path.exists(stname):
                 shutil.copyfile(self.sfile, stname)
-        xreal = "%s.xml" % self.tool_name
-        xout = os.path.join(self.toold, xreal)
-        shutil.copyfile(xreal, xout)
-        logger.info("Copied %s to %s" % (xreal, xout))
-        xrename = "%s_toolxml.xml" % self.tool_name
-        xout = os.path.join(self.repdir, xrename)
-        shutil.copyfile(xreal, xout)
-        logger.info("Copied %s to %s" % (xreal, xout))
+                logger.info("Copied %s to %s" % (self.sfile, stname))
+        # xreal = "%s.xml" % self.tool_name
+        # xout = os.path.join(self.toold, xreal)
+        # shutil.copyfile(xreal, xout)
+        # logger.info("Copied %s to %s" % (xreal, xout))
+        # xrename = "%s_toolxml.xml" % self.tool_name
+        # xout = os.path.join(self.repdir, xrename)
+        # shutil.copyfile(xreal, xout)
+        # logger.info("Copied %s to %s" % (xreal, xout))
         for p in self.infiles:
             pth = p["name"]
             if os.path.exists(pth):
@@ -950,14 +1173,14 @@ class Tool_Factory:
             dest = os.path.join(self.repdir, src)
             shutil.copyfile(os.path.join(self.tooltestd, src), dest)
             logger.info("Copied %s %s\n" % (src, dest))
-        tf = tarfile.open(self.newtarpath, "w:gz")
-        tf.add(
-            name=self.toold,
-            arcname=self.tool_name,
-            filter=exclude_function,
-        )
-        shutil.copy(self.newtarpath, os.path.join(self.tooloutdir, f"{self.tool_name}_toolshed.gz"))
-        tf.close()
+        if self.newtarpath:
+            tf = tarfile.open(self.newtarpath, "w:gz")
+            print('ls toold = ', os.listdir(self.toold))
+            tf.add(
+                name=self.toold,
+                arcname=self.tool_name,
+                #filter=exclude_function,
+            )
 
     def planemo_local_test(self):
         """
@@ -993,7 +1216,7 @@ class Tool_Factory:
         Failure will eventually get stuck. Might need a timeout in the script
         """
         self.test_outs = self.tooltestd
-        scrpt = os.path.join(self.args.tool_dir, "toolfactory_fast_test.sh")
+        scrpt = os.path.join(self.args.toold, "toolfactory_fast_test.sh")
         extrapaths = self.tooltestd
         cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
         logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
@@ -1050,7 +1273,7 @@ class Tool_Factory:
         gi = galaxy.GalaxyInstance(url=self.GALAXY_URL, key=self.GALAXY_ADMIN_KEY)
         toolready = False
         now = time.time()
-        nloop = 20
+        nloop = 5
         while nloop >= 0 and not toolready:
             try:
                 res = gi.tools.show_tool(tool_id=self.tool_name)
@@ -1065,25 +1288,48 @@ class Tool_Factory:
                 "Tool %s still not ready after %f seconds - please check the form and the generated xml for errors? \n"
                 % (self.tool_name, time.time() - now)
             )
-            sys.exit(3)
-
+            return(2)
+        else:
+            return(0)
 
     def install_deps(self):
         """
         use script to install new tool dependencies
         """
-        cll = ["/usr/bin/bash", "%s/install_tf_deps.sh" % self.args.tool_dir, self.tool_name]
-        logger.info("Running %s\n" % " ".join(cll))
-        p = subprocess.run(
-            cll,
-            shell=False,
-            capture_output=True,
-            check=True,
-            text=True
-        )
-        for errline in p.stderr.splitlines():
-            logger.info(errline)
-        return p.returncode
+        cll = [
+            "/usr/bin/bash",
+            "%s/install_tf_deps.sh" % self.args.toolfactory_dir,
+            self.tool_name,
+        ]
+        self.logger.info("Running %s\n" % " ".join(cll))
+        try:
+            p = subprocess.run(cll, shell=False, capture_output=True, check=True, text=True)
+            for errline in p.stderr.splitlines():
+                self.logger.info(errline)
+            return p.returncode
+        except:
+            return 1
+
+
+    def timenow(self):
+        """return current time as a string"""
+        return time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(time.time()))
+
+    def cheetah_escape(self, text):
+        """Produce entities within text."""
+        cheetah_escape_table = {"$": "\\$", "#": "\\#"}
+        return "".join([cheetah_escape_table.get(c, c) for c in text])
+
+    def parse_citations(self, citations_text):
+        """"""
+        citations = [c for c in citations_text.split("**ENTRY**") if c.strip()]
+        citation_tuples = []
+        for citation in citations:
+            if citation.startswith("doi"):
+                citation_tuples.append(("doi", citation[len("doi") :].strip()))
+            else:
+                citation_tuples.append(("bibtex", citation[len("bibtex") :].strip()))
+        return citation_tuples
 
 
 def main():
@@ -1129,8 +1375,7 @@ def main():
     args = parser.parse_args()
     if args.admin_only:
         assert not args.bad_user, (
-            'UNAUTHORISED: %s is NOT authorized to use this tool until Galaxy \
-admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
+            'UNAUTHORISED: %s is NOT authorized to use this tool until Galaxy admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
             % (args.bad_user, args.bad_user)
         )
     assert args.tool_name, "## This ToolFactory cannot build a tool without a tool name. Please supply one."
@@ -1145,35 +1390,38 @@ admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
     tf = Tool_Factory(args)
     tf.makeTool()
     tf.writeShedyml()
+    tf.writeTFyml()
     tf.update_toolconf()
     time.sleep(5)
     if tf.condaenv and len(tf.condaenv) > 0 :
-        tf.install_deps()
-        logger.debug("Toolfactory installed deps. Calling fast test")
-    time.sleep(2)
-    # testret = tf.fast_local_test()
-    testret = tf.planemo_local_test()
-    logger.debug("Toolfactory finished test")
-    if int(testret) > 0:
-        logger.error("ToolFactory tool build and test failed. :(")
-        logger.info(
-            "This is usually because the supplied script or dependency did not run correctly with the test inputs and parameter settings"
-        )
-        logger.info("when tested with galaxy_tool_test.  Error code:%d" % testret, ".")
-        logger.info(
-            "The 'i' (information) option shows how the ToolFactory was called, stderr and stdout, and what the command line was."
-        )
-        logger.info("Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it")
-        logger.info(
-            "Make sure it is the same as your working test command line and double check that data files are coming from and going to where they should"
-        )
-        logger.info(
-            "In the output collection, the tool xml <command> element must be the equivalent of your working command line for the test to work"
-        )
-        logging.shutdown()
-        sys.exit(5)
-    else:
-        tf.makeToolTar(testret)
+        res = tf.install_deps()
+        if not res:
+            logger.debug("Toolfactory installed deps. Calling fast test")
+            time.sleep(2)
+            testret = tf.planemo_local_test()
+            logger.debug("Toolfactory finished test")
+            if int(testret) > 0:
+                logger.error("ToolFactory tool build and test failed. :(")
+                logger.info(
+                    "This is usually because the supplied script or dependency did not run correctly with the test inputs and parameter settings"
+                )
+                logger.info("when tested with galaxy_tool_test.  Error code:%d" % testret, ".")
+                logger.info(
+                    "The 'i' (information) option shows how the ToolFactory was called, stderr and stdout, and what the command line was."
+                )
+                logger.info("Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it")
+                logger.info(
+                    "Make sure it is the same as your working test command line and double check that data files are coming from and going to where they should"
+                )
+                logger.info(
+                    "In the output collection, the tool xml <command> element must be the equivalent of your working command line for the test to work"
+                )
+                logging.shutdown()
+                sys.exit(5)
+            else:
+                tf.makeToolTar(testret)
+        else:
+                logger.error("ToolFactory install dependencies failed - is there a ToolFactory instance running? :(")
     logging.shutdown()
 
 
