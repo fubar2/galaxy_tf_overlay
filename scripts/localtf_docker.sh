@@ -22,11 +22,20 @@ cp -rv $OVERLAY/static/* $GALAXY_ROOT/static/
 cp -rv $OVERLAY/scripts/* $GALAXY_ROOT/scripts/
 cp -rv $GALAXY_ROOT/database/* $GALAXY_ROOT/database_copy \
 cp -rv $GALAXY_ROOT/local_tools/* $GALAXY_ROOT/local_tools_copy \
-sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $1/config/galaxy.yml
+
+
+TFC="tool_conf.xml,$GALAXY_ROOT/local_tools/local_tool_conf.xml"
+sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  galaxy_root:.*~  galaxy_root: $OURDIR~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  #virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  #galaxy_root:.*~  galaxy_root: $OURDIR~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  tool_config_file:.*~  tool_config_file: $TFC~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  data_dir:.*~  data_dir: $OURDIR/database~g" $GALAXY_ROOT/config/galaxy.yml
+
 export GALAXY_VIRTUAL_ENV=$1/.venv
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
 . $1/.venv/bin/activate
-pip install -U ephemeris bioblend planemo
 python3 $OVERLAY/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 
 

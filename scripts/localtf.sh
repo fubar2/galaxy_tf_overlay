@@ -33,7 +33,7 @@ if [ -d "$OURDIR" ]; then
   echo "Deleting existing $OURDIR"
   rm -rf $OURDIR
 fi
-unzip -q $REL.zip
+unzip -q -o $REL.zip
 # mv $RELDIR/config/plugins/visualizations/* /tmp
 # save building them while testing
 cp -rv $THISDIR/config/* $RELDIR/config/
@@ -44,7 +44,7 @@ cp -rv $THISDIR/scripts/* $RELDIR/scripts/
 mv  $RELDIR $OURDIR
 cd $OURDIR
 
-TFC = "tool_conf.xml,$OURDIR/local_tools/local_tool_conf.xml"
+TFC="tool_conf.xml,$OURDIR/local_tools/local_tool_conf.xml"
 sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $OURDIR/config/galaxy.yml
 sed -i "s~^  galaxy_root:.*~  galaxy_root: $OURDIR~g" $OURDIR/config/galaxy.yml
 sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $OURDIR/config/galaxy.yml
@@ -53,15 +53,12 @@ sed -i "s~^  #galaxy_root:.*~  galaxy_root: $OURDIR~g" $OURDIR/config/galaxy.yml
 sed -i "s~^  tool_config_file:.*~  tool_config_file: $TFC~g" $OURDIR/config/galaxy.yml
 sed -i "s~^  data_dir:.*~  data_dir: $OURDIR/database~g" $OURDIR/config/galaxy.yml
 
-  data_dir: /work/galaxytf/database
-
 export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
 GALAXY_INSTALL_PREBUILT_CLIENT=1
 python3 -m venv $GALAXY_VIRTUAL_ENV
 sh scripts/common_startup.sh --no-create-venv
 . $GALAXY_VIRTUAL_ENV/bin/activate
-pip3 install -U bioblend ephemeris planemo
 python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 # optionally - may not be wanted on a workstation :)
 # sudo rm -rf /tmp/* /root/.cache/ /var/cache/* /home/$USER/.cache/ /home/$USER/.npm

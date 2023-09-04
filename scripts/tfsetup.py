@@ -107,12 +107,7 @@ def run_sed(options):
     fixfile = "%s/local_tools/toolfactory/install_tf_deps.sh" % options.galaxy_root
     fixme.append(('APIK=', 'APIK="%s"' % options.key, fixfile ))
     fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(os.path.abspath(options.galaxy_root), "local_tools"),  fixfile ))
-    # fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
-    # fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
-    # fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % options.galaxy_venv, fixfile))
-    # fixme.append(('API_KEY_USER=', 'API_KEY_USER="%s"' % options.botkey, fixfile))
-    # fixme.append(('API_KEY=', 'API_KEY="%s"' % options.key, fixfile))
-    fixfile = "%s/local_tools/toolfactory/localplanemotest.sh" % options.galaxy_root
+     fixfile = "%s/local_tools/toolfactory/localplanemotest.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
     fixme.append(('API_KEY=', 'API_KEY=%s' % options.key, fixfile))
     for line_start, line_replacement, file_to_edit in fixme:
@@ -217,7 +212,7 @@ if __name__ == "__main__":
     usr, uexists = add_user(
         sa_session, security_agent, 'test@bx.psu.edu',   options.password2, key=options.botkey, username='bot'
     )
-    run_sed(options)
+    #run_sed(options) # now done in localtf(_docker)
     cmd = ["/usr/bin/bash", os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"), "toolfactory"]
     print("executing", cmd)
     subprocess.run(cmd)

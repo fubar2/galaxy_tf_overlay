@@ -185,11 +185,6 @@
           <param name="param_name" type="text" value="" label="Name for this parameter. Underscore, letters and digits only. No spaces allowed">
             <sanitizer invalid_char="_">
               <valid initial="default">
-                  <!--
-              <add value="_" />
-              <add value="." />
-              <add value="-" />
-              -->
               </valid>
             </sanitizer>
           </param>
@@ -266,6 +261,8 @@
 <requirements>
      <requirement type="package" version="0.4.14">galaxyxml</requirement>
      <requirement type="package" version="1.1.1">bioblend</requirement>
+     <requirement type="package" version="0.75.10">planemo</requirement>
+     <requirement type="package" version="0.10.8">ephemeris</requirement>
 </requirements>
 
 <command detect_errors="exit_code"><![CDATA[
