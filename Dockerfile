@@ -39,12 +39,12 @@ RUN mkdir -p /work \
   && adduser --system  --home /home/galaxy --uid 1450 --gid 1450 --shell /usr/bin/bash galaxy \
   && cd /work \
   && wget -q $GALZIP \
-  && unzip -qq $REL.zip \
+  && unzip -o -qq $REL.zip \
   && rm -rf $REL.zip \
   && mv $RELDIR $GALAXY_ROOT \
   && python3 -m venv $GALAXY_VIRTUAL_ENV \
   && wget -q $OVERLAY_ZIP -O /tmp/overlay.zip \
-  && unzip -qq /tmp/overlay.zip -d /work \
+  && unzip -o -qq /tmp/overlay.zip -d /work \
   && chown -R galaxy:galaxy /work \
   && cd $GALAXY_ROOT \
   && echo ". $GALAXY_VIRTUAL_ENV/bin/activate && export GALAXY_ROOT=$GALAXY_ROOT && export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV \
