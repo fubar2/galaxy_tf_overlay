@@ -14,6 +14,7 @@ RELDIR="galaxy-release_$VER"
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_$VER.zip"
 GAL_USER="ubuntu" # or whatever..this for my play server postgresql
 USE_DB_URL="sqlite:///$OURDIR/database/universe.sqlite?isolation_level=IMMEDIATE"
+VENV2=$OURDIR/.venv2
 
 if [ -f "$REL.zip" ]; then
   echo "$REL.zip exists"
@@ -46,15 +47,20 @@ sed -i "s~^  data_dir:.*~  data_dir: $OURDIR/database~g" $OURDIR/config/galaxy.y
 export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
 GALAXY_INSTALL_PREBUILT_CLIENT=1
+VENV2=$OURDIR/.venv2
 python3 -m venv $GALAXY_VIRTUAL_ENV
 # needed for 23.1 because of packaging legacy_ changes...
 GALAXY_INSTALL_PREBUILT_CLIENT=1 && sh scripts/common_startup.sh --no-create-venv
-rm -rf /tmp/venv2
-cp -r $GALAXY_VIRTUAL_ENV /tmp/venv2
+rm -rf $VENV2
+python3 -m venv $VENV2
 . /tmp/venv2/bin/activate
-pip install -U bioblend ephemeris
-python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
+pip install -U bioblend ephemeris planemo galaxyxml
 deactivate
+
+echo "PYTHONPATH=PYTHONPATH:$VENV2/lib/python3.10/site-packages:$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages"
+export PYTHONPATH=PYTHONPATH:$VENV2/lib/python3.10/site-packages:$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages && \
+  python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
+
 echo "Your dev server is ready to run in a new directory - $OURDIR. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
 Local web browser url is http://localhost:8080. Admin already exists. \

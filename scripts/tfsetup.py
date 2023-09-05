@@ -98,8 +98,8 @@ def run_sed(options):
     fixme.append(('  galaxy_root: ', '  galaxyroot: "%s"' % options.galaxy_root, fixfile))
     fixme.append(('  tool_config_file: ', '  tool_config_file: "%s"' % tfc, fixfile))
     fixfile = "%s/local_tools/toolfactory/toolfactory.py" % options.galaxy_root
-    fixme.append(('        GALAXY_ADMIN_KEY = ', '        GALAXY_ADMIN_KEY = "%s"' % options.key, fixfile ))
-    fixme.append(('        GALAXY_URL = ' , '        GALAXY_URL = "%s"' % options.galaxy_url, fixfile ))
+    fixme.append(('        self.GALAXY_ADMIN_KEY =', '        self.GALAXY_ADMIN_KEY = "%s"' % options.key, fixfile ))
+    fixme.append(('        self.GALAXY_URL = ' , '        self.GALAXY_URL = "%s"' % options.galaxy_url, fixfile ))
     fixfile = "%s/local_tools/toolfactory/install_tf_deps.sh" % options.galaxy_root
     fixme.append(('APIK=', 'APIK="%s"' % options.key, fixfile ))
     fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(os.path.abspath(options.galaxy_root), "local_tools"),  fixfile ))
@@ -112,6 +112,7 @@ def run_sed(options):
         res = subprocess.run(cmd)
         if not res.returncode == 0:
             print('### Non zero %d return code from %s ' % (res.returncode, ''.join(cmd)))
+
 
 def waitnojobs(gi):
     """
