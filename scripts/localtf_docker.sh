@@ -35,7 +35,12 @@ sed -i "s~^  data_dir:.*~  data_dir: $OURDIR/database~g" $GALAXY_ROOT/config/gal
 
 export GALAXY_VIRTUAL_ENV=$1/.venv
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
-. $1/.venv/bin/activate
+python3 -m venv $GALAXY_VIRTUAL_ENV
+# needed for 23.1 because of packaging legacy_ changes...
+GALAXY_INSTALL_PREBUILT_CLIENT=1 && sh scripts/common_startup.sh --no-create-venv
+python3 -m venv "/tmp/venv2"
+. /tmp/venv2/bin/activate
+pip install bioblend ephemeris
 python3 $OVERLAY/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 
 
