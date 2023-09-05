@@ -1,14 +1,14 @@
 #!/usr/bin/bash
 # assume run from the git galaxy_tf_overlay clone directory
 echo "First run takes a while. Go for a walk, read the manual, or do something else more useful than watching"
-OURD="../galaxytf230"
+OURD="../galaxytf231"
 THISD=`pwd`
 THISDIR=`echo "$(cd "$(dirname "$THISD")" && pwd)/$(basename "$THISD")"`
-OURD="../galaxytf230"
+OURD="../galaxytf231"
 OURDIR=`realpath "$OURD"` #`echo "$(cd "$(dirname "$OURD")" && pwd)/$(basename "$OURD")"`
 echo "Using thisdir = $THISDIR and ourdir = $OURDIR"
 GALAXY_VIRTUAL_ENV=$OURDIR/.venv
-VER="23.0"
+VER="23.1"
 REL="release_$VER"
 RELDIR="galaxy-release_$VER"
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_$VER.zip"
@@ -49,10 +49,12 @@ GALAXY_INSTALL_PREBUILT_CLIENT=1
 python3 -m venv $GALAXY_VIRTUAL_ENV
 # needed for 23.1 because of packaging legacy_ changes...
 GALAXY_INSTALL_PREBUILT_CLIENT=1 && sh scripts/common_startup.sh --no-create-venv
-python3 -m venv "/tmp/venv2"
+rm -rf /tmp/venv2
+cp -r $GALAXY_VIRTUAL_ENV /tmp/venv2
 . /tmp/venv2/bin/activate
-pip install bioblend ephemeris
+pip install -U bioblend ephemeris
 python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
+deactivate
 echo "Your dev server is ready to run in a new directory - $OURDIR. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
 Local web browser url is http://localhost:8080. Admin already exists. \
