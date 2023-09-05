@@ -52,41 +52,37 @@ def stop_gal(url, galdir):
 
 def add_user(sa_session, security_agent, email, password, key=None, username="admin"):
     """
-    Add Galaxy User.
-    From John https://gist.github.com/jmchilton/4475646
+    from create_user.py
+        Add Galaxy User.
+        From John https://gist.github.com/jmchilton/4475646
     """
-    query = sa_session.query(User).filter_by(email=email)
+    query = sa_session.query( User ).filter_by( email=email )
     user = None
     uexists = False
     User.use_pbkdf2 = False
     if query.count() > 0:
-        user = query.first()
-        user.username = username
-        user.set_password_cleartext(password)
-        sa_session.add(user)
-        sa_session.flush()
-        uexists = True
+        user= query.first()
+        ue = True
     else:
+        ue = False
+        User.use_pbkdf2 = False
         user = User(email)
         user.username = username
         user.set_password_cleartext(password)
         sa_session.add(user)
         sa_session.flush()
 
-        security_agent.create_private_user_role(user)
+        security_agent.create_private_user_role( user )
         if not user.default_permissions:
-            security_agent.user_set_default_permissions(user, history=True, dataset=True)
+            security_agent.user_set_default_permissions( user, history=True, dataset=True )
 
-    if key is not None:
-        query = sa_session.query(APIKeys).filter_by(user_id=user.id).delete()
-        sa_session.flush()
-
-        api_key = APIKeys()
-        api_key.user_id = user.id
-        api_key.key = key
-        sa_session.add(api_key)
-        sa_session.flush()
-    return user, uexists
+        if key is not None:
+            api_key = APIKeys()
+            api_key.user_id = user.id
+            api_key.key = key
+            sa_session.add(api_key)
+            sa_session.flush()
+    return (user, ue)
 
 def run_sed(options):
     """
@@ -107,7 +103,7 @@ def run_sed(options):
     fixfile = "%s/local_tools/toolfactory/install_tf_deps.sh" % options.galaxy_root
     fixme.append(('APIK=', 'APIK="%s"' % options.key, fixfile ))
     fixme.append(('LOCALTOOLDIR=', 'LOCALTOOLDIR="%s"' % os.path.join(os.path.abspath(options.galaxy_root), "local_tools"),  fixfile ))
-     fixfile = "%s/local_tools/toolfactory/localplanemotest.sh" % options.galaxy_root
+    fixfile = "%s/local_tools/toolfactory/localplanemotest.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
     fixme.append(('API_KEY=', 'API_KEY=%s' % options.key, fixfile))
     for line_start, line_replacement, file_to_edit in fixme:
@@ -170,7 +166,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create Galaxy Admin User.")
     parser.add_argument("--galaxy_url", help="Galaxy server URL", default="http://localhost:8080")
     parser.add_argument("--galaxy_root", required=True, help="Galaxy root directory path", default="./")
-    parser.add_argument("--galaxy_venv", required=True, help="Galaxy venv path")
+    parser.add_argument("--galaxy_venv", required=False, help="Galaxy venv path")
     parser.add_argument("--user", help="Username - an email address.", default="toolfactory@galaxy.org")
     parser.add_argument("--password", help="Password", default="ChangeMe!")
     parser.add_argument("--password2", help="Password", default=apikey2)
@@ -186,7 +182,7 @@ if __name__ == "__main__":
     sys.path.insert(1, options.galaxy_root)
     sys.path.insert(1, os.path.join(options.galaxy_root, "lib"))
 
-    ALREADY = run_wait_gal(url=options.galaxy_url, galdir=options.galaxy_root, venvdir=options.galaxy_venv)
+    ALREADY = run_wait_gal(url=options.galaxy_url, galdir=options.galaxy_root, venvdir=os.path.join(options.galaxy_root,'.venv'))
     from galaxy.model import User, APIKeys
     from galaxy.model.mapping import init
     from galaxy.model.orm.scripts import get_config
@@ -195,12 +191,15 @@ if __name__ == "__main__":
     db_url = options.db_url
     # or perhaps "postgresql:///ubuntu?host=/var/run/postgresql"
     # this is harder to please get_config(sys.argv, use_argparse=False)["db_url"]
-    print('### Using db_url', db_url, 'not the configured on', cdb_url)
+    print('### Using db_url', db_url, 'not the configured one', cdb_url)
+
     mapping = init("/tmp/", cdb_url)
     sa_session = mapping.context
-    security_agent = mapping.security_agent
-    usr, uexists = add_user(
-        sa_session, security_agent, options.user, options.password, key=options.key, username=options.username
+    print("sa_session", str(sa_session))
+    sa_agent = mapping.security_agent
+    print("sa_agent", str(sa_agent))
+    (usr, uexists) = add_user(
+        sa_session, sa_agent, options.user, options.password, key=options.key, username=options.username
     )
     if uexists:
         print("User ", options.user, "already exists")
@@ -209,10 +208,10 @@ if __name__ == "__main__":
             sys.exit(0)
     print("added user", options.user, "apikey", options.key)
 
-    usr, uexists = add_user(
-        sa_session, security_agent, 'test@bx.psu.edu',   options.password2, key=options.botkey, username='bot'
+    (usr, uexists) = add_user(
+        sa_session, sa_agent, 'test@bx.psu.edu',   options.password2, key=options.botkey, username='bot'
     )
-    #run_sed(options) # now done in localtf(_docker)
+    run_sed(options) # now done in localtf(_docker) but needs redoing for api key
     cmd = ["/usr/bin/bash", os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"), "toolfactory"]
     print("executing", cmd)
     subprocess.run(cmd)

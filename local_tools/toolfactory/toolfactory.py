@@ -1002,7 +1002,6 @@ class Tool_Factory:
                 os.unlink(os.path.join(self.toold,f))
         if self.newtarpath:
             tf = tarfile.open(self.newtarpath, "w:gz")
-            print('ls toold = ', os.listdir(self.toold))
             tf.add(
                 name=self.toold,
                 arcname=self.tool_name,
