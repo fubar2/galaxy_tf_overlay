@@ -24,23 +24,36 @@ cp -rv $GALAXY_ROOT/database/* $GALAXY_ROOT/database_copy \
 cp -rv $GALAXY_ROOT/local_tools/* $GALAXY_ROOT/local_tools_copy \
 
 
-TFC="tool_conf.xml,$GALAXY_ROOT/local_tools/local_tool_conf.xml"
-sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
-sed -i "s~^  galaxy_root:.*~  galaxy_root: $OURDIR~g" $GALAXY_ROOT/config/galaxy.yml
-sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $GALAXY_ROOT/config/galaxy.yml
-sed -i "s~^  #virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
-sed -i "s~^  #galaxy_root:.*~  galaxy_root: $OURDIR~g" $GALAXY_ROOT/config/galaxy.yml
-sed -i "s~^  tool_config_file:.*~  tool_config_file: $TFC~g" $GALAXY_ROOT/config/galaxy.yml
-sed -i "s~^  data_dir:.*~  data_dir: $OURDIR/database~g" $GALAXY_ROOT/config/galaxy.yml
+TFC="tool_conf.xml,$OURDIR/local_tools/local_tool_conf.xml"
+sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $OURDIR/config/galaxy.yml
+sed -i "s~^  galaxy_root:.*~  galaxy_root: $OURDIR~g" $OURDIR/config/galaxy.yml
+sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $OURDIR/config/galaxy.yml
+sed -i "s~^  #virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $OURDIR/config/galaxy.yml
+sed -i "s~^  #galaxy_root:.*~  galaxy_root: $OURDIR~g" $OURDIR/config/galaxy.yml
+sed -i "s~^  tool_config_file:.*~  tool_config_file: $TFC~g" $OURDIR/config/galaxy.yml
+sed -i "s~^  data_dir:.*~  data_dir: $OURDIR/database~g" $OURDIR/config/galaxy.yml
+
 
 export GALAXY_VIRTUAL_ENV=$1/.venv
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
-python3 -m venv $GALAXY_VIRTUAL_ENV
-# needed for 23.1 because of packaging legacy_ changes...
-GALAXY_INSTALL_PREBUILT_CLIENT=1 && sh scripts/common_startup.sh --no-create-venv
-python3 -m venv "/tmp/venv2"
 . /tmp/venv2/bin/activate
 pip install bioblend ephemeris
 python3 $OVERLAY/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 
-
+VENV2=$OURDIR/.venv2
+python3 -m venv $GALAXY_VIRTUAL_ENV
+# needed for 23.1 because of packaging legacy_ changes...
+GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash scripts/common_startup.sh --no-create-venv
+export PYTHONPATH=
+rm -rf $VENV2
+python3 -m venv $VENV2
+. /tmp/venv2/bin/activate
+pip install -U bioblend ephemeris planemo galaxyxml
+deactivate
+cd $OURDIR
+bash run.sh --daemon && sleep 40
+echo "PYTHONPATH=PYTHONPATH:$VENV2/lib/python3.10/site-packages:$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages"
+export PYTHONPATH=PYTHONPATH:$VENV2/lib/python3.10/site-packages && \
+  python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
+export PYTHONPATH=
+bash run.sh --stop-daemon
