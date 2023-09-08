@@ -67,6 +67,7 @@ class Tool_Factory:
         # sed will update these settings during tfsetup.py first run
         self.GALAXY_ADMIN_KEY = "956432473193251840"
         self.GALAXY_URL = "http://localhost:8080"
+        self.profile = 'profile="22.05"'
         self.args = args
         self.tool_version = self.args.tool_version
         self.myversion = "V3.0 February 2023"
@@ -944,6 +945,26 @@ class Tool_Factory:
         yf.close()
 
 
+    def saveTestdata(self,pname, testDataURL):
+        """
+        may need to be ungzipped and in test folder
+        """
+        res = 0
+        localpath = os.path.join(self.tooltestd, "%s_sample" % pname)
+        print("#### save", testDataURL, 'for', pname, 'to', localpath)
+        if not os.path.exists(localpath):
+            cl = ["wget", "--timeout", "5", "--tries", "2", "-O", localpath, testDataURL]
+            if testDataURL.endswith('.gz'): # major kludge as usual...
+                gzlocalpath = "%s.gz" % localpath
+                cl = ["wget", "-q", "--timeout", "5", "--tries", "2", "-O", gzlocalpath, testDataURL, "&&", "rm", "-f", localpath, "&&", "gunzip", gzlocalpath]
+            p = subprocess.run(' '.join(cl), shell = True)
+            if p.returncode:
+                print("Got", p.returncode, "from executing", " ".join(cl))
+        else:
+            print('Not re-downloading', localpath)
+        return res
+
+
     def makeTool(self):
         """write xmls and input samples into place"""
         if self.args.parampass == 0:
@@ -957,8 +978,11 @@ class Tool_Factory:
                 logger.info("Copied %s to %s" % (self.sfile, stname))
         for p in self.infiles:
             paths = p["name"]
+            pname = p["CL"]
             pathss = paths.split(',')
             np = len(pathss)
+            if p.get("URL", None):
+                res = self.saveTestdata(pname, p["URL"])
             for i, pth in enumerate(pathss):
                 if os.path.exists(pth):
                     if np > 1:
