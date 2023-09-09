@@ -892,7 +892,8 @@ class Tool_Factory:
         )
         self.newtool.add_comment("Source in git at: %s" % (self.toolFactoryURL))
         exml = self.newtool.export()
-        exml = exml.replace("<tool name", "<tool %s name" % self.profile)
+        if not self.profile in exml:
+            exml = exml.replace("<tool name", "<tool %s name" % self.profile)
         if (
             self.test_override
         ):  # cannot do this inside galaxyxml as it expects lxml objects for tests
@@ -1105,7 +1106,7 @@ class Tool_Factory:
         shutil.copytree(src, dest, dirs_exist_ok=True)
         return p.returncode
 
-    def update_toolconf(self):
+    def update_toolconf(self, remove=False):
         """tempting to recreate it from the local_tools directory each time
         currently adds new tools if not there.
         """
@@ -1136,31 +1137,39 @@ class Tool_Factory:
             root.insert(0, TFsection)  # at the top!
         our_tools = TFsection.findall("tool")
         conf_tools = [x.attrib["file"] for x in our_tools]
-        if xmlfile not in conf_tools:  # new
-            ET.SubElement(TFsection, "tool", {"file": xmlfile})
-        sortchildrenby(TFsection, "file")
-        tree.write(tcpath, pretty_print=True)
-        gi = galaxy.GalaxyInstance(url=self.GALAXY_URL, key=self.GALAXY_ADMIN_KEY)
-        toolready = False
-        now = time.time()
-        nloop = 5
-        while nloop >= 0 and not toolready:
-            try:
-                res = gi.tools.show_tool(tool_id=self.tool_name)
-                toolready = True
-                logger.info("Tool %s ready after %f seconds - %s\n" % (self.tool_name, time.time() - now, res))
-            except ConnectionError:
-                nloop -= 1
-                time.sleep(2)
-                logger.info("Connection error - waiting 2 seconds.\n")
-        if nloop < 1:
-            logger.error(
-                "Tool %s still not ready after %f seconds - please check the form and the generated xml for errors? \n"
-                % (self.tool_name, time.time() - now)
-            )
-            return(2)
+        if not remove:
+            if xmlfile not in conf_tools:  # new
+                ET.SubElement(TFsection, "tool", {"file": xmlfile})
+            sortchildrenby(TFsection, "file")
+            tree.write(tcpath, pretty_print=True)
+            gi = galaxy.GalaxyInstance(url=self.GALAXY_URL, key=self.GALAXY_ADMIN_KEY)
+            toolready = False
+            now = time.time()
+            nloop = 5
+            while nloop >= 0 and not toolready:
+                try:
+                    res = gi.tools.show_tool(tool_id=self.tool_name)
+                    toolready = True
+                    logger.info("Tool %s ready after %f seconds - %s\n" % (self.tool_name, time.time() - now, res))
+                except ConnectionError:
+                    nloop -= 1
+                    time.sleep(2)
+                    logger.info("Connection error - waiting 2 seconds.\n")
+            if nloop < 1:
+                logger.error(
+                    "Tool %s still not ready after %f seconds - please check the form and the generated xml for errors? \n"
+                    % (self.tool_name, time.time() - now)
+                )
+                return(2)
+            else:
+                return(0)
         else:
-            return(0)
+            if xmlfile in conf_tools:  # new
+                conf_tools = [x for x in conf_tools if x != xmlfile]
+                self.logger.info("### removed tool %s from %s" % (xmlfile, tcpath))
+            sortchildrenby(TFsection, "file")
+            tree.write(tcpath, pretty_print=True)
+
 
     def install_deps(self):
         """
