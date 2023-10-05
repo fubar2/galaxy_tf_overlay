@@ -67,11 +67,11 @@ class Tool_Factory:
         # sed will update these settings during tfsetup.py first run
         self.GALAXY_ADMIN_KEY = "956432473193251840"
         self.GALAXY_URL = "http://localhost:8080"
-        self.profile = 'profile="22.05"'
+        self.profile =  "22.05"
+        self.not_iuc = True
         self.args = args
         self.tool_version = self.args.tool_version
         self.myversion = "V3.0 February 2023"
-        self.profile = 'profile="22.05"'
         self.verbose = True
         self.debug = True
         self.toolFactoryURL = "https://github.com/fubar2/galaxy_tf_overlay"
@@ -185,7 +185,7 @@ class Tool_Factory:
                     self.args.packages.split(",")[0].split(":")[0].strip(),
                 ]
             else:
-                self.executeme = None
+                self.executeme = []
         aXCL = self.xmlcl.append
         self.newtarpath = args.tested_tool_out
         self.tinputs = gxtp.Inputs()
@@ -799,6 +799,7 @@ class Tool_Factory:
             self.tool_version,
             self.args.tool_desc,
             "",
+            profile=self.profile,
         )
         self.newtool.requirements = requirements
         iXCL = self.xmlcl.insert
@@ -811,7 +812,7 @@ class Tool_Factory:
             self.newtool.command_override = self.cl_override  # config file
         else:
             self.newtool.command_override = self.xmlcl
-        self.cites = self.parse_citations() # citation_tuples.append(("doi", citation[len("doi") :].strip()))
+        self.cites = self.parse_citations()
         cite = gxtp.Citations()
         if self.cites and len(self.cites) > 0:
             for c in self.cites:
@@ -862,14 +863,6 @@ class Tool_Factory:
                     "WARNING: Galaxyxml version does not have the PR merged yet - tests for collections must be over-ridden until then!"
                 )
         self.newtool.version_command = f'echo "{self.tool_version}"'
-        std = gxtp.Stdios()
-        s1 = gxtp.Stdio(":-1", level="fatal",  description="Please check Tool Standard Error using the result i(information) link - the tool failed")
-        s2 = gxtp.Stdio("137", level="fatal_oom",  description="Out of memory error.")
-        s3 = gxtp.Stdio("1:", level="fatal", description="Please check Tool Standard Error using the result i(information) link - the tool failed")
-        std.append(s2)
-        std.append(s1)
-        std.append(s3)
-        self.newtool.stdios = std
         if self.args.parampass == "0":
             self.doNoXMLparam()
         else:
@@ -892,8 +885,6 @@ class Tool_Factory:
         )
         self.newtool.add_comment("Source in git at: %s" % (self.toolFactoryURL))
         exml = self.newtool.export()
-        if not self.profile in exml:
-            exml = exml.replace("<tool name", "<tool %s name" % self.profile)
         if (
             self.test_override
         ):  # cannot do this inside galaxyxml as it expects lxml objects for tests
@@ -972,7 +963,7 @@ class Tool_Factory:
             self.doNoXMLparam()
         else:
             self.makeXML()
-        if self.args.script_path:
+        if self.args.script_path and self.not_iuc:
             stname = os.path.join(self.toold, os.path.split(self.sfile)[1])
             if not os.path.exists(stname):
                 shutil.copyfile(self.sfile, stname)
@@ -992,12 +983,6 @@ class Tool_Factory:
                         dest = os.path.join(self.tooltestd, "%s_sample" % p["infilename"])
                     shutil.copyfile(pth, dest)
                     logger.info("Copied %s to %s" % (pth, dest))
-                    if np > 1:
-                        dest = os.path.join(self.repdir, "%s_%d_sample.%s" % (p["infilename"], i+1, p["format"]))
-                    else:
-                        dest = os.path.join(self.repdir, "%s_sample.%s" % (p["infilename"], p["format"]))
-                    shutil.copyfile(pth, dest)
-                    logger.info("Copied %s to %s" % (pth, dest))
                 else:
                     logger.info("Optional input path %s does not exist - not copied" % pth)
         if self.extra_files and len(self.extra_files) > 0:
@@ -1015,12 +1000,6 @@ class Tool_Factory:
             filename = tarinfo.name
             return None if filename.startswith(excludeme) else tarinfo
         logger.info("makeToolTar starting with tool test retcode=%d\n" % test_retcode)
-        for p in self.outfiles:
-            oname = p["name"]
-            src = os.path.join(self.tooltestd, "%s_sample" % oname)
-            dest = os.path.join(self.repdir, "%s_sample_%s.%s" % (oname, p["format"], p["format"]))
-            shutil.copyfile(src, dest)
-            logger.info("Copied %s to %s" % (src, dest))
         td = os.listdir(self.toold)
         for f in td:
             if f.startswith("tool_test_output"):
@@ -1164,11 +1143,13 @@ class Tool_Factory:
             else:
                 return(0)
         else:
-            if xmlfile in conf_tools:  # new
-                conf_tools = [x for x in conf_tools if x != xmlfile]
-                self.logger.info("### removed tool %s from %s" % (xmlfile, tcpath))
-            sortchildrenby(TFsection, "file")
-            tree.write(tcpath, pretty_print=True)
+            if xmlfile in conf_tools:  # remove
+                for rem in our_tools:
+                    if rem.attrib["file"] == xmlfile:
+                        rem.getparent().remove(rem)
+                        self.logger.info("###=============== removed tool %s from %s" % (xmlfile, tcpath))
+                sortchildrenby(TFsection, "file")
+                tree.write(tcpath, pretty_print=True)
 
 
     def install_deps(self):
