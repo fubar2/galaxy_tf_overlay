@@ -51,9 +51,11 @@ python3 -m venv $GALAXY_VIRTUAL_ENV
 GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash $OURDIR/scripts/common_startup.sh --no-create-venv
 rm -rf $VENV2
 python3 -m venv $VENV2
-. $VENV2/bin/activate && pip install bioblend ephemeris sqlalchemy
+. $VENV2/bin/activate && pip install bioblend ephemeris
+
 bash run.sh --daemon && sleep 30
-. $VENV2/bin/activate && python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
+. $VENV2/bin/activate && export PYTHONPATH=$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages/ \
+  && python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 deactivate
 bash run.sh --stop-daemon
 echo "Your dev server is ready to run in a new directory - $OURDIR. \
