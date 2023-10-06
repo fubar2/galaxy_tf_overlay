@@ -59,12 +59,10 @@ pip install -U bioblend ephemeris
 deactivate
 cd $OURDIR
 bash run.sh --daemon && sleep 30
-#echo "PYTHONPATH=PYTHONPATH:$VENV2/lib/python3.10/site-packages:$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages"
-#export PYTHONPATH=PYTHONPATH:$VENV2/lib/python3.10/site-packages \
-#  &&  python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
-. /tmp/venv2/bin/activate && python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
-export PYTHONPATH=
+. $VENV2/bin/activate && export PYTHONPATH=$VENV2/lib/python3.10/site-packages/:$VENV/lib/python3.10/site-packages/ && \
+  python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 deactivate
+export PYTHONPATH=
 bash run.sh --stop-daemon
 echo "Your dev server is ready to run in a new directory - $OURDIR. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
