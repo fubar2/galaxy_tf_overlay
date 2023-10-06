@@ -43,7 +43,7 @@ sed -i "s~^  #virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $OURDIR/config/
 sed -i "s~^  #galaxy_root:.*~  galaxy_root: $OURDIR~g" $OURDIR/config/galaxy.yml
 sed -i "s~^  tool_config_file:.*~  tool_config_file: $TFC~g" $OURDIR/config/galaxy.yml
 sed -i "s~^  data_dir:.*~  data_dir: $OURDIR/database~g" $OURDIR/config/galaxy.yml
-
+cd $OURDIR
 export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
 GALAXY_INSTALL_PREBUILT_CLIENT=1
@@ -54,15 +54,13 @@ GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash scripts/common_startup.sh --no-create-v
 export PYTHONPATH=
 rm -rf $VENV2
 python3 -m venv $VENV2
-. $VENV2/bin/activate
-pip install -U bioblend ephemeris
-deactivate
-cd $OURDIR
+. $VENV2/bin/activate \
+  && pip install -U bioblend ephemeris
 bash run.sh --daemon && sleep 30
-. $VENV2/bin/activate && export PYTHONPATH=$VENV2/lib/python3.10/site-packages/:$VENV/lib/python3.10/site-packages/ && \
-  python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
+. $VENV2/bin/activate \
+  && python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 deactivate
-export PYTHONPATH=
+#export PYTHONPATH=
 bash run.sh --stop-daemon
 echo "Your dev server is ready to run in a new directory - $OURDIR. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
