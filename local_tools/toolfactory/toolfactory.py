@@ -1291,7 +1291,7 @@ def main():
     else:
         tf.makeToolTar(testret)
         jcl = sys.argv[1:]
-        with open(os.path.join(args.tfcollection, 'ToolFactoryCL_%s.json' % args.tool_name), 'w') as fout:
+        with open(os.path.join(args.tfcollection, 'ToolFactory_%s_commandline.json' % args.tool_name), 'w') as fout:
             fout.write(' '.join(jcl))
     logging.shutdown()
 
