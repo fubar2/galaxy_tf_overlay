@@ -342,7 +342,7 @@ class Tool_Factory:
             xclsuffix.append(["", "'$%s'" % p["name"], ""])
         for p in self.collections:
             newname = p["name"]
-            xclsuffix.append(newname, "'$%s'" % newname, "")
+            xclsuffix.append([newname, "'$%s'" % newname, ""])
         xclsuffix.sort()
         self.xclsuffix = xclsuffix
 
@@ -1241,6 +1241,7 @@ def main():
         default=[],
         action="append",
     )  # history data items to add to the tool base directory
+    tfcl = sys.argv[1:]
     args = parser.parse_args()
     if args.admin_only:
         assert not args.bad_user, (
@@ -1248,7 +1249,8 @@ def main():
             % (args.bad_user, args.bad_user)
         )
     assert args.tool_name, "## This ToolFactory cannot build a tool without a tool name. Please supply one."
-    logfilename = 'ToolFactory_make_%s_log.txt' % args.tool_name
+    os.makedirs(args.tfcollection, exist_ok=True)
+    logfilename = os.path.join(args.tfcollection, 'ToolFactory_make_%s_log.txt' % args.tool_name)
     logger.setLevel(logging.INFO)
     fh = logging.FileHandler(logfilename, mode='w')
     fformatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -1263,32 +1265,34 @@ def main():
     if tf.condaenv and len(tf.condaenv) > 0 :
         res = tf.install_deps()
         if not res:
-            logger.debug("Toolfactory installed deps. Calling fast test")
-            time.sleep(2)
-            testret = tf.planemo_local_test()
-            logger.debug("Toolfactory finished test")
-            if int(testret) > 0:
-                logger.error("ToolFactory tool build and test failed. :(")
-                logger.info(
-                    "This is usually because the supplied script or dependency did not run correctly with the test inputs and parameter settings"
-                )
-                logger.info("when tested with galaxy_tool_test.  Error code:%d" % int(testret))
-                logger.info(
-                    "The 'i' (information) option shows how the ToolFactory was called, stderr and stdout, and what the command line was."
-                )
-                logger.info("Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it")
-                logger.info(
-                    "Make sure it is the same as your working test command line and double check that data files are coming from and going to where they should"
-                )
-                logger.info(
-                    "In the output collection, the tool xml <command> element must be the equivalent of your working command line for the test to work"
-                )
-                logging.shutdown()
-                sys.exit(5)
-            else:
-                tf.makeToolTar(testret)
-        else:
-                logger.error("ToolFactory install dependencies failed - is there a ToolFactory instance running? :(")
+            logger.debug("Toolfactory installed deps failed")
+            logging.shutdown()
+            sys.exit(6)
+        time.sleep(2)
+    testret = tf.planemo_local_test()
+    if int(testret) > 0:
+        logger.error("ToolFactory tool build and test failed. :(")
+        logger.info(
+            "This is usually because the supplied script or dependency did not run correctly with the test inputs and parameter settings"
+        )
+        logger.info("when tested with galaxy_tool_test.  Error code:%d" % int(testret))
+        logger.info(
+            "The 'i' (information) option shows how the ToolFactory was called, stderr and stdout, and what the command line was."
+        )
+        logger.info("Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it")
+        logger.info(
+            "Make sure it is the same as your working test command line and double check that data files are coming from and going to where they should"
+        )
+        logger.info(
+            "In the output collection, the tool xml <command> element must be the equivalent of your working command line for the test to work"
+        )
+        logging.shutdown()
+        sys.exit(5)
+    else:
+        tf.makeToolTar(testret)
+        jcl = sys.argv[1:]
+        with open(os.path.join(args.tfcollection, 'ToolFactoryCL_%s.json' % args.tool_name), 'w') as fout:
+            fout.write(' '.join(jcl))
     logging.shutdown()
 
 
