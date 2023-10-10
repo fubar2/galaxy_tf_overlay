@@ -351,7 +351,10 @@ class Tool_Factory:
         ss = s.split('\n')
         rxcheck = [x for x in ss if x.strip() > ""]
         assert len(rxcheck) > 0, "Supplied script is empty. Cannot run"
-        self.script = s
+        if self.args.sysexe:
+            rxcheck.insert(0, '#raw')
+            rxcheck.append('#end raw')
+        self.script = '\n'.join(rxcheck)
         if len(self.executeme) > 0:
             self.sfile = os.path.join(self.repdir, "%s.%s.txt" % (self.tool_name, self.executeme[0]))
         else:
@@ -361,8 +364,6 @@ class Tool_Factory:
         tscript.write('\n')
         tscript.close()
         self.spacedScript = [f"    {x.replace('${','$ {')}" for x in ss if x.strip() > ""]
-        rxcheck.insert(0, '#raw')
-        rxcheck.append('#end raw')
         self.escapedScript = rxcheck
 
     def cleanuppar(self):
