@@ -1157,13 +1157,13 @@ class Tool_Factory:
         use script to install new tool dependencies
         """
         cll = [
-            "/usr/bin/bash",
+            "sh",
             "%s/install_tf_deps.sh" % self.args.toolfactory_dir,
             self.tool_name,
         ]
         self.logger.info("Running %s\n" % " ".join(cll))
         try:
-            p = subprocess.run(cll, shell=False, capture_output=True, check=True, text=True)
+            p = subprocess.run(' '.join(cll), shell=True, capture_output=True, check=True, text=True)
             for errline in p.stderr.splitlines():
                 self.logger.info(errline)
             return p.returncode
@@ -1264,7 +1264,7 @@ def main():
     time.sleep(5)
     if tf.condaenv and len(tf.condaenv) > 0 :
         res = tf.install_deps()
-        if not res:
+        if res > 0:
             logger.debug("Toolfactory installed deps failed")
             logging.shutdown()
             sys.exit(6)

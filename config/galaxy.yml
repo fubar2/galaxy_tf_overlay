@@ -182,7 +182,34 @@ gravity:
   # handlers: {}
 
 galaxy:
-  data_dir: /work/galaxytf/database
+  #data_dir: /work/galaxytf/database
+  # conda_prefix is the location on the filesystem where Conda packages
+  # and environments are installed.
+  # Sample default '<tool_dependency_dir>/_conda'
+  conda_prefix: database/dependencies/_conda
+
+  # Override the Conda executable to use, it will default to the one on
+  # the PATH (if available) and then to <conda_prefix>/bin/conda
+  #conda_exec: null
+
+  # Pass debug flag to conda commands.
+  #conda_debug: false
+
+  # conda channels to enable by default
+  # (https://conda.io/docs/user-guide/tasks/manage-channels.html)
+  #conda_ensure_channels: conda-forge,bioconda,defaults
+
+  # Use locally-built conda packages.
+  conda_use_local: true
+
+  # Set to true to instruct Galaxy to look for and install missing tool
+  # dependencies before each job runs.
+  conda_auto_install: true
+
+  # Set to true to instruct Galaxy to install Conda from the web
+  # automatically if it cannot find a local copy and conda_exec is not
+  # configured.
+  conda_auto_init: true
   cleanup_job: never
   #log_level: DEBUG
   sanitize_all_html: false

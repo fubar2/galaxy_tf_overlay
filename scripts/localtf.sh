@@ -4,7 +4,6 @@ echo "First run takes a while. Go for a walk, read the manual, or do something e
 OURD="../galaxytf231"
 THISD=`pwd`
 THISDIR=`echo "$(cd "$(dirname "$THISD")" && pwd)/$(basename "$THISD")"`
-OURD="../galaxytf231"
 OURDIR=`realpath "$OURD"` #`echo "$(cd "$(dirname "$OURD")" && pwd)/$(basename "$OURD")"`
 echo "Using thisdir = $THISDIR and ourdir = $OURDIR"
 GALAXY_VIRTUAL_ENV=$OURDIR/.venv

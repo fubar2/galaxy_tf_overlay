@@ -4,6 +4,7 @@
   <description>Rotates all API keys in a ToolFactory instance </description>
   <requirements>
     <requirement version="1.1.1" type="package">bioblend</requirement>
+   <requirement version="3.10.12" type="package">python</requirement>
   </requirements>
   <stdio>
     <exit_code range="1:" level="fatal"/>
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     options = parser.parse_args()
     sys.path.insert(1, options.galaxy_root)
     sys.path.insert(1, os.path.join(options.galaxy_root, "lib"))
-
+    sys.path.insert(1, os.path.join(options.galaxy_venv, "lib", "python3.10", "site-packages"))
     from galaxy.model import User, APIKeys
     from galaxy.model.mapping import init
     from galaxy.model.orm.scripts import get_config
