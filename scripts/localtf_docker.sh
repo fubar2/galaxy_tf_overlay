@@ -49,7 +49,7 @@ bash run.sh --daemon && sleep 30
 . $VENV2/bin/activate && export PYTHONPATH=$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages/ \
   && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 deactivate
-bash run.sh --stop-daemon
+bash $GALAXY_ROOT/run.sh --stop-daemon
 
 
 #export GALAXY_INSTALL_PREBUILT_CLIENT=1
