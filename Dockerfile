@@ -14,9 +14,9 @@ COPY . /work/galaxy_tf_overlay-main/
 ARG ORELDIR=/tmp/galaxy_tf_overlay-main \
   OVERLAY_HOME=/work/galaxy_tf_overlay-main \
   OVERLAY_ZIP=https://github.com/fubar2/galaxy_tf_overlay/archive/refs/heads/main.zip \
-  REL=release_23.0 \
-  RELDIR=galaxy-release_23.0 \
-  GALZIP=https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.0.zip \
+  REL=release_23.1 \
+  RELDIR=galaxy-release_23.1 \
+  GALZIP=https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.1.zip \
   GALAXY_USER=galaxy \
   GALAXY_UID=1450 \
   GALAXY_GID=1450 \
