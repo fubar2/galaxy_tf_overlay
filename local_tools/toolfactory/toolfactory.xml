@@ -189,8 +189,9 @@
              help="Command line settings for the user to pass to the executable. See examples below to see how these can be parsed by scripts in the various languages">
           <param name="param_name" type="text" value="" label="Name for this parameter. Underscore, letters and digits only. No spaces allowed">
             <sanitizer invalid_char="_">
-                <valid initial="string.ascii_lowercase,string.digits">
-                <add value="_"/>
+                <valid initial="string.ascii_letters,string.digits">
+                    <add value="_"/>
+                </valid>
             </sanitizer>
           </param>
           <conditional name="ap_type">
