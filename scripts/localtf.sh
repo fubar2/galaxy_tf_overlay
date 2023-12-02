@@ -4,16 +4,16 @@ echo "First run takes a while. Go for a walk, read the manual, or do something e
 OURD="../galaxytf231"
 THISD=`pwd`
 THISDIR=`echo "$(cd "$(dirname "$THISD")" && pwd)/$(basename "$THISD")"`
-OURDIR=`realpath "$OURD"` #`echo "$(cd "$(dirname "$OURD")" && pwd)/$(basename "$OURD")"`
-echo "Using thisdir = $THISDIR and ourdir = $OURDIR"
-GALAXY_VIRTUAL_ENV=$OURDIR/.venv
+GALAXY_ROOT=`realpath "$OURD"` #`echo "$(cd "$(dirname "$OURD")" && pwd)/$(basename "$OURD")"`
+echo "Using thisdir = $THISDIR and ourdir = $GALAXY_ROOT"
+GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
 VER="23.1"
 REL="release_$VER"
 RELDIR="galaxy-release_$VER"
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_$VER.zip"
 GAL_USER="ubuntu" # or whatever..this for my play server postgresql
-USE_DB_URL="sqlite:///$OURDIR/database/universe.sqlite?isolation_level=IMMEDIATE"
-VENV2=$OURDIR/.venv2
+USE_DB_URL="sqlite:///$GALAXY_ROOT/database/universe.sqlite?isolation_level=IMMEDIATE"
+VENV2=$GALAXY_ROOT/.venv2
 
 if [ -f "$REL.zip" ]; then
   echo "$REL.zip exists"
@@ -21,9 +21,9 @@ else
    echo "No $REL.zip Getting"
    wget -q $GALZIP
 fi
-if [ -d "$OURDIR" ]; then
-  echo "Deleting existing $OURDIR"
-  rm -rf $OURDIR
+if [ -d "$GALAXY_ROOT" ]; then
+  echo "Deleting existing $GALAXY_ROOT"
+  rm -rf $GALAXY_ROOT
 fi
 unzip -q -o $REL.zip
 cp -rv $THISDIR/config/* $RELDIR/config/
@@ -31,33 +31,33 @@ cp -rv $THISDIR/local $RELDIR/
 cp -rv $THISDIR/local_tools $RELDIR/
 cp -rv $THISDIR/static/* $RELDIR/static/
 cp -rv $THISDIR/scripts/* $RELDIR/scripts/
-mv  $RELDIR $OURDIR
-cd $OURDIR
+mv  $RELDIR $GALAXY_ROOT
+cd $GALAXY_ROOT
 
-TFC="tool_conf.xml,$OURDIR/local_tools/local_tool_conf.xml"
-sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $OURDIR/config/galaxy.yml
-sed -i "s~^  galaxy_root:.*~  galaxy_root: $OURDIR~g" $OURDIR/config/galaxy.yml
-sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $OURDIR/config/galaxy.yml
-sed -i "s~^  #virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $OURDIR/config/galaxy.yml
-sed -i "s~^  #galaxy_root:.*~  galaxy_root: $OURDIR~g" $OURDIR/config/galaxy.yml
-sed -i "s~^  tool_config_file:.*~  tool_config_file: $TFC~g" $OURDIR/config/galaxy.yml
-sed -i "s~^  data_dir:.*~  data_dir: $OURDIR/database~g" $OURDIR/config/galaxy.yml
-cd $OURDIR
+TFC="tool_conf.xml,$GALAXY_ROOT/local_tools/local_tool_conf.xml"
+sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  galaxy_root:.*~  galaxy_root: $GALAXY_ROOT~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  #virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  #galaxy_root:.*~  galaxy_root: $GALAXY_ROOT~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  tool_config_file:.*~  tool_config_file: $TFC~g" $GALAXY_ROOT/config/galaxy.yml
+sed -i "s~^  data_dir:.*~  data_dir: $GALAXY_ROOT/database~g" $GALAXY_ROOT/config/galaxy.yml
+
 export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
 GALAXY_INSTALL_PREBUILT_CLIENT=1
 python3 -m venv $GALAXY_VIRTUAL_ENV
-GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash $OURDIR/scripts/common_startup.sh --no-create-venv
+GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv
 rm -rf $VENV2
 python3 -m venv $VENV2
 . $VENV2/bin/activate && pip install bioblend ephemeris
 
 bash run.sh --daemon && sleep 30
 . $VENV2/bin/activate && export PYTHONPATH=$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages/ \
-  && python3 scripts/tfsetup.py --galaxy_root $OURDIR --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
+  && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 deactivate
 bash run.sh --stop-daemon
-echo "Your dev server is ready to run in a new directory - $OURDIR. \
+echo "Your dev server is ready to run in a new directory - $GALAXY_ROOT. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
 Local web browser url is http://localhost:8080. Admin already exists. \
 Admin login is toolfactory@galaxy.org with ChangeMe! as the temporary password. \

@@ -1067,7 +1067,7 @@ class Tool_Factory:
         Failure will eventually get stuck. Might need a timeout in the script
         """
         self.test_outs = self.tooltestd
-        scrpt = os.path.join(self.args.toold, "toolfactory_fast_test.sh")
+        scrpt = os.path.join(self.args.toolfactory_dir, "toolfactory_fast_test.sh")
         extrapaths = self.tooltestd
         cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
         logger.info("fast_local_test executing %s \n" % (" ".join(cl)))
@@ -1080,7 +1080,7 @@ class Tool_Factory:
             text=True
         )
         for errline in p.stderr.splitlines():
-            print("planemo:", errline)
+            print("ephemeris:", errline)
         dest = self.repdir
         src = self.test_outs
         shutil.copytree(src, dest, dirs_exist_ok=True)
@@ -1270,7 +1270,7 @@ def main():
             logging.shutdown()
             sys.exit(6)
         time.sleep(2)
-    testret = tf.planemo_local_test()
+    testret = tf.fast_local_test() # planemo_local_test()
     if int(testret) > 0:
         logger.error("ToolFactory tool build and test failed. :(")
         logger.info(

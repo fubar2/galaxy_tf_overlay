@@ -3,7 +3,7 @@
   <!--Created by toolfactory@galaxy.org at 25/05/2023 01:04:53 using the Galaxy Tool Factory.-->
   <description>Tests a ToolFactory archive containing a new tool</description>
   <requirements>
-    <requirement version="0.75.3" type="package">planemo</requirement>
+    <requirement version="0.75.18" type="package">planemo</requirement>
   </requirements>
   <stdio>
     <exit_code range="1:" level="fatal"/>

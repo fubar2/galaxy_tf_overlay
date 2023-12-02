@@ -106,6 +106,11 @@ def run_sed(options):
     fixfile = "%s/local_tools/toolfactory/localplanemotest.sh" % options.galaxy_root
     fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
     fixme.append(('API_KEY=', 'API_KEY=%s' % options.key, fixfile))
+    fixfile = "%s/local_tools/toolfactory/toolfactory_fast_test.sh" % options.galaxy_root
+    fixme.append(('GALAXY_URL=', 'GALAXY_URL=%s' % options.galaxy_url, fixfile))
+    fixme.append(('API_KEY=', 'API_KEY=%s' % options.key, fixfile))
+    fixme.append(('GALAXY_VENV=', 'GALAXY_VENV=%s' % options.galaxy_venv, fixfile))
+    fixme.append(('API_KEY_USER=', 'API_KEY_USER=%s' % options.botkey, fixfile))
     for line_start, line_replacement, file_to_edit in fixme:
         cmd = ["sed", "-i", "s#.*%s.*#%s#g" % (line_start, line_replacement), file_to_edit]
         print("## executing", ' '.join(cmd))
