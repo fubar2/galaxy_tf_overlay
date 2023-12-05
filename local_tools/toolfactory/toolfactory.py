@@ -1011,7 +1011,7 @@ class Tool_Factory:
                 #filter=exclude_function,
             )
 
-    def (self):
+    def planemo_local_test(self):
         """
         weird legacyversion error popping up again from package version upgrade in conda_util.py in the venv.
         Seems ok if run as a shell script using the Galaxy installed planemo august 1st 2023
