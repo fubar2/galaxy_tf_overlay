@@ -165,7 +165,7 @@
                 <option value="paired">Paired</option>
                 <option value="list:paired">List of paired</option>
             </param>
-            <param name="label"  label="Collection label. Allows template substitution"  value=""
+            <param name="label"  type="text" label="Collection label. Allows template substitution"  value=""
                 help="Label used for this output - for example 'Plotlytabular $title on $input_tab.element_identifier' where variable templates are informative." >
               <sanitizer>
                 <valid initial="string.printable" >

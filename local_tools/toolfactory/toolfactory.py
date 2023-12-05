@@ -83,14 +83,12 @@ class Tool_Factory:
         self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
         self.tool_id = self.tool_name
         self.local_tools = os.path.join(args.galaxy_root, "local_tools")
+        self.repdir = args.tfcollection
+        self.toold = os.path.join(self.local_tools, self.tool_name)
+        self.tooltestd = os.path.join(self.toold, "test-data")
         if self.nfcoremod:
                 self.local_tools = os.path.join(args.tfcollection, "tools")
                 self.repdir = os.path.join(args.tfcollection, "TFouts", self.tool_name)
-                self.toold = os.path.join(self.local_tools, self.tool_name)
-                self.tooltestd = os.path.join(self.toold, "test-data")
-        if args.nftest:
-                self.local_tools = os.path.join(args.galaxy_root, "local_tools")
-                self.repdir = args.tfcollection
                 self.toold = os.path.join(self.local_tools, self.tool_name)
                 self.tooltestd = os.path.join(self.toold, "test-data")
         os.makedirs(self.repdir, exist_ok=True)
