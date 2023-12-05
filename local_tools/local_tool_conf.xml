@@ -3,6 +3,5 @@
     <tool file="toolfactory/toolfactory.xml"/>
     <tool file="tacrev/tacrev.xml"/>
     <tool file="tf_apikey_mutate/tf_apikey_mutate.xml"/>
-    <tool file="planemotest/planemotest.xml"/>
   </section>
 </toolbox>
