@@ -1011,7 +1011,7 @@ class Tool_Factory:
                 #filter=exclude_function,
             )
 
-    def planemo_local_test(self):
+    def (self):
         """
         weird legacyversion error popping up again from package version upgrade in conda_util.py in the venv.
         Seems ok if run as a shell script using the Galaxy installed planemo august 1st 2023
@@ -1268,7 +1268,7 @@ def main():
             logging.shutdown()
             sys.exit(6)
         time.sleep(2)
-    testret = tf.fast_local_test() # planemo_local_test()
+    testret = tf.planemo_local_test()  #fast_local_test()
     if int(testret) > 0:
         logger.error("ToolFactory tool build and test failed. :(")
         logger.info(
