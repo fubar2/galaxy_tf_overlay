@@ -349,7 +349,7 @@ class Tool_Factory:
         ss = s.split('\n')
         rxcheck = [x for x in ss if x.strip() > ""]
         assert len(rxcheck) > 0, "Supplied script is empty. Cannot run"
-        if self.args.sysexe:
+        if self.args.sysexe and  self.args.parampass != "embed" :
             rxcheck.insert(0, '#raw')
             rxcheck.append('#end raw')
         self.script = '\n'.join(rxcheck)
