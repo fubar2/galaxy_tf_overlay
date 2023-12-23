@@ -43,10 +43,10 @@ python3 -m venv $GALAXY_VIRTUAL_ENV
 GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv
 #rm -rf $VENV2
 #python3 -m venv $VENV2
-. $VENV/bin/activate && pip install bioblend ephemeris
-
+. $GALAXY_VIRTUAL_ENV/bin/activate && pip install bioblend ephemeris
+deactivate
 bash $GALAXY_ROOT/run.sh --daemon && sleep 30
-. $VENV/bin/activate && export PYTHONPATH=$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages/ \
+. $GALAXY_VIRTUAL_ENV/bin/activate && export PYTHONPATH=$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages/ \
   && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 deactivate
 bash $GALAXY_ROOT/run.sh --stop-daemon
