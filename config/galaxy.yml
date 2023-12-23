@@ -187,6 +187,7 @@ galaxy:
   # and environments are installed.
   # Sample default '<tool_dependency_dir>/_conda'
   conda_prefix: database/dependencies/_conda
+  nginx_x_accel_redirect_base: '/_x_accel_redirect'
 
   # Override the Conda executable to use, it will default to the one on
   # the PATH (if available) and then to <conda_prefix>/bin/conda

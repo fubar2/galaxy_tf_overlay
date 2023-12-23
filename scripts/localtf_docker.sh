@@ -12,7 +12,7 @@ fi
 GALAXY_ROOT="$1"
 OVERLAY="$2"
 
-VENV2=$GALAXY_ROOT/.venv2
+#VENV2=$GALAXY_ROOT/.venv2
 USE_DB_URL="sqlite:///$1/database/universe.sqlite?isolation_level=IMMEDIATE"
 cd $GALAXY_ROOT
 mkdir -p $GALAXY_ROOT/database_copy $GALAXY_ROOT/local_tools_copy
@@ -41,12 +41,12 @@ export GALAXY_INSTALL_PREBUILT_CLIENT=1
 GALAXY_INSTALL_PREBUILT_CLIENT=1
 python3 -m venv $GALAXY_VIRTUAL_ENV
 GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv
-rm -rf $VENV2
-python3 -m venv $VENV2
-. $VENV2/bin/activate && pip install bioblend ephemeris
+#rm -rf $VENV2
+#python3 -m venv $VENV2
+. $VENV/bin/activate && pip install bioblend ephemeris
 
 bash $GALAXY_ROOT/run.sh --daemon && sleep 30
-. $VENV2/bin/activate && export PYTHONPATH=$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages/ \
+. $VENV/bin/activate && export PYTHONPATH=$GALAXY_VIRTUAL_ENV/lib/python3.10/site-packages/ \
   && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 deactivate
 bash $GALAXY_ROOT/run.sh --stop-daemon
