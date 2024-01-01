@@ -1,16 +1,17 @@
 #!/usr/bin/bash
 # assume run from the git galaxy_tf_overlay clone directory
 echo "First run takes a while. Go for a walk, read the manual, or do something else more useful than watching"
-OURD="../galaxytf231"
+VER="23.1.3"
+REL="v$VER"
+RELDIR="galaxy-$VER"
 THISD=`pwd`
 THISDIR=`echo "$(cd "$(dirname "$THISD")" && pwd)/$(basename "$THISD")"`
+OURD="../galaxytf$VER"
 GALAXY_ROOT=`realpath "$OURD"` #`echo "$(cd "$(dirname "$OURD")" && pwd)/$(basename "$OURD")"`
 echo "Using thisdir = $THISDIR and ourdir = $GALAXY_ROOT"
 GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
-VER="23.1"
-REL="release_$VER"
-RELDIR="galaxy-release_$VER"
-GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/heads/release_$VER.zip"
+
+GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/tags/$REL.zip"
 GAL_USER="ubuntu" # or whatever..this for my play server postgresql
 USE_DB_URL="sqlite:///$GALAXY_ROOT/database/universe.sqlite?isolation_level=IMMEDIATE"
 
