@@ -78,11 +78,20 @@
                     </param>
                     <when value="doi">
                         <param name="doi" label="DOI" type="text"
-                        help="Supply a DOI (e.g. doi: 10.1111/j.1740-9713.2007.00258.x) to be cited when this tool is used in published research." />
+                            help="Supply a DOI (e.g. doi: 10.1111/j.1740-9713.2007.00258.x) to be cited when this tool is used in published research." >
+                           <sanitizer>
+                                <valid initial="string.printable" >
+                                </valid>
+                           </sanitizer>
+                        </param>
                     </when>
                     <when value="bibtex">
                         <param name="bibtex" label="BibTex" type="text" area="true"
                             help="Supply a BibTex entry that should be cited when this tool is used in published research." value="" >
+                            <sanitizer>
+                                <valid initial="string.printable" >
+                                </valid>
+                           </sanitizer>
                         </param>
                     </when>
                 </conditional>
@@ -266,7 +275,7 @@
      <requirement type="package" version="3.10.12">python</requirement>
      <requirement type="package" version="0.5.3">galaxyxml</requirement>
      <requirement type="package" version="1.2.0">bioblend</requirement>
-     <requirement type="package" version="0.75.18">planemo</requirement>
+     <requirement type="package" version="0.75.19">planemo</requirement>
      <requirement type="package" version="0.10.8">ephemeris</requirement>
 </requirements>
 
