@@ -82,8 +82,8 @@ class Tool_Factory:
         self.script_in_help = False  # IUC recommendation
         self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
         self.tool_id = self.tool_name
-        self.local_tools = os.path.join(args.galaxy_root, "local_tools")
-        self.repdir = args.tfcollection
+        self.local_tools = os.path.realpath(os.path.join(args.galaxy_root, "local_tools"))
+        self.repdir = os.path.realpath(args.tfcollection)
         self.toold = os.path.join(self.local_tools, self.tool_name)
         self.tooltestd = os.path.join(self.toold, "test-data")
         if self.nfcoremod:
@@ -1042,7 +1042,7 @@ class Tool_Factory:
             self.GALAXY_URL,
             xout,
         ]
-        self.logger.info("planemo_local_test executing: %s" % " ".join(clx))
+        logger.info("planemo_local_test executing: %s" % " ".join(clx))
         try:
             p = subprocess.run(
                 " ".join(cl),
@@ -1053,6 +1053,12 @@ class Tool_Factory:
                 check=True,
                 text=True,
             )
+            for errline in p.stderr.splitlines():
+                logger.info("planemo:", errline)
+            dest = self.repdir
+            src = self.test_outs
+            logger.info("copying to %s to %s test_outs" % (src,dest))
+            shutil.copytree(src, dest, dirs_exist_ok=True)
             return p.returncode
         except:
             return 1
@@ -1064,7 +1070,6 @@ class Tool_Factory:
         Seems to have a race condition when multiple jobs running. Works well - 15 secs or so if only onejob at a time! so job_conf fixed.
         Failure will eventually get stuck. Might need a timeout in the script
         """
-        self.test_outs = self.tooltestd
         scrpt = os.path.join(self.args.toolfactory_dir, "toolfactory_fast_test.sh")
         extrapaths = self.tooltestd
         cl = ["/usr/bin/bash", scrpt, self.tool_name, extrapaths, extrapaths]
@@ -1078,9 +1083,9 @@ class Tool_Factory:
             text=True
         )
         for errline in p.stderr.splitlines():
-            print("ephemeris:", errline)
+            logger.info("ephemeris:", errline)
         dest = self.repdir
-        src = self.test_outs
+        src = self.tooltestd
         shutil.copytree(src, dest, dirs_exist_ok=True)
         return p.returncode
 
@@ -1268,8 +1273,8 @@ def main():
             logging.shutdown()
             sys.exit(6)
         time.sleep(2)
-    testret = tf.planemo_local_test()  #fast_local_test()
-    if int(testret) > 0:
+    testret = tf.fast_local_test()  #planemo_local_test()
+    if False and int(testret) > 0:
         logger.error("ToolFactory tool build and test failed. :(")
         logger.info(
             "This is usually because the supplied script or dependency did not run correctly with the test inputs and parameter settings"

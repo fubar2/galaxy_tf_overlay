@@ -5,6 +5,7 @@
   <requirements>
     <requirement version="1.1.1" type="package">bioblend</requirement>
    <requirement version="3.10.12" type="package">python</requirement>
+   <requirement  type="package">six</requirement>
   </requirements>
   <stdio>
     <exit_code range="1:" level="fatal"/>
