@@ -40,7 +40,7 @@
           </param>
           <param name="select_value" type="text" value="" label="Value for the command line when the user selects this option">
               <sanitizer invalid_char="_">
-                <valid initial="string.ascii_letters,string.digits" >
+                <valid initial="string.printable" >
                 </valid>
               </sanitizer>
           </param>
@@ -275,8 +275,8 @@
      <requirement type="package" version="3.10.12">python</requirement>
      <requirement type="package" version="0.5.3">galaxyxml</requirement>
      <requirement type="package" version="1.2.0">bioblend</requirement>
-     <requirement type="package" version="0.75.19">planemo</requirement>
-     <requirement type="package" version="0.10.8">ephemeris</requirement>
+     <requirement type="package" version="0.75.20">planemo</requirement>
+     <requirement type="package" version="0.10.10">ephemeris</requirement>
 </requirements>
 
 <command detect_errors="exit_code"><![CDATA[

@@ -44,6 +44,7 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
+
 class Tool_Factory:
     """Wrapper for an arbitrary script
     uses galaxyxml
@@ -67,7 +68,7 @@ class Tool_Factory:
         # sed will update these settings during tfsetup.py first run
         self.GALAXY_ADMIN_KEY = "956432473193251840"
         self.GALAXY_URL = "http://localhost:8080"
-        self.profile =  "22.05"
+        self.profile = "22.05"
         self.not_iuc = True
         self.args = args
         self.tool_version = self.args.tool_version
@@ -82,15 +83,18 @@ class Tool_Factory:
         self.script_in_help = False  # IUC recommendation
         self.tool_name = re.sub("[^a-zA-Z0-9_]+", "", args.tool_name)
         self.tool_id = self.tool_name
-        self.local_tools = os.path.realpath(os.path.join(args.galaxy_root, "local_tools"))
+        self.local_tools = os.path.realpath(
+            os.path.join(args.galaxy_root, "local_tools")
+        )
         self.repdir = os.path.realpath(args.tfcollection)
+        self.testdir = os.path.join(self.repdir, self.tool_name)
         self.toold = os.path.join(self.local_tools, self.tool_name)
         self.tooltestd = os.path.join(self.toold, "test-data")
         if self.nfcoremod:
-                self.local_tools = os.path.join(args.tfcollection, "tools")
-                self.repdir = os.path.join(args.tfcollection, "TFouts", self.tool_name)
-                self.toold = os.path.join(self.local_tools, self.tool_name)
-                self.tooltestd = os.path.join(self.toold, "test-data")
+            self.local_tools = os.path.join(args.tfcollection, "tools")
+            self.repdir = os.path.join(args.tfcollection, "TFouts", self.tool_name)
+            self.toold = os.path.join(self.local_tools, self.tool_name)
+            self.tooltestd = os.path.join(self.toold, "test-data")
         os.makedirs(self.repdir, exist_ok=True)
         os.makedirs(self.toold, exist_ok=True)
         os.makedirs(self.tooltestd, exist_ok=True)
@@ -243,11 +247,11 @@ class Tool_Factory:
         """no parameters or repeats - uses < and > for i/o"""
         aXCL = self.xmlcl.append
         if len(self.infiles) > 0:
-            aXCL('<')
-            aXCL('$%s' % self.infiles[0]['infilename'])
+            aXCL("<")
+            aXCL("'$%s'" % self.infiles[0]["infilename"])
         if len(self.outfiles) > 0:
-            aXCL('>')
-            aXCL('$%s' % self.outfiles[0]["name"])
+            aXCL(">")
+            aXCL("'$%s'" % self.outfiles[0]["name"])
 
     def prepembed(self):
         """fix self.script"""
@@ -265,44 +269,44 @@ class Tool_Factory:
             aX('#set prefix = "%s"' % self.tool_name)
             aX('#set task_process = "%s"' % self.tool_name)
         for p in self.collections:
-            aX("mkdir -p %s &&" %  p["name"])
+            aX("mkdir -p %s &&" % p["name"])
         aX("%s '$runme'" % self.args.sysexe)
 
     def prepargp(self):
         xclsuffix = []
         for i, p in enumerate(self.infiles):
-            rep = p["required"] in ['optional1', 'required1']
-            req = p["required"] in ['required', 'required1']
+            rep = p["required"] in ["optional1", "required1"]
+            req = p["required"] in ["required", "required1"]
             nam = p["infilename"]
-            flag = p['CL']
+            flag = p["CL"]
             if p["origCL"].strip().upper() == "STDIN":
                 xappendme = [
                     nam,
                     nam,
-                    '< $%s' % nam,
+                    "< '$%s'" % nam,
                 ]
             else:
-                xappendme = [p["CL"], '$%s' % p["CL"], ""]
+                xappendme = [p["CL"], "'$%s'" % p["CL"], ""]
             xclsuffix.append(xappendme)
         for i, p in enumerate(self.outfiles):
             if p["origCL"].strip().upper() == "STDOUT":
-                self.lastxclredirect = ['>', '$%s' % p["name"]]
+                self.lastxclredirect = [">", "'$%s'" % p["name"]]
             else:
-                xclsuffix.append([p["name"], "$%s" % p["name"], ""])
+                xclsuffix.append([p["name"], "'$%s'" % p["name"], ""])
         for p in self.addpar:
             nam = p["name"]
             val = p["value"]
             flag = p["CL"]
-            rep = p.get("repeat",0) == "1"
+            rep = p.get("repeat", 0) == "1"
             if rep:
                 over = f'#for $rep in $R_{nam}:\n--{nam} "$rep.{nam}"\n#end for'
             else:
-                over = p.get("override",'')
-            if p["type"] == 'clflag':
+                over = p.get("override", "")
+            if p["type"] == "clflag":
                 over = f'#if ${nam} == "set"\n --{flag}\n#end if'
             xclsuffix.append([p["CL"], "'$%s'" % nam, over])
         for p in self.selpar:
-            xclsuffix.append([p["CL"], "'$%s'" % p["name"], p.get("override","")])
+            xclsuffix.append([p["CL"], "'$%s'" % p["name"], p.get("override", "")])
         for p in self.selflagpar:
             xclsuffix.append(["", "'$%s'" % p["name"], ""])
         for p in self.collections:
@@ -315,24 +319,26 @@ class Tool_Factory:
         for i, p in enumerate(self.infiles):
             if p["origCL"].strip().upper() == "STDIN":
                 xappendme = [
-                    '999',
+                    "999",
                     p["infilename"],
-                    '< $%s' % p["infilename"],
+                    "< '$%s'" % p["infilename"],
                 ]
             else:
-                xappendme = [p["CL"], '$%s' % p["infilename"], ""]
+                xappendme = [p["CL"], "'$%s'" % p["infilename"], ""]
             xclsuffix.append(xappendme)
         for i, p in enumerate(self.outfiles):
             if p["origCL"].strip().upper() == "STDOUT":
-                self.lastxclredirect = ['>', '$%s' % p["name"]]
+                self.lastxclredirect = [">", "'$%s'" % p["name"]]
             else:
-                xclsuffix.append([p["CL"], '$%s' % p["name"], ""])
+                xclsuffix.append([p["CL"], "'$%s'" % p["name"], ""])
         for p in self.addpar:
             nam = p["name"]
-            rep = p.get("repeat","0") == "1"  # repeats make NO sense
+            rep = p.get("repeat", "0") == "1"  # repeats make NO sense
             if rep:
-                logger.warning(f"### warning. Repeats for {nam} ignored - not permitted in positional parameter command lines!")
-            over = p.get("override","")
+                logger.warning(
+                    f"### warning. Repeats for {nam} ignored - not permitted in positional parameter command lines!"
+                )
+            over = p.get("override", "")
             xclsuffix.append([p["CL"], "'$%s'" % nam, over])
         for p in self.selpar:
             xclsuffix.append([p["CL"], "'$%s'" % p["name"], p.get("override", "")])
@@ -346,22 +352,28 @@ class Tool_Factory:
 
     def prepScript(self):
         s = open(self.args.script_path, "r").read()
-        ss = s.split('\n')
+        ss = s.split("\n")
         rxcheck = [x for x in ss if x.strip() > ""]
         assert len(rxcheck) > 0, "Supplied script is empty. Cannot run"
-        if self.args.sysexe and  self.args.parampass != "embed" :
-            rxcheck.insert(0, '#raw')
-            rxcheck.append('#end raw')
-        self.script = '\n'.join(rxcheck)
+        if self.args.sysexe and self.args.parampass != "embed":
+            rxcheck.insert(0, "#raw")
+            rxcheck.append("#end raw")
+        self.script = "\n".join(rxcheck)
         if len(self.executeme) > 0:
-            self.sfile = os.path.join(self.repdir, "%s.%s.txt" % (self.tool_name, self.executeme[0]))
+            self.sfile = os.path.join(
+                self.repdir, "%s.%s.txt" % (self.tool_name, self.executeme[0])
+            )
         else:
-            self.sfile = os.path.join(self.repdir, "%s.script.txt" % (self.tool_name, self.executeme[0]))
+            self.sfile = os.path.join(
+                self.repdir, "%s.script.txt" % (self.tool_name)
+            )
         tscript = open(self.sfile, "w")
         tscript.write(self.script)
-        tscript.write('\n')
+        tscript.write("\n")
         tscript.close()
-        self.spacedScript = [f"    {x.replace('${','$ {')}" for x in ss if x.strip() > ""]
+        self.spacedScript = [
+            f"    {x.replace('${','$ {')}" for x in ss if x.strip() > ""
+        ]
         self.escapedScript = rxcheck
 
     def cleanuppar(self):
@@ -382,7 +394,9 @@ class Tool_Factory:
                     p["name"],
                 )
             for i, p in enumerate(self.addpar):
-                assert p["CL"].isdigit(), "Positional parameters must be ordinal integers - got %s for %s" % (
+                assert p[
+                    "CL"
+                ].isdigit(), "Positional parameters must be ordinal integers - got %s for %s" % (
                     p["CL"],
                     p["name"],
                 )
@@ -397,8 +411,8 @@ class Tool_Factory:
         for i, p in enumerate(self.outfiles):
             outfp = copy.copy(p)
             outfp["origCL"] = outfp["CL"]  # keep copy
-            if outfp.get('label',None) == None:
-                outfp['label'] = ''
+            if outfp.get("label", None) == None:
+                outfp["label"] = ""
             self.outfiles[i] = outfp
         for i, p in enumerate(self.addpar):
             addp = copy.copy(p)
@@ -429,11 +443,11 @@ class Tool_Factory:
             else:
                 kl = len(k.strip())
                 if kl == 0:
-                    k = ' '
+                    k = " "
                 elif kl == 1:
-                    k = '-%s' % k
+                    k = "-%s" % k
                 else:
-                    k = '--%s' % k
+                    k = "--%s" % k
                 aXCL(k)
                 aXCL(v)
         if self.lastxclredirect:
@@ -458,26 +472,32 @@ class Tool_Factory:
             test = p["test"]
             oldcl = p["origCL"]
             test = test.strip()
-            filta = p.get('when',[])
-            lab = p.get('label',"")
+            filta = p.get("when", [])
+            lab = p.get("label", "")
             if len(lab.strip()) == 0:
                 lab = newname
             ndash = self.getNdash(newcl)
-            aparm = gxtp.OutputData(name=newname, format=newfmt, num_dashes=ndash, label=lab)
+            aparm = gxtp.OutputData(
+                name=newname, format=newfmt, num_dashes=ndash, label=lab
+            )
             if len(filta) > 0:
                 ofilta = gxtp.ChangeFormat()
-                for whens in filta: # when input=|image_type| value=|large_png| format=|png|
-                    whenss = whens.replace('|','"').replace('when ','')
+                for (
+                    whens
+                ) in filta:  # when input=|image_type| value=|large_png| format=|png|
+                    whenss = whens.replace("|", '"').replace("when ", "")
                     clauses = whenss.split()
                     for c in clauses:
-                        if c.startswith('value'):
-                            v = c.split('=')[1]
-                        elif c.startswith('format'):
-                            f = c.split('=')[1]
-                        elif c.startswith('input'):
-                            i = c.split('=')[1]
+                        if c.startswith("value"):
+                            v = c.split("=")[1]
+                        elif c.startswith("format"):
+                            f = c.split("=")[1]
+                        elif c.startswith("input"):
+                            i = c.split("=")[1]
                         else:
-                            print('bad when - need value=, format= and input=, got', whens)
+                            print(
+                                "bad when - need value=, format= and input=, got", whens
+                            )
                     owhen = gxtp.ChangeFormatWhen(format=f, input=i, value=v)
                     ofilta.append(owhen)
                 aparm.append(ofilta)
@@ -485,10 +505,10 @@ class Tool_Factory:
             if self.is_positional:
                 if oldcl.upper() == "STDOUT":
                     aparm.positional = 9999999
-                    aparm.command_line_override = "> $%s" % newname
+                    aparm.command_line_override = "> '$%s'" % newname
                 else:
                     aparm.positional = int(oldcl)
-                    aparm.command_line_override = "$%s" % newname
+                    aparm.command_line_override = "'$%s'" % newname
             self.toutputs.append(aparm)
             ld = None
             if test.strip() > "":
@@ -532,8 +552,8 @@ class Tool_Factory:
             newname = p["infilename"]
             newfmt = p["format"]
             ndash = self.getNdash(newname)
-            reps = (p.get("required", "") in ['optional1', 'required1'])
-            isoptional = (p.get("required","") in ['optional', 'optional1'])
+            reps = p.get("required", "") in ["optional1", "required1"]
+            isoptional = p.get("required", "") in ["optional", "optional1"]
             if not len(p["label"]) > 0:
                 alab = p["CL"]
             else:
@@ -551,22 +571,22 @@ class Tool_Factory:
             if self.is_positional:
                 if p["origCL"].upper() == "STDIN":
                     aninput.positional = 9999998
-                    aninput.command_line_override = "< $%s" % newname
+                    aninput.command_line_override = "< '$%s'" % newname
                 else:
                     aninput.positional = int(p["origCL"])
-                    aninput.command_line_override = "$%s" % newname
+                    aninput.command_line_override = "'$%s'" % newname
             self.tinputs.append(aninput)
             tparm = gxtp.TestParam(newname, value="%s_sample" % newname)
             self.testparam.append(tparm)
         for p in self.addpar:
             newname = p["name"]
-            newval = p.get("value","")
+            newval = p.get("value", "")
             newlabel = p["label"]
-            newhelp = p.get("help","")
-            newtype = p.get("type","?")
+            newhelp = p.get("help", "")
+            newtype = p.get("type", "?")
             newcl = p["CL"]
             oldcl = p["origCL"]
-            reps = p.get("repeat","0") == "1"
+            reps = p.get("repeat", "0") == "1"
             if not len(newlabel) > 0:
                 newlabel = newname
             ndash = self.getNdash(newname)
@@ -609,17 +629,17 @@ class Tool_Factory:
                     label=newlabel,
                     help=newhelp,
                     num_dashes=ndash,
-                    display='radio'
+                    display="radio",
                 )
                 anoptt = gxtp.SelectOption(
-                    value='set',
-                    text='Set this flag',
+                    value="set",
+                    text="Set this flag",
                 )
                 anoptf = gxtp.SelectOption(
-                    value='notset',
-                    text='Do not set this flag',
+                    value="notset",
+                    text="Do not set this flag",
                 )
-                if p['value'] == 'set': # make default same as form
+                if p["value"] == "set":  # make default same as form
                     aparm.append(anoptt)
                     aparm.append(anoptf)
                 else:
@@ -629,8 +649,8 @@ class Tool_Factory:
                 aparm = gxtp.TextParam(
                     newname,
                     type="data_column",
-                    data_ref = p['dataref'],
-                    multiple = (p['multiple'] == "1"),
+                    data_ref=p["dataref"],
+                    multiple=(p["multiple"] == "1"),
                     label=newlabel,
                     help=newhelp,
                     value=newval,
@@ -646,7 +666,10 @@ class Tool_Factory:
             if self.is_positional:
                 aparm.positional = int(oldcl)
             if reps:
-                repe = gxtp.Repeat(name=f"R_{newname}", title=f"Any number of {newlabel} repeats are allowed")
+                repe = gxtp.Repeat(
+                    name=f"R_{newname}",
+                    title=f"Any number of {newlabel} repeats are allowed",
+                )
                 repe.append(aparm)
                 self.tinputs.append(repe)
                 tparm = gxtp.TestRepeat(name=f"R_{newname}")
@@ -659,7 +682,7 @@ class Tool_Factory:
                 self.testparam.append(tparm)
         for p in self.selpar:
             newname = p["name"]
-            newval = p.get("value","")
+            newval = p.get("value", "")
             newlabel = p["label"]
             newhelp = p["help"]
             newtype = p["type"]
@@ -722,14 +745,16 @@ class Tool_Factory:
             tparm = gxtp.TestParam(newname, value=newval[0])
             self.testparam.append(tparm)
 
-
     def doNoXMLparam(self):
         """filter style package - stdin to stdout"""
         if len(self.infiles) > 0:
             alab = self.infiles[0]["label"]
             if len(alab) == 0:
                 alab = self.infiles[0]["infilename"]
-            max1s = "Maximum one input if parampass is 0 but multiple input files supplied - %s" % str(self.infiles)
+            max1s = (
+                "Maximum one input if parampass is 0 but multiple input files supplied - %s"
+                % str(self.infiles)
+            )
             assert len(self.infiles) == 1, max1s
             newname = self.infiles[0]["infilename"]
             aninput = gxtp.DataParam(
@@ -750,7 +775,7 @@ class Tool_Factory:
             newname = self.outfiles[0]["name"]
             newfmt = self.outfiles[0]["format"]
             anout = gxtp.OutputData(newname, format=newfmt, num_dashes=0)
-            anout.command_line_override = '> $%s' % newname
+            anout.command_line_override = "> $%s" % newname
             anout.positional = self.is_positional
             self.toutputs.append(anout)
             tp = gxtp.TestOutput(name=newname, value="%s_sample" % newname)
@@ -787,11 +812,13 @@ class Tool_Factory:
                         )
                         self.condaenv.append(d)
             except Exception:
-                self.logger.error("### malformed packages string supplied - cannot parse = %s" % self.args.packages)
+                self.logger.error(
+                    "### malformed packages string supplied - cannot parse = %s"
+                    % self.args.packages
+                )
                 sys.exit(2)
         elif self.args.container:
-            requirements.append(
-                            gxtp.Requirement("container", self.args.container))
+            requirements.append(gxtp.Requirement("container", self.args.container))
         self.newtool = gxt.Tool(
             self.tool_name,
             self.tool_id,
@@ -842,7 +869,7 @@ class Tool_Factory:
                 )
             scr.append("\n")
             safertext = safertext + "\n".join(scr)
-        self.newtool.help = ' '.join(self.helptext)
+        self.newtool.help = " ".join(self.helptext)
         for p in self.collections:
             newkind = p["kind"]
             newname = p["name"]
@@ -891,13 +918,12 @@ class Tool_Factory:
             part2 = exml.split("</tests>")[1]
             fixed = "%s\n%s\n%s" % (part1, "\n".join(self.test_override), part2)
             exml = fixed
-        with open(os.path.join(self.toold,"%s.xml" % self.tool_name), "w") as xf:
+        with open(os.path.join(self.toold, "%s.xml" % self.tool_name), "w") as xf:
             xf.write(exml)
             xf.write("\n")
-        with open(os.path.join(self.repdir,"%s_xml.xml" % self.tool_name), "w") as xf:
+        with open(os.path.join(self.repdir, "%s_xml.xml" % self.tool_name), "w") as xf:
             xf.write(exml)
             xf.write("\n")
-
 
     def writeShedyml(self):
         """for planemo"""
@@ -918,7 +944,14 @@ class Tool_Factory:
     def writeTFyml(self):
         """for posterity"""
         adict = {}
-        rargs = ['input_files', 'output_files', 'additional_parameters', 'selecttext_parameters', 'selectflag_parameters', 'xtra_files']
+        rargs = [
+            "input_files",
+            "output_files",
+            "additional_parameters",
+            "selecttext_parameters",
+            "selectflag_parameters",
+            "xtra_files",
+        ]
         args = vars(self.args)
         for k in args.keys():
             if k not in rargs:
@@ -931,30 +964,54 @@ class Tool_Factory:
         adict["script"] = self.script
         adict["help"] = self.helptext
         yfname = os.path.join(self.repdir, "%s_ToolFactory.yml" % self.tool_name)
-        yf = open(yfname,'w')
+        yf = open(yfname, "w")
         yaml.dump(adict, yf)
         yf.close()
 
-
-    def saveTestdata(self,pname, testDataURL):
+    def saveTestdata(self, pname, testDataURL):
         """
         may need to be ungzipped and in test folder
         """
         res = 0
         localpath = os.path.join(self.tooltestd, "%s_sample" % pname)
-        print("#### save", testDataURL, 'for', pname, 'to', localpath)
+        print("#### save", testDataURL, "for", pname, "to", localpath)
         if not os.path.exists(localpath):
-            cl = ["wget", "--timeout", "5", "--tries", "2", "-O", localpath, testDataURL]
-            if testDataURL.endswith('.gz'): # major kludge as usual...
+            cl = [
+                "wget",
+                "--timeout",
+                "5",
+                "--tries",
+                "2",
+                "-O",
+                localpath,
+                testDataURL,
+            ]
+            if testDataURL.endswith(".gz"):  # major kludge as usual...
                 gzlocalpath = "%s.gz" % localpath
-                cl = ["wget", "-q", "--timeout", "5", "--tries", "2", "-O", gzlocalpath, testDataURL, "&&", "rm", "-f", localpath, "&&", "gunzip", gzlocalpath]
-            p = subprocess.run(' '.join(cl), shell = True)
+                cl = [
+                    "wget",
+                    "-q",
+                    "--timeout",
+                    "5",
+                    "--tries",
+                    "2",
+                    "-O",
+                    gzlocalpath,
+                    testDataURL,
+                    "&&",
+                    "rm",
+                    "-f",
+                    localpath,
+                    "&&",
+                    "gunzip",
+                    gzlocalpath,
+                ]
+            p = subprocess.run(" ".join(cl), shell=True)
             if p.returncode:
                 print("Got", p.returncode, "from executing", " ".join(cl))
         else:
-            print('Not re-downloading', localpath)
+            print("Not re-downloading", localpath)
         return res
-
 
     def makeTool(self):
         """write xmls and input samples into place"""
@@ -970,26 +1027,33 @@ class Tool_Factory:
         for p in self.infiles:
             paths = p["name"]
             pname = p["CL"]
-            pathss = paths.split(',')
+            pathss = paths.split(",")
             np = len(pathss)
             if p.get("URL", None):
                 res = self.saveTestdata(pname, p["URL"])
             for i, pth in enumerate(pathss):
                 if os.path.exists(pth):
                     if np > 1:
-                        dest = os.path.join(self.tooltestd, "%s_%d_sample" % (p["infilename"], i+1))
+                        dest = os.path.join(
+                            self.tooltestd, "%s_%d_sample" % (p["infilename"], i + 1)
+                        )
                     else:
-                        dest = os.path.join(self.tooltestd, "%s_sample" % p["infilename"])
+                        dest = os.path.join(
+                            self.tooltestd, "%s_sample" % p["infilename"]
+                        )
                     shutil.copyfile(pth, dest)
                     logger.info("Copied %s to %s" % (pth, dest))
                 else:
-                    logger.info("Optional input path %s does not exist - not copied" % pth)
+                    logger.info(
+                        "Optional input path %s does not exist - not copied" % pth
+                    )
         if self.extra_files and len(self.extra_files) > 0:
             for xtra in self.extra_files:
                 fpath = xtra["fpath"]
                 dest = os.path.join(self.toold, xtra["fname"])
-                shutil.copyfile(fpath,dest)
+                shutil.copyfile(fpath, dest)
                 logger.info("Copied xtra file %s to %s" % (fpath, dest))
+        shutil.copytree(self.toold, self.testdir, dirs_exist_ok=True)
 
     def makeToolTar(self, test_retcode=0):
         """move outputs into test-data and prepare the tarball"""
@@ -998,17 +1062,18 @@ class Tool_Factory:
         def exclude_function(tarinfo):
             filename = tarinfo.name
             return None if filename.startswith(excludeme) else tarinfo
+
         logger.info("makeToolTar starting with tool test retcode=%d\n" % test_retcode)
         td = os.listdir(self.toold)
         for f in td:
             if f.startswith("tool_test_output"):
-                os.unlink(os.path.join(self.toold,f))
+                os.unlink(os.path.join(self.toold, f))
         if self.newtarpath:
             tf = tarfile.open(self.newtarpath, "w:gz")
             tf.add(
                 name=self.toold,
                 arcname=self.tool_name,
-                #filter=exclude_function,
+                # filter=exclude_function,
             )
 
     def planemo_local_test(self):
@@ -1016,8 +1081,9 @@ class Tool_Factory:
         weird legacyversion error popping up again from package version upgrade in conda_util.py in the venv.
         Seems ok if run as a shell script using the Galaxy installed planemo august 1st 2023
         """
+        shutil.copytree(self.toold, self.testdir, dirs_exist_ok=True)
         x = "%s.xml" % self.tool_name
-        xout = os.path.abspath(os.path.join(self.toold, x))
+        xout = os.path.abspath(os.path.join(self.testdir, x))
         cl = [
             "planemo",
             "test",
@@ -1043,26 +1109,25 @@ class Tool_Factory:
             xout,
         ]
         logger.info("planemo_local_test executing: %s" % " ".join(clx))
-        try:
-            p = subprocess.run(
-                " ".join(cl),
-                timeout = 90,
-                shell=True,
-                cwd=self.toold,
-                capture_output=True,
-                check=True,
-                text=True,
-            )
-            for errline in p.stderr.splitlines():
-                logger.info("planemo:", errline)
-            dest = self.repdir
-            src = self.test_outs
-            logger.info("copying to %s to %s test_outs" % (src,dest))
-            shutil.copytree(src, dest, dirs_exist_ok=True)
-            return p.returncode
-        except:
-            return 1
-
+        p = subprocess.run(
+            " ".join(cl),
+            timeout=90,
+            shell=True,
+            cwd=self.testdir,
+            capture_output=True,
+            check=True,
+            text=True,
+        )
+        for errline in p.stderr.splitlines():
+            logger.info("planemo: %s" % errline)
+        for errline in p.stdout.splitlines():
+            logger.info("planemo: %s" % errline)
+        shutil.copytree(self.testdir, self.toold)
+        dest = self.repdir
+        src = self.tooltestd
+        logger.info("copying to %s to %s test_outs" % (src, dest))
+        shutil.copytree(src, dest, dirs_exist_ok=True)
+        return p.returncode
 
     def fast_local_test(self):
         """
@@ -1077,13 +1142,16 @@ class Tool_Factory:
         p = subprocess.run(
             " ".join(cl),
             shell=True,
-            cwd=self.toold,
+            cwd=self.testdir,
             capture_output=True,
             check=True,
-            text=True
+            text=True,
         )
         for errline in p.stderr.splitlines():
-            logger.info("ephemeris:", errline)
+            logger.info("ephemeris: %s" % errline)
+        for errline in p.stdout.splitlines():
+            logger.info("ephemeris: %s" % errline)
+        shutil.copytree(self.testdir, self.toold, dirs_exist_ok=True)
         dest = self.repdir
         src = self.tooltestd
         shutil.copytree(src, dest, dirs_exist_ok=True)
@@ -1116,7 +1184,9 @@ class Tool_Factory:
             hasTF = True
             TFsection = e[0]
         if not hasTF:
-            TFsection = ET.Element("section", {"id": "localtools", "name": "Local Tools"})
+            TFsection = ET.Element(
+                "section", {"id": "localtools", "name": "Local Tools"}
+            )
             root.insert(0, TFsection)  # at the top!
         our_tools = TFsection.findall("tool")
         conf_tools = [x.attrib["file"] for x in our_tools]
@@ -1133,7 +1203,10 @@ class Tool_Factory:
                 try:
                     res = gi.tools.show_tool(tool_id=self.tool_name)
                     toolready = True
-                    logger.info("Tool %s ready after %f seconds - %s\n" % (self.tool_name, time.time() - now, res))
+                    logger.info(
+                        "Tool %s ready after %f seconds - %s\n"
+                        % (self.tool_name, time.time() - now, res)
+                    )
                 except ConnectionError:
                     nloop -= 1
                     time.sleep(2)
@@ -1143,18 +1216,20 @@ class Tool_Factory:
                     "Tool %s still not ready after %f seconds - please check the form and the generated xml for errors? \n"
                     % (self.tool_name, time.time() - now)
                 )
-                return(2)
+                return 2
             else:
-                return(0)
+                return 0
         else:
             if xmlfile in conf_tools:  # remove
                 for rem in our_tools:
                     if rem.attrib["file"] == xmlfile:
                         rem.getparent().remove(rem)
-                        self.logger.info("###=============== removed tool %s from %s" % (xmlfile, tcpath))
+                        self.logger.info(
+                            "###=============== removed tool %s from %s"
+                            % (xmlfile, tcpath)
+                        )
                 sortchildrenby(TFsection, "file")
                 tree.write(tcpath, pretty_print=True)
-
 
     def install_deps(self):
         """
@@ -1167,13 +1242,14 @@ class Tool_Factory:
         ]
         self.logger.info("Running %s\n" % " ".join(cll))
         try:
-            p = subprocess.run(' '.join(cll), shell=True, capture_output=True, check=True, text=True)
+            p = subprocess.run(
+                " ".join(cll), shell=True, capture_output=True, check=True, text=True
+            )
             for errline in p.stderr.splitlines():
                 self.logger.info(errline)
             return p.returncode
         except:
             return 1
-
 
     def timenow(self):
         """return current time as a string"""
@@ -1187,14 +1263,16 @@ class Tool_Factory:
     def parse_citations(self):
         """"""
         if self.args.citations:
-            ct = open(self.args.citations, 'r').read()
+            ct = open(self.args.citations, "r").read()
             citations = [c.strip() for c in ct.split("**ENTRY**") if c.strip()]
             citation_tuples = []
             for citation in citations:
                 if citation.startswith("doi"):
                     citation_tuples.append(("doi", citation[len("doi") :].strip()))
                 else:
-                    citation_tuples.append(("bibtex", citation[len("bibtex") :].strip()))
+                    citation_tuples.append(
+                        ("bibtex", citation[len("bibtex") :].strip())
+                    )
             return citation_tuples
         else:
             return None
@@ -1238,7 +1316,7 @@ def main():
     a("--install_flag", action="store_true", default=False)
     a("--admin_only", default=True, action="store_true")
     a("--tested_tool_out", default=None)
-    a("--container", default=None,required=False)
+    a("--container", default=None, required=False)
     a("--tool_conf_path", default="config/tool_conf.xml")  # relative to $__root_dir__
     a(
         "--xtra_files",
@@ -1252,28 +1330,32 @@ def main():
             'UNAUTHORISED: %s is NOT authorized to use this tool until Galaxy admin adds %s to "admin_users" in the galaxy.yml Galaxy configuration file'
             % (args.bad_user, args.bad_user)
         )
-    assert args.tool_name, "## This ToolFactory cannot build a tool without a tool name. Please supply one."
+    assert (
+        args.tool_name
+    ), "## This ToolFactory cannot build a tool without a tool name. Please supply one."
     os.makedirs(args.tfcollection, exist_ok=True)
-    logfilename = os.path.join(args.tfcollection, 'ToolFactory_make_%s_log.txt' % args.tool_name)
+    logfilename = os.path.join(
+        args.tfcollection, "ToolFactory_make_%s_log.txt" % args.tool_name
+    )
     logger.setLevel(logging.INFO)
-    fh = logging.FileHandler(logfilename, mode='w')
-    fformatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    fh = logging.FileHandler(logfilename, mode="w")
+    fformatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     fh.setFormatter(fformatter)
     logger.addHandler(fh)
     tf = Tool_Factory(args)
     tf.makeTool()
     tf.writeShedyml()
-    #tf.writeTFyml()tf.writeTFyml()
+    # tf.writeTFyml()tf.writeTFyml()
     tf.update_toolconf()
     time.sleep(5)
-    if tf.condaenv and len(tf.condaenv) > 0 :
+    if tf.condaenv and len(tf.condaenv) > 0:
         res = tf.install_deps()
         if res > 0:
             logger.debug("Toolfactory installed deps failed")
             logging.shutdown()
             sys.exit(6)
         time.sleep(2)
-    testret = tf.fast_local_test()  #planemo_local_test()
+    testret = tf.fast_local_test()  # planemo_local_test()
     if False and int(testret) > 0:
         logger.error("ToolFactory tool build and test failed. :(")
         logger.info(
@@ -1283,7 +1365,9 @@ def main():
         logger.info(
             "The 'i' (information) option shows how the ToolFactory was called, stderr and stdout, and what the command line was."
         )
-        logger.info("Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it")
+        logger.info(
+            "Expand (click on) any of the broken (red) history output titles to see that 'i' button and click it"
+        )
         logger.info(
             "Make sure it is the same as your working test command line and double check that data files are coming from and going to where they should"
         )
@@ -1295,8 +1379,13 @@ def main():
     else:
         tf.makeToolTar(testret)
         jcl = sys.argv[1:]
-        with open(os.path.join(args.tfcollection, 'ToolFactory_%s_commandline.json' % args.tool_name), 'w') as fout:
-            fout.write(' '.join(jcl))
+        with open(
+            os.path.join(
+                args.tfcollection, "ToolFactory_%s_commandline.json" % args.tool_name
+            ),
+            "w",
+        ) as fout:
+            fout.write(" ".join(jcl))
     logging.shutdown()
 
 
