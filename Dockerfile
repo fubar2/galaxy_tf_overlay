@@ -14,9 +14,10 @@ COPY . /work/galaxy_tf_overlay-main/
 ARG ORELDIR=/tmp/galaxy_tf_overlay-main \
   OVERLAY_HOME=/work/galaxy_tf_overlay-main \
   OVERLAY_ZIP=https://github.com/fubar2/galaxy_tf_overlay/archive/refs/heads/main.zip \
-  REL=release_23.1 \
-  RELDIR=galaxy-release_23.1 \
-  GALZIP=https://github.com/galaxyproject/galaxy/archive/refs/heads/release_23.1.zip \
+  VER="23.1.4" \
+  REL="v23.1.4" \
+  RELDIR="galaxy-23.1.4" \
+  GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/tags/v23.1.4.zip" \
   GALAXY_USER=galaxy \
   GALAXY_UID=1450 \
   GALAXY_GID=1450 \
@@ -38,8 +39,8 @@ RUN mkdir -p /work \
   && groupadd -r galaxy -g 1450 \
   && adduser --system  --home /home/galaxy --uid 1450 --gid 1450 --shell /usr/bin/bash galaxy \
   && cd /work \
-  && wget -q $GALZIP \
-  && unzip -o -qq $REL.zip \
+  && wget -v $GALZIP \
+  && unzip -o -q $REL.zip \
   && rm -rf $REL.zip \
   && mv $RELDIR $GALAXY_ROOT \
   && python3 -m venv $GALAXY_VIRTUAL_ENV \

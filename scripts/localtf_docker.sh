@@ -33,7 +33,8 @@ sed -i "s~^  #virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/co
 sed -i "s~^  #galaxy_root:.*~  galaxy_root: $GALAXY_ROOT~g" $GALAXY_ROOT/config/galaxy.yml
 sed -i "s~^  tool_config_file:.*~  tool_config_file: $TFC~g" $GALAXY_ROOT/config/galaxy.yml
 sed -i "s~^  data_dir:.*~  data_dir: $GALAXY_ROOT/database~g" $GALAXY_ROOT/config/galaxy.yml
-
+sed -i "s~^  nginx_x_accel_redirect_base:.*~  nginx_x_accel_redirect_base: null~g" $GALAXY_ROOT/config/galaxy.yml
+# setting that redirect stops any display if not running nginx
 export GALAXY_VIRTUAL_ENV=$1/.venv
 cd $OURDIR
 export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
