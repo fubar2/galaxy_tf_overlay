@@ -1111,7 +1111,7 @@ class Tool_Factory:
         logger.info("planemo_local_test executing: %s" % " ".join(clx))
         p = subprocess.run(
             " ".join(cl),
-            timeout=90,
+            timeout=600,
             shell=True,
             cwd=self.testdir,
             capture_output=True,
@@ -1122,7 +1122,7 @@ class Tool_Factory:
             logger.info("planemo: %s" % errline)
         for errline in p.stdout.splitlines():
             logger.info("planemo: %s" % errline)
-        shutil.copytree(self.testdir, self.toold)
+        shutil.copytree(self.testdir, self.toold, dirs_exist_ok=True)
         dest = self.repdir
         src = self.tooltestd
         logger.info("copying to %s to %s test_outs" % (src, dest))
