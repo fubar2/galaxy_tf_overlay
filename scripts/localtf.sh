@@ -56,7 +56,7 @@ deactivate
 #bash run.sh --daemon && sleep 30
 bash . $GALAXY_VIRTUAL_ENV/bin/activate \
   && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
-deactivate
+# deactivate
 # bash run.sh --stop-daemon
 echo "Your dev server is ready to run in a new directory - $GALAXY_ROOT. \
 Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
