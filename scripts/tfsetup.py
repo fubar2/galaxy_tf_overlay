@@ -217,31 +217,40 @@ if __name__ == "__main__":
     (usr, uexists) = add_user(
         sa_session, sa_agent, 'test@bx.psu.edu',   options.password2, key=options.botkey, username='bot'
     )
+    sleep(1)
     run_sed(options) # now done in localtf(_docker) but needs redoing for api key
-    cmd = ["/usr/bin/bash", os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"), "toolfactory"]
+    cmd = ["/usr/bin/bash", os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"), "toolfactory"] 
     print("executing", cmd)
     subprocess.run(cmd)
+    sleep(2)
     gi = galaxy.GalaxyInstance(url=options.galaxy_url, key=options.key)
-    WF = os.path.join(options.galaxy_root, "local", "Galaxy-Workflow-TF_sample_workflow.ga")
-    wfr = gi.workflows.import_workflow_from_local_path(WF, publish=True)
-    print(f"{WF} Returned = {wfr}\n")
-    WF = os.path.join(options.galaxy_root, "local", "Galaxy-Workflow_Advanced_ToolFactory_examples.ga")
-    wfr = gi.workflows.import_workflow_from_local_path(WF, publish=True)
-    print(f"{WF} Returned = {wfr}\n")
     HF = os.path.join(options.galaxy_root, "local", "Galaxy-History-TF-samples-data.tar.gz")
-    hist = gi.histories.import_history(file_path=HF)
-    print('hist=', str(hist))
+    try:
+        hist = gi.histories.import_history(file_path=HF)
+        print('hist=', str(hist))
+    except Exception:
+        print("failed to load", HF)
+    sleep(2)
     HF = os.path.join(options.galaxy_root, "local", "ToolFactory-advanced_examples.tar.gz")
-    hist = gi.histories.import_history(file_path=HF)
-    print('hist=', str(hist))
-    done = False
-    while not done:
-        try:
-            stat = gi.histories.get_status(hist['id'])['state']
-            if stat == 'ok':
-                done = True
-        except:
-            sleep(1)
-            print(hist['id'], 'not ready')
+    try:
+        hist = gi.histories.import_history(file_path=HF)
+        print('hist=', str(hist))
+    except Exception:
+        print("failed to load", HF)   
+    sleep(2)
+    WF = os.path.join(options.galaxy_root, "local", "Galaxy-Workflow-TF_sample_workflow.ga")
+    try:
+        wfr = gi.workflows.import_workflow_from_local_path(WF, publish=True)
+        print(f"{WF} Returned = {wfr}\n")
+    except Exception:
+        print("failed to load", WF)
+    sleep(2)
+    WF = os.path.join(options.galaxy_root, "local", "Galaxy-Workflow_Advanced_ToolFactory_examples.ga")
+    try:
+        wfr = gi.workflows.import_workflow_from_local_path(WF, publish=True)
+        print(f"{WF} Returned = {wfr}\n")
+    except Exception:
+        print("failed to load", WF)
+    sleep(5)
     if not ALREADY:
         stop_gal(url=options.galaxy_url, galdir=options.galaxy_root)

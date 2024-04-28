@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # assume run from the git galaxy_tf_overlay clone directory
 echo "First run takes a while. Go for a walk, read the manual, or do something else more useful than watching"
-VER="23.1.4"
+VER="24.0.0"
 REL="v$VER"
 RELDIR="galaxy-$VER"
 THISD=`pwd`

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <datatypes>
   <registration converters_path="lib/galaxy/datatypes/converters" display_path="display_applications">
-    <datatype extension="hic" type="galaxy.datatypes.binary:Binary" subclass="true" display_in_upload="true" description="HiC file - compressed matrix."/>
+    <datatype extension="juicebox_hic" type="galaxy.datatypes.binary:Binary" subclass="true" display_in_upload="true" description="HiC file - compressed matrix."/>
     <datatype extension="source.h" type="galaxy.datatypes.data:Text" subclass="true" display_in_upload="true" description="C or cpp header file"/>
     <datatype extension="source.c" type="galaxy.datatypes.data:Text" subclass="true" display_in_upload="true" description="C source file"/>
     <datatype extension="source.cpp" type="galaxy.datatypes.data:Text" subclass="true" display_in_upload="true" description="C++ source file" />
