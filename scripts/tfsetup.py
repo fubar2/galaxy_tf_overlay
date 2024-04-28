@@ -32,7 +32,7 @@ def run_wait_gal(url, galdir, venvdir):
     except URLError:
         print("no galaxy yet at", url)
     cmd = (
-        "cd %s && GALAXY_VIRTUAL_ENV=%s && GALAXY_INSTALL_PREBUILT_CLIENT=1 && . %s/bin/activate && /usr/bin/bash run.sh --no-create-venv --daemon"
+        "cd %s && GALAXY_VIRTUAL_ENV=%s && GALAXY_INSTALL_PREBUILT_CLIENT=1 && %s/bin/galaxyctl start"
         % (galdir, venvdir, venvdir)
     )
     print("executing", cmd)
@@ -50,8 +50,8 @@ def run_wait_gal(url, galdir, venvdir):
 
 def stop_gal(url, galdir):
     cmd = (
-        "cd %s && GALAXY_VIRTUAL_ENV=%s/.venv && /usr/bin/bash run.sh --stop-daemon"
-        % (galdir, galdir)
+        "cd %s && GALAXY_VIRTUAL_ENV=%s/.venv && %s/bin/galaxyctl stop"
+        % (galdir, galdir, venvdir)
     )
     print("executing", cmd)
     subprocess.run(cmd, shell=True)

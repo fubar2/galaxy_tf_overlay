@@ -58,8 +58,6 @@ galaxyctl start && sleep 30 \
   && galaxyctl stop  \
   && deactivate
 echo "Your dev server is ready to run in a new directory - $GALAXY_ROOT. \
-Use GALAXY_VIRTUAL_ENV=$HERE/venv && sh run.sh --skip-client-build --daemon for example. \
-Local web browser url is http://localhost:8080. Admin already exists. \
 Admin login is toolfactory@galaxy.org with ChangeMe! as the temporary password. \
 Please do change it. Do not expose this development server on the open internet please. \
 It has none of the layers of isolation that a secure public server needs."
