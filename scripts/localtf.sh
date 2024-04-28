@@ -52,9 +52,9 @@ GALAXY_INSTALL_PREBUILT_CLIENT=1
 GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv
 
 . $GALAXY_VIRTUAL_ENV/bin/activate && pip install bioblend ephemeris
-deactivate
-#bash run.sh --daemon && sleep 30
-bash . $GALAXY_VIRTUAL_ENV/bin/activate \
+# deactivate
+# bash run.sh --daemon && sleep 30
+. $GALAXY_VIRTUAL_ENV/bin/activate \
   && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force
 # deactivate
 # bash run.sh --stop-daemon
