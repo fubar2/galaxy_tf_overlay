@@ -1355,7 +1355,7 @@ def main():
             logging.shutdown()
             sys.exit(6)
         time.sleep(2)
-    testret = tf.fast_local_test()  # planemo_local_test()
+    testret = tf.planemo_local_test()  # fast_local_test()
     if False and int(testret) > 0:
         logger.error("ToolFactory tool build and test failed. :(")
         logger.info(
