@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # assume run from the git galaxy_tf_overlay clone directory
 echo "First run takes a while. Go for a walk, read the manual, or do something else more useful than watching"
-VER="24.0.0"
+VER="24.0.2"
 REL="v$VER"
 RELDIR="galaxy-$VER"
 THISD=`pwd`
@@ -9,7 +9,7 @@ THISDIR=`echo "$(cd "$(dirname "$THISD")" && pwd)/$(basename "$THISD")"`
 OURD="../galaxytf$VER"
 GALAXY_ROOT=`realpath "$OURD"` #`echo "$(cd "$(dirname "$OURD")" && pwd)/$(basename "$OURD")"`
 echo "Using thisdir = $THISDIR and ourdir = $GALAXY_ROOT"
-GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
+EXPORT GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
 
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/tags/$REL.zip"
 GAL_USER="ubuntu" # or whatever..this for my play server postgresql
@@ -40,6 +40,7 @@ TFC="tool_conf.xml,$GALAXY_ROOT/local_tools/local_tool_conf.xml"
 sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
 sed -i "s~^  galaxy_root:.*~  galaxy_root: $GALAXY_ROOT~g" $GALAXY_ROOT/config/galaxy.yml
 sed -i "s~^  database_connection:.*~  database_connection: $USE_DB_URL~g" $GALAXY_ROOT/config/galaxy.yml
+# yes, these look redundant but they are not - for further down
 sed -i "s~^  #virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
 sed -i "s~^  #galaxy_root:.*~  galaxy_root: $GALAXY_ROOT~g" $GALAXY_ROOT/config/galaxy.yml
 sed -i "s~^  tool_config_file:.*~  tool_config_file: $TFC~g" $GALAXY_ROOT/config/galaxy.yml
@@ -47,7 +48,6 @@ sed -i "s~^  data_dir:.*~  data_dir: $GALAXY_ROOT/database~g" $GALAXY_ROOT/confi
 
 
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
-GALAXY_INSTALL_PREBUILT_CLIENT=1
 
 GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv
 
@@ -57,7 +57,7 @@ galaxyctl start && sleep 30 \
   && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force \
   && galaxyctl stop  \
   && deactivate
-echo "Your dev server is ready to run in a new directory - $GALAXY_ROOT. \
+echo "Your ToolFactory dev server is ready to run in a new directory - $GALAXY_ROOT. \
 Admin login is toolfactory@galaxy.org with ChangeMe! as the temporary password. \
 Please do change it. Do not expose this development server on the open internet please. \
 It has none of the layers of isolation that a secure public server needs."

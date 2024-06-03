@@ -48,7 +48,7 @@ def run_wait_gal(url, galdir, venvdir):
     return ALREADY
 
 
-def stop_gal(url, galdir):
+def stop_gal(url, galdir, venvdir):
     cmd = (
         "cd %s && GALAXY_VIRTUAL_ENV=%s/.venv && %s/bin/galaxyctl stop"
         % (galdir, galdir, venvdir)
@@ -315,4 +315,4 @@ if __name__ == "__main__":
         print("failed to load", WF)
     sleep(5)
     if not ALREADY:
-        stop_gal(url=options.galaxy_url, galdir=options.galaxy_root)
+        stop_gal(url=options.galaxy_url, galdir=options.galaxy_root, venvdir=options.galaxy_venv)
