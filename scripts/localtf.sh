@@ -51,12 +51,9 @@ sed -i "s~^  data_dir:.*~  data_dir: $GALAXY_ROOT/database~g" $GALAXY_ROOT/confi
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
 
 GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv
-
-. $GALAXY_VIRTUAL_ENV/bin/activate
-pip install bioblend ephemeris
-galaxyctl start
-sleep 40
-. $GALAXY_VIRTUAL_ENV/bin/activate \
+$GALAXY_VIRTUAL_ENV/bin/galaxyctl start
+sleep 30
+. $GALAXY_VIRTUAL_ENV/bin/activate && pip install ephemeris \
   && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force 
 galaxyctl stop
 deactivate

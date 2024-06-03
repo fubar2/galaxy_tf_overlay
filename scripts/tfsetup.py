@@ -314,5 +314,4 @@ if __name__ == "__main__":
     except Exception:
         print("failed to load", WF)
     sleep(5)
-    if not ALREADY:
-        stop_gal(url=options.galaxy_url, galdir=options.galaxy_root, venvdir=options.galaxy_venv)
+    
