@@ -11,7 +11,7 @@ GALAXY_ROOT=`realpath "$OURD"` #`echo "$(cd "$(dirname "$OURD")" && pwd)/$(basen
 echo "Using thisdir = $THISDIR and ourdir = $GALAXY_ROOT"
 GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv
 
-EXPORT GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
+export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
 GALZIP="https://github.com/galaxyproject/galaxy/archive/refs/tags/$REL.zip"
 GAL_USER="ubuntu" # or whatever..this for my play server postgresql
 USE_DB_URL="sqlite:///$GALAXY_ROOT/database/universe.sqlite?isolation_level=IMMEDIATE"
