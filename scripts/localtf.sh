@@ -52,12 +52,14 @@ export GALAXY_INSTALL_PREBUILT_CLIENT=1
 
 GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv
 
-. $GALAXY_VIRTUAL_ENV/bin/activate && pip install bioblend ephemeris
-galaxyctl start && sleep 30 \
-  && . $GALAXY_VIRTUAL_ENV/bin/activate \
-  && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force \
-  && galaxyctl stop  \
-  && deactivate
+. $GALAXY_VIRTUAL_ENV/bin/activate
+pip install bioblend ephemeris
+galaxyctl start
+sleep 40
+. $GALAXY_VIRTUAL_ENV/bin/activate \
+  && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force 
+galaxyctl stop
+deactivate
 echo "Your ToolFactory dev server is ready to run in a new directory - $GALAXY_ROOT. \
 Admin login is toolfactory@galaxy.org with ChangeMe! as the temporary password. \
 Please do change it. Do not expose this development server on the open internet please. \
