@@ -31,12 +31,9 @@ def run_wait_gal(url, galdir, venvdir):
         return ALREADY
     except URLError:
         print("no galaxy yet at", url)
-    cmd = (
-        "cd %s && %s/bin/galaxyctl update && %s/bin/galaxyctl start"
-        % (galdir, venvdir, venvdir)
-    )
+    cmd = ["cd , galdir, "&&", "%s/bin/galaxyctl" % venvdir, "update", "&&", "%s/bin/galaxyctl" % venvdir, "start", "&"]
     print("executing", cmd)
-    subprocess.run(cmd, shell=True)
+    subprocess.run(cmd, shell=false)
     ok = False
     while not ok:
         try:
@@ -212,11 +209,7 @@ if __name__ == "__main__":
     sys.path.insert(1, options.galaxy_root)
     sys.path.insert(1, os.path.join(options.galaxy_root, "lib"))
     run_sed(options)  # now done in localtf(_docker) but needs redoing for api key
-    ALREADY = run_wait_gal(
-        url=options.galaxy_url,
-        galdir=options.galaxy_root,
-        venvdir=os.path.join(options.galaxy_root, ".venv"),
-    )
+    
     from galaxy.model import User, APIKeys
     from galaxy.model.mapping import init
     from galaxy.model.orm.scripts import get_config
@@ -264,11 +257,12 @@ if __name__ == "__main__":
         username="bot",
     )
     sleep(1)
-    cmd = [os.path.join(options.galaxy_venv,'/bin/galaxyctl'), "stop", "&&",  os.path.join(options.galaxy_venv,'/bin/galaxyctl'), "update",
-     "&&",  os.path.join(options.galaxy_venv,'/bin/galaxyctl'), "start", "&&", "sleep", "20"]
-    print("executing", cmd)
-    subprocess.run(cmd)
-    sleep(2)
+    ALREADY = run_wait_gal(
+        url=options.galaxy_url,
+        galdir=options.galaxy_root,
+        venvdir=os.path.join(options.galaxy_root, ".venv"),
+    )
+   
     cmd = [
         "/usr/bin/bash",
         os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"),
