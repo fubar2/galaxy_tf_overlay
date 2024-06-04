@@ -35,8 +35,11 @@ cp -rv $THISDIR/static/* $RELDIR/static/
 cp -rv $THISDIR/scripts/* $RELDIR/scripts/
 mv  $RELDIR $GALAXY_ROOT
 cd $GALAXY_ROOT
+VENV2=$GALAXY_ROOT/.venv2
 export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
 python3 -m venv $GALAXY_VIRTUAL_ENV
+python3 -m venv $venv2
+. $VENV2/bin/activate && pip install bioblend ephemeris
 TFC="tool_conf.xml,$GALAXY_ROOT/local_tools/local_tool_conf.xml"
 sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
 sed -i "s~^  galaxy_root:.*~  galaxy_root: $GALAXY_ROOT~g" $GALAXY_ROOT/config/galaxy.yml
@@ -51,8 +54,7 @@ sed -i "s~^  data_dir:.*~  data_dir: $GALAXY_ROOT/database~g" $GALAXY_ROOT/confi
 export GALAXY_INSTALL_PREBUILT_CLIENT=1
 
 GALAXY_INSTALL_PREBUILT_CLIENT=1 && bash $GALAXY_ROOT/scripts/common_startup.sh --no-create-venv \
-  && $GALAXY_VIRTUAL_ENV/bin/galaxyctl start && sleep 20
-. $GALAXY_VIRTUAL_ENV/bin/activate && pip install ephemeris \
+  && $GALAXY_VIRTUAL_ENV/bin/galaxyctl start && sleep 20 && . $VENV2/bin/activate \
   && python3 $GALAXY_ROOT/scripts/tfsetup.py --galaxy_root $GALAXY_ROOT --galaxy_venv $GALAXY_VIRTUAL_ENV --db_url $USE_DB_URL --force 
 $GALAXY_VIRTUAL_ENV/bin/galaxyctl stop
 deactivate
