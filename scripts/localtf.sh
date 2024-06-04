@@ -39,7 +39,7 @@ VENV2=$GALAXY_ROOT/.venv2
 export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
 python3 -m venv $GALAXY_VIRTUAL_ENV
 python3 -m venv $VENV2
-. $VENV2/bin/activate && pip install bioblend ephemeris
+. $VENV2/bin/activate && pip install bioblend ephemeris sqlalchemy
 TFC="tool_conf.xml,$GALAXY_ROOT/local_tools/local_tool_conf.xml"
 sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
 sed -i "s~^  galaxy_root:.*~  galaxy_root: $GALAXY_ROOT~g" $GALAXY_ROOT/config/galaxy.yml
