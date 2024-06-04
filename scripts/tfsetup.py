@@ -9,6 +9,7 @@ from urllib import request
 from urllib.error import URLError
 
 from bioblend import galaxy
+import sqlalchemy
 
 """
 
