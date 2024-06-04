@@ -31,7 +31,7 @@ def run_wait_gal(url, galdir, venvdir):
         return ALREADY
     except URLError:
         print("no galaxy yet at", url)
-    cmd = ["cd , galdir, "&&", "%s/bin/galaxyctl" % venvdir, "update", "&&", "%s/bin/galaxyctl" % venvdir, "start", "&"]
+    cmd = ["cd , galdir, "&&", "%s/bin/galaxyctl" % venvdir, "update", "&&", "%s/bin/galaxyctl" % venvdir, "start"]
     print("executing", cmd)
     subprocess.run(cmd, shell=false)
     ok = False
