@@ -250,7 +250,6 @@ if __name__ == "__main__":
         username="bot",
     )
     sleep(1)
-   
     cmd = [
         "/usr/bin/bash",
         os.path.join(options.galaxy_root, "local_tools/toolfactory/install_tf_deps.sh"),
@@ -258,7 +257,8 @@ if __name__ == "__main__":
     ]
     print("executing", cmd)
     subprocess.run(cmd)
-    sleep(2)
+    sleep(5)
+    
     gi = galaxy.GalaxyInstance(url=options.galaxy_url, key=options.key)
     HF = os.path.join(
         options.galaxy_root, "local", "Galaxy-History-TF-samples-data.tar.gz"
@@ -266,8 +266,8 @@ if __name__ == "__main__":
     try:
         hist = gi.histories.import_history(file_path=HF)
         print("hist=", str(hist))
-    except Exception:
-        print("failed to load", HF)
+    except Exception as E:
+        print("failed to load", HF, "error=",E)
     sleep(2)
     HF = os.path.join(
         options.galaxy_root, "local", "ToolFactory-advanced_examples.tar.gz"
@@ -275,8 +275,8 @@ if __name__ == "__main__":
     try:
         hist = gi.histories.import_history(file_path=HF)
         print("hist=", str(hist))
-    except Exception:
-        print("failed to load", HF)
+    except Exception as E:
+        print("failed to load", HF, "error=",E)
     sleep(2)
     WF = os.path.join(
         options.galaxy_root, "local", "Galaxy-Workflow-TF_sample_workflow.ga"
@@ -286,8 +286,8 @@ if __name__ == "__main__":
             file_local_path=WF, publish=True
         )
         print("import", WF, "Returned", wfr)
-    except Exception:
-        print("failed to load", WF)
+    except Exception as E:
+        print("failed to load", WF, "error=",E)
     sleep(2)
     WF = os.path.join(
         options.galaxy_root, "local", "Galaxy-Workflow_Advanced_ToolFactory_examples.ga"
@@ -297,6 +297,6 @@ if __name__ == "__main__":
             file_local_path=WF, publish=True
         )
         print("import", WF, "Returned", wfr)
-    except Exception:
-        print("failed to load", WF)
+    except Exception as E:
+        print("failed to load", WF, "error=",E)
     sleep(5)
