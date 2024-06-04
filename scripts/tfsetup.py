@@ -31,9 +31,6 @@ def run_wait_gal(url, galdir, venvdir):
         return ALREADY
     except URLError:
         print("no galaxy yet at", url)
-    cmd = ["cd" , galdir, "&&", "%s/bin/galaxyctl" % venvdir, "update", "&&", "%s/bin/galaxyctl" % venvdir, "start"]
-    print("executing", cmd)
-    subprocess.run(cmd, shell=false)
     ok = False
     while not ok:
         try:
@@ -97,15 +94,6 @@ def run_sed(options):
     """
     fixme = []
     # database_connection: "sqlite:///<data_dir>/universe.sqlite?isolation_level=IMMEDIATE"
-    tfc = "tool_conf.xml,%s/local_tools/local_tool_conf.xml" % options.galaxy_root
-    fixfile = "%s/config/galaxy.yml" % options.galaxy_root
-    fixme.append(
-        ("  virtualenv: ", '  virtualenv: "%s"' % options.galaxy_venv, fixfile)
-    )
-    fixme.append(
-        ("  galaxy_root: ", '  galaxyroot: "%s"' % options.galaxy_root, fixfile)
-    )
-    fixme.append(("  tool_config_file: ", '  tool_config_file: "%s"' % tfc, fixfile))
     fixfile = "%s/local_tools/toolfactory/toolfactory.py" % options.galaxy_root
     fixme.append(
         (
