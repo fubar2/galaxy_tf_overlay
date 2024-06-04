@@ -209,7 +209,12 @@ if __name__ == "__main__":
     sys.path.insert(1, options.galaxy_root)
     sys.path.insert(1, os.path.join(options.galaxy_root, "lib"))
     run_sed(options)  # now done in localtf(_docker) but needs redoing for api key
-    
+    ALREADY = run_wait_gal(
+        url=options.galaxy_url,
+        galdir=options.galaxy_root,
+        venvdir=os.path.join(options.galaxy_root, ".venv"),
+    )
+   
     from galaxy.model import User, APIKeys
     from galaxy.model.mapping import init
     from galaxy.model.orm.scripts import get_config
@@ -257,11 +262,6 @@ if __name__ == "__main__":
         username="bot",
     )
     sleep(1)
-    ALREADY = run_wait_gal(
-        url=options.galaxy_url,
-        galdir=options.galaxy_root,
-        venvdir=os.path.join(options.galaxy_root, ".venv"),
-    )
    
     cmd = [
         "/usr/bin/bash",
