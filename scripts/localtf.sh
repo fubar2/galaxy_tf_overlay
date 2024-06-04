@@ -38,7 +38,7 @@ cd $GALAXY_ROOT
 VENV2=$GALAXY_ROOT/.venv2
 export GALAXY_VIRTUAL_ENV=$GALAXY_VIRTUAL_ENV
 python3 -m venv $GALAXY_VIRTUAL_ENV
-python3 -m venv $venv2
+python3 -m venv $VENV2
 . $VENV2/bin/activate && pip install bioblend ephemeris
 TFC="tool_conf.xml,$GALAXY_ROOT/local_tools/local_tool_conf.xml"
 sed -i "s~^  virtualenv:.*~  virtualenv: $GALAXY_VIRTUAL_ENV~g" $GALAXY_ROOT/config/galaxy.yml
