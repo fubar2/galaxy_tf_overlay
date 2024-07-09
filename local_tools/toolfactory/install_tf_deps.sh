@@ -9,7 +9,7 @@ if [ -z "$1" ]; then
     for f in $LOCALTOOLDIR/*; do
         if [ -d "$f" ]; then
             TOOL=`basename "$f"`
-            install_tool_deps -v -g $GAL -a $APIK -t  $LOCALTOOLDIR/$TOOL/$TOOL.xml
+            install_tool_deps -v -g $GAL -u "toolfactory@galaxy.org" -p "ChangeMe!" -t  $LOCALTOOLDIR/$TOOL/$TOOL.xml
         fi
    done
 else

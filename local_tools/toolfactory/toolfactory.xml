@@ -10,10 +10,11 @@
       </xml>
       <xml name="singleText">
             <param name="param_value" type="text" value="" label="Default text value">
-              <sanitizer invalid_char="_">
-                <valid initial="string.printable" >
-                </valid>
-              </sanitizer>
+            <sanitizer invalid_char="_">
+              <valid initial="string.ascii_letters,string.digits">
+                <add value="_" />
+              </valid>
+            </sanitizer>
            </param>
       </xml>
       <xml name="singleInt">
@@ -111,6 +112,12 @@
                </options>
             </param>
             <param name="input_label" type="text" value="" label="This will become the user prompt for the form so please make it informative" >
+            <sanitizer invalid_char="_">
+              <valid initial="string.printable">
+                <remove value="'" />
+                <remove value='"' />                
+              </valid>
+            </sanitizer>
             </param>
             <param name="input_help" type="text" value="" label="This will become help text on the form." >
             </param>
@@ -140,6 +147,8 @@
                 help="Label used for this output - for example 'Plotlytabular $title on $input_tab.element_identifier' where variable templates are informative." >
               <sanitizer>
                 <valid initial="string.printable" >
+                  <remove value="'" />
+                  <remove value='"' />                
                 </valid>
               </sanitizer>
             </param>
@@ -245,12 +254,16 @@
           <param name="param_label" type="text" value="" label="Label for the form">
               <sanitizer>
                 <valid initial="string.printable" >
+                  <remove value="'" />
+                  <remove value='"' />                
                 </valid>
               </sanitizer>
           </param>
           <param name="param_help" type="text" value="" label="Help for this parameter">
               <sanitizer>
                 <valid initial="string.printable" >
+                  <remove value="'" />
+                  <remove value='"' />                
                 </valid>
               </sanitizer>
           </param>
@@ -261,7 +274,8 @@
               help="Some targets like Planemo expect an unadorned action like 'test' before --galaxy_root." value="">
               <sanitizer invalid_char="_">
                 <valid initial="string.printable" >
-                    <remove value="'" />
+                  <remove value="'" />
+                  <remove value='"' />                
                 </valid>
               </sanitizer>
           </param>
